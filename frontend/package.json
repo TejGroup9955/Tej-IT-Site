@@ -1,0 +1,39 @@
+{
+  "name": "tej-it-solutions",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "chart.js": "4.2.1",
+    "classnames": "^2.5.1",
+    "framer-motion": "^10.16.4",
+    "html2pdf.js": "^0.10.3",
+    "lucide-react": "^0.263.0",
+    "next": "^14.2.32",
+    "primeflex": "^3.3.1",
+    "primeicons": "^6.0.1",
+    "primereact": "10.2.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.5.0",
+    "@types/react": "18.2.20",
+    "@types/react-dom": "18.2.7",
+    "autoprefixer": "^10.4.15",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.5",
+    "npm": "^11.5.2",
+    "postcss": "^8.4.27",
+    "prettier": "^2.8.8",
+    "sass": "^1.63.4",
+    "typescript": "5.2.2"
+  }
+}
