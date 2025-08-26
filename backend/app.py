@@ -355,11 +355,18 @@ def get_blogs():
         return jsonify({'error': 'DB connection failed'}), 500
     cursor = connection.cursor(dictionary=True)
     category = request.args.get('category', 'All')
+    search = request.args.get('search', '')
     try:
-        if category == 'All':
-            cursor.execute("SELECT * FROM blogs ORDER BY priority DESC, date DESC")
-        else:
-            cursor.execute("SELECT * FROM blogs WHERE category = %s ORDER BY priority DESC, date DESC", (category,))
+        query = "SELECT * FROM blogs WHERE 1=1"
+        params = []
+        if category != 'All':
+            query += " AND category = %s"
+            params.append(category)
+        if search:
+            query += " AND (title LIKE %s OR content LIKE %s)"
+            params.extend([f'%{search}%', f'%{search}%'])
+        query += " ORDER BY priority DESC, date DESC"
+        cursor.execute(query, params)
         blogs = cursor.fetchall()
     except Error as e:
         print(f"Error fetching blogs: {e}")

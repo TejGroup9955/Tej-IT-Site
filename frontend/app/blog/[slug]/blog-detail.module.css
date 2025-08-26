@@ -1,0 +1,107 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header {
+  background: var(--primary-bg);
+  padding: 10px 0;
+  width: 100%;
+}
+
+.header nav {
+  display: flex;
+  gap: 20px;
+}
+
+.header a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.themeToggle {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.main {
+  flex: 3;
+  padding-right: 20px;
+}
+
+.main h1 {
+  font-size: 2.5rem;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.meta {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.featuredImage {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.content {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.socialShare {
+  margin-top: 20px;
+}
+
+.socialShare a {
+  color: var(--primary-color);
+  margin-right: 15px;
+  text-decoration: none;
+}
+
+.sidebar {
+  flex: 1;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 8px;
+}
+
+.sidebar h3 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin-bottom: 10px;
+}
+
+.sidebar a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px 0;
+  background: var(--primary-bg);
+  color: var(--text-color);
+  width: 100%;
+}
