@@ -14,18 +14,18 @@
          const [blogs, setBlogs] = useState([]);
          const postsPerPage = 9;
 
-         useEffect(() => {
-             const fetchBlogs = async () => {
-                 try {
-                     const response = await axios.get(`http://localhost:5000/api/blogs?category=${selectedCategory}`);
-                     setBlogs(response.data);
-                     setCurrentPage(1); // Reset to first page when category changes
-                 } catch (error) {
-                     console.error('Error fetching blogs:', error);
-                 }
-             };
-             fetchBlogs();
-         }, [selectedCategory]);
+        useEffect(() => {
+        const fetchBlogs = async () => {
+            try {
+                const response = await axios.get(`http://10.10.50.93:5000/api/blogs?category=${selectedCategory}`);
+                setBlogs(response.data);
+                setCurrentPage(1);
+            } catch (error) {
+                console.error('Error fetching blogs:', error);
+            }
+        };
+        fetchBlogs();
+    }, [selectedCategory]);
 
          const filteredPosts = blogs;
          const totalPages = Math.ceil(filteredPosts.length / postsPerPage);

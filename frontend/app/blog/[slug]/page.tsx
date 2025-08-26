@@ -10,19 +10,19 @@
          const [blog, setBlog] = useState(null);
          const [loading, setLoading] = useState(true);
 
-         useEffect(() => {
-             const fetchBlog = async () => {
-                 try {
-                     const response = await axios.get(`http://localhost:5000/api/blogs/${slug}`);
-                     setBlog(response.data);
-                     setLoading(false);
-                 } catch (error) {
-                     console.error('Error fetching blog:', error);
-                     setLoading(false);
-                 }
-             };
-             fetchBlog();
-         }, [slug]);
+        useEffect(() => {
+        const fetchBlog = async () => {
+            try {
+                const response = await axios.get(`http://10.10.50.93:5000/api/blogs/${slug}`);
+                setBlog(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching blog:', error);
+                setLoading(false);
+            }
+        };
+        fetchBlog();
+    }, [slug]);
 
          if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
          if (!blog) return <div className="min-h-screen flex items-center justify-center">Blog not found</div>;

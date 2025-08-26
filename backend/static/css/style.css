@@ -65,6 +65,21 @@ body {
     padding: 15px;
 }
 
+.card-body h5 {
+    color: #1a3c5e;
+    font-weight: 500;
+}
+
+.list-group-item {
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+}
+
+.list-group-item strong {
+    color: #2a5c8e;
+}
+
 .table {
     background-color: #fff;
     border-radius: 8px;

@@ -6,6 +6,65 @@
     </div>
     <div class="card-body">
         <p>Welcome to the Tej IT Admin Panel. Use the sidebar to manage Blogs, Testimonials, Enquiries, Teams, and About Us content.</p>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-chart-bar me-2"></i>Content Statistics</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Blogs:</strong> {{ blog_count }}</li>
+                            <li class="list-group-item"><strong>Testimonials:</strong> {{ testimonial_count }}</li>
+                            <li class="list-group-item"><strong>Enquiries:</strong> {{ enquiry_count }}</li>
+                            <li class="list-group-item"><strong>Team Members:</strong> {{ team_count }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-globe me-2"></i>Website Visits</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5>Total Visits: {{ visit_count }}</h5>
+                        <h6>Top Countries:</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for country in top_countries %}
+                                <li class="list-group-item">{{ country.country or 'Unknown' }}: {{ country.count }} visits</li>
+                            {% endfor %}
+                        </ul>
+                        <canvas id="countryChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('countryChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for country in top_countries %}'{{ country.country or 'Unknown' }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Visits by Country',
+                data: [{% for country in top_countries %}{{ country.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#2a5c8e',
+                borderColor: '#1a3c5e',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
 {% endblock %}
