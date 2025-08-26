@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-envelope me-2"></i>Enquiries</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enquiry in enquiries %}
+                        <tr>
+                            <td>{{ enquiry.id }}</td>
+                            <td>{{ enquiry.name }}</td>
+                            <td>{{ enquiry.email }}</td>
+                            <td>{{ enquiry.phone }}</td>
+                            <td>{{ enquiry.message }}</td>
+                            <td>{{ enquiry.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

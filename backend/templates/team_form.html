@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-users me-2"></i>{{ action }} Team Member</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ team.name if team else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <input type="text" class="form-control" id="role" name="role" value="{{ team.role if team else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description (max 50 chars)</label>
+                <textarea class="form-control" id="description" name="description" rows="2" maxlength="50">{{ team.description if team else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="photo" class="form-label">Photo</label>
+                <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                {% if team and team.photo %}
+                    <img src="{{ url_for('static', filename=team.photo) }}" alt="Current Photo" class="preview">
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>{{ action }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

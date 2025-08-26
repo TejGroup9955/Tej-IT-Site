@@ -1,0 +1,146 @@
+/* Admin Panel Custom Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+.sidebar {
+    background-color: #1a3c5e;
+    min-height: 100vh;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link {
+    color: #d1e0ff;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 5px 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #2a5c8e;
+    color: #fff;
+}
+
+.sidebar .nav-link.active {
+    background-color: #2a5c8e;
+    color: #fff;
+    font-weight: 500;
+}
+
+.header {
+    background-color: #fff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #1a3c5e;
+}
+
+.main-content {
+    padding: 30px;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #1a3c5e;
+    color: #fff;
+    border-radius: 10px 10px 0 0;
+    padding: 15px;
+}
+
+.table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+.btn-primary {
+    background-color: #2a5c8e;
+    border-color: #2a5c8e;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #1a3c5e;
+    border-color: #1a3c5e;
+}
+
+.btn-warning, .btn-danger {
+    transition: background-color 0.3s;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.form-control, .form-select {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #2a5c8e;
+    box-shadow: 0 0 5px rgba(42, 92, 142, 0.3);
+}
+
+.alert {
+    border-radius: 5px;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h2 {
+    color: #1a3c5e;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+img.preview {
+    max-width: 150px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+    .sidebar {
+        min-height: auto;
+        position: static;
+    }
+    .main-content {
+        padding: 15px;
+    }
+}
