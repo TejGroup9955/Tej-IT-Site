@@ -27,7 +27,6 @@ const navItems: NavItem[] = [
       { name: 'Payroll', href: '/payroll' },
       { name: 'ERP', href: '/erp' },
       { name: 'BDM', href: '/BDM' },
-      // { name: 'Inventory', href: '/inventory' },
       { name: 'Class Management', href: '/class-management' },
     ],
   },
@@ -42,6 +41,7 @@ const navItems: NavItem[] = [
     ],
   },
   { name: 'Blogs', href: '/blog' },
+  { name: 'Testimonials', href: '/testimonials' }, // Added
   { name: 'Contact Us', href: '/contact' },
 ];
 

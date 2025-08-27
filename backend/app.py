@@ -57,17 +57,18 @@ def initialize_db():
         )
     """)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS blogs (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            content TEXT NOT NULL,
-            image VARCHAR(255),
-            date DATETIME NOT NULL,
-            priority INT DEFAULT 0,
-            category VARCHAR(50) DEFAULT 'General',
-            excerpt TEXT,
-            slug VARCHAR(255) UNIQUE
-        )
+    CREATE TABLE IF NOT EXISTS blogs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        image VARCHAR(255),
+        date DATETIME NOT NULL,
+        priority INT DEFAULT 0,
+        category VARCHAR(50) DEFAULT 'General',
+        excerpt TEXT,
+        slug VARCHAR(255) UNIQUE,
+        is_enabled BOOLEAN DEFAULT TRUE
+    )
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS testimonials (
@@ -242,27 +243,24 @@ def admin_blog_new():
         priority = request.form.get('priority', 0)
         category = request.form.get('category', 'General')
         excerpt = request.form.get('excerpt', content[:200] if content else '')
-        slug = request.form.get('slug', title.lower().replace(' ', '-').replace('/', '-') if title else '')
+        sequence = request.form.get('sequence', 0)
+        slug = request.form.get('slug') or title.lower().replace(' ', '-').replace('/', '-') if title else ''
+        is_enabled = 'is_enabled' in request.form
         image = request.files.get('image')
         image_path = None
         if image and allowed_file(image.filename):
-            try:
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image.save(image_path)
-                image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
-            except Exception as e:
-                print(f"Error saving image: {e}")
-                flash('Failed to upload image', 'danger')
-                return redirect(url_for('admin_blog_new'))
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(image_path)
+            image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
         connection = get_db_connection()
         if not connection:
             flash('Database connection failed', 'danger')
             return redirect(url_for('admin_blog_new'))
         cursor = connection.cursor()
         try:
-            cursor.execute("INSERT INTO blogs (title, content, image, date, priority, category, excerpt, slug) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                           (title, content, image_path, datetime.now(), priority, category, excerpt, slug))
+            cursor.execute("INSERT INTO blogs (title, content, image, date, priority, category, excerpt, slug, is_enabled, sequence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+               (title, content, image_path, datetime.now(), priority, category, excerpt, slug, is_enabled, sequence))
             connection.commit()
             flash('Blog created successfully', 'success')
         except Error as e:
@@ -272,7 +270,8 @@ def admin_blog_new():
             cursor.close()
             connection.close()
         return redirect(url_for('admin_blogs'))
-    return render_template('blog_form.html', action='Create', categories=['General', 'ERP', 'BDM', 'Payroll', 'Cloud Services'])
+    default_blog = {'is_enabled': True}
+    return render_template('blog_form.html', action='Create', categories=['General', 'ERP', 'BDM', 'Payroll', 'Cloud Services'], blog=default_blog)
 
 @app.route('/admin/blog/edit/<int:id>', methods=['GET', 'POST'])
 def admin_blog_edit(id):
@@ -297,22 +296,19 @@ def admin_blog_edit(id):
         priority = request.form.get('priority', 0)
         category = request.form.get('category', 'General')
         excerpt = request.form.get('excerpt', content[:200] if content else '')
-        slug = request.form.get('slug', title.lower().replace(' ', '-').replace('/', '-') if title else '')
+        sequence = request.form.get('sequence', 0)
+        slug = request.form.get('slug') or title.lower().replace(' ', '-').replace('/', '-') if title else ''
+        is_enabled = 'is_enabled' in request.form
         image = request.files.get('image')
         image_path = blog['image']
         if image and allowed_file(image.filename):
-            try:
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image.save(image_path)
-                image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
-            except Exception as e:
-                print(f"Error saving image: {e}")
-                flash('Failed to upload image', 'danger')
-                return redirect(url_for('admin_blog_edit', id=id))
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(image_path)
+            image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
         try:
-            cursor.execute("UPDATE blogs SET title = %s, content = %s, image = %s, priority = %s, category = %s, excerpt = %s, slug = %s WHERE id = %s",
-                           (title, content, image_path, priority, category, excerpt, slug, id))
+            cursor.execute("UPDATE blogs SET title = %s, content = %s, image = %s, priority = %s, category = %s, excerpt = %s, slug = %s, is_enabled = %s, sequence = %s WHERE id = %s",
+               (title, content, image_path, priority, category, excerpt, slug, is_enabled, sequence, id))
             connection.commit()
             flash('Blog updated successfully', 'success')
         except Error as e:
@@ -357,7 +353,7 @@ def get_blogs():
     category = request.args.get('category', 'All')
     search = request.args.get('search', '')
     try:
-        query = "SELECT * FROM blogs WHERE 1=1"
+        query = "SELECT * FROM blogs WHERE is_enabled = TRUE"
         params = []
         if category != 'All':
             query += " AND category = %s"
@@ -383,7 +379,7 @@ def get_blog_by_slug(slug):
         return jsonify({'error': 'DB connection failed'}), 500
     cursor = connection.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT * FROM blogs WHERE slug = %s", (slug,))
+        cursor.execute("SELECT * FROM blogs WHERE slug = %s AND is_enabled = TRUE", (slug,))
         blog = cursor.fetchone()
         if not blog:
             return jsonify({'error': 'Blog not found'}), 404
@@ -395,23 +391,97 @@ def get_blog_by_slug(slug):
         connection.close()
     return jsonify(blog)
 
-@app.route('/api/testimonials', methods=['GET'])
-@token_required
-def get_testimonials():
+@app.route('/admin/toggle_blog', methods=['POST'])
+def toggle_blog():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    data = request.get_json()
+    id = data.get('id')
+    is_enabled = data.get('is_enabled')
     connection = get_db_connection()
     if not connection:
-        return jsonify({'error': 'DB connection failed'}), 500
-    cursor = connection.cursor(dictionary=True)
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
     try:
-        cursor.execute("SELECT * FROM testimonials WHERE is_enabled = TRUE")
-        testimonials = cursor.fetchall()
+        cursor.execute("UPDATE blogs SET is_enabled = %s WHERE id = %s", (is_enabled, id))
+        connection.commit()
+        return jsonify({'success': True})
     except Error as e:
-        print(f"Error fetching testimonials: {e}")
-        return jsonify({'error': 'Failed to fetch testimonials'}), 500
+        print(f"Error toggling blog: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to toggle blog'}), 500
     finally:
         cursor.close()
         connection.close()
-    return jsonify(testimonials)
+
+@app.route('/admin/testimonial/new', methods=['GET', 'POST'])
+def admin_testimonial_new():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        name = request.form.get('name')
+        company = request.form.get('company')
+        content = request.form.get('content')
+        rating = request.form.get('rating', 0)
+        is_enabled = 'is_enabled' in request.form
+        image = request.files.get('image')
+        image_path = None
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(image_path)
+            image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
+        connection = get_db_connection()
+        if not connection:
+            flash('Database connection failed', 'danger')
+            return redirect(url_for('admin_testimonial_new'))
+        cursor = connection.cursor()
+        try:
+            cursor.execute("INSERT INTO testimonials (name, company, content, rating, image, date, is_enabled) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                           (name, company, content, rating, image_path, datetime.now(), is_enabled))
+            connection.commit()
+            flash('Testimonial created successfully', 'success')
+        except Error as e:
+            print(f"Error inserting testimonial: {e}")
+            flash('Failed to create testimonial due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_testimonials'))
+    # Pass a default testimonial object for new testimonial form
+    default_testimonial = {'is_enabled': True}
+    return render_template('testimonial_form.html', action='Create', testimonial=default_testimonial)
+
+@app.route('/api/submit_testimonial', methods=['POST'])
+def submit_testimonial():
+    name = request.form.get('name')
+    company = request.form.get('company')
+    content = request.form.get('content')
+    rating = request.form.get('rating', 0)
+    image = request.files.get('image')
+    image_path = None
+    if image and allowed_file(image.filename):
+        filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(image_path)
+        image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
+    try:
+        cursor.execute("INSERT INTO testimonials (name, company, content, rating, image, date) VALUES (%s, %s, %s, %s, %s, %s)",
+                       (name, company, content, rating, image_path, datetime.now()))
+        connection.commit()
+        return jsonify({'success': True, 'message': 'Testimonial submitted successfully'}), 200
+    except Error as e:
+        print(f"Error submitting testimonial: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to submit testimonial'}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/api/teams', methods=['GET'])
 @token_required
@@ -457,47 +527,13 @@ def admin_testimonials():
     connection = get_db_connection()
     if not connection:
         flash('Database connection failed', 'danger')
-        return redirect(url_for('admin_testimonials'))
+        return redirect(url_for('admin_dashboard'))
     cursor = connection.cursor(dictionary=True)
-    try:
-        cursor.execute("SELECT * FROM testimonials")
-        testimonials = cursor.fetchall()
-    except Error as e:
-        print(f"Error fetching testimonials: {e}")
-        flash('Failed to fetch testimonials', 'danger')
-    finally:
-        cursor.close()
-        connection.close()
-    return render_template('testimonials_list.html', testimonials=testimonials)
-
-@app.route('/admin/testimonial/new', methods=['GET', 'POST'])
-def admin_testimonial_new():
-    if 'user_id' not in session:
-        flash('Please login first', 'danger')
-        return redirect(url_for('admin_login'))
-    if request.method == 'POST':
-        name = request.form.get('name')
-        content = request.form.get('content')
-        rating = request.form.get('rating')
-        is_enabled = 'is_enabled' in request.form
-        connection = get_db_connection()
-        if not connection:
-            flash('Database connection failed', 'danger')
-            return redirect(url_for('admin_testimonial_new'))
-        cursor = connection.cursor()
-        try:
-            cursor.execute("INSERT INTO testimonials (name, content, rating, is_enabled) VALUES (%s, %s, %s, %s)",
-                           (name, content, rating, is_enabled))
-            connection.commit()
-            flash('Testimonial created successfully', 'success')
-        except Error as e:
-            print(f"Error creating testimonial: {e}")
-            flash('Failed to create testimonial due to database error', 'danger')
-        finally:
-            cursor.close()
-            connection.close()
-        return redirect(url_for('admin_testimonials'))
-    return render_template('testimonial_form.html', action='Create')
+    cursor.execute("SELECT * FROM testimonials ORDER BY date DESC")
+    testimonials = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return render_template('admin_testimonials.html', testimonials=testimonials)
 
 @app.route('/admin/testimonial/edit/<int:id>', methods=['GET', 'POST'])
 def admin_testimonial_edit(id):
@@ -509,26 +545,29 @@ def admin_testimonial_edit(id):
         flash('Database connection failed', 'danger')
         return redirect(url_for('admin_testimonials'))
     cursor = connection.cursor(dictionary=True)
-    try:
-        cursor.execute("SELECT * FROM testimonials WHERE id = %s", (id,))
-        testimonial = cursor.fetchone()
-        if not testimonial:
-            flash('Testimonial not found', 'danger')
-            return redirect(url_for('admin_testimonials'))
-    except Error as e:
-        print(f"Error fetching testimonial: {e}")
-        flash('Failed to fetch testimonial', 'danger')
+    cursor.execute("SELECT * FROM testimonials WHERE id = %s", (id,))
+    testimonial = cursor.fetchone()
+    if not testimonial:
         cursor.close()
         connection.close()
+        flash('Testimonial not found', 'danger')
         return redirect(url_for('admin_testimonials'))
     if request.method == 'POST':
         name = request.form.get('name')
+        company = request.form.get('company')
         content = request.form.get('content')
-        rating = request.form.get('rating')
+        rating = request.form.get('rating', 0)
         is_enabled = 'is_enabled' in request.form
+        image = request.files.get('image')
+        image_path = testimonial['image']
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(image_path)
+            image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
         try:
-            cursor.execute("UPDATE testimonials SET name = %s, content = %s, rating = %s, is_enabled = %s WHERE id = %s",
-                           (name, content, rating, is_enabled, id))
+            cursor.execute("UPDATE testimonials SET name = %s, company = %s, content = %s, rating = %s, image = %s, is_enabled = %s WHERE id = %s",
+                           (name, company, content, rating, image_path, is_enabled, id))
             connection.commit()
             flash('Testimonial updated successfully', 'success')
         except Error as e:
@@ -542,7 +581,30 @@ def admin_testimonial_edit(id):
     connection.close()
     return render_template('testimonial_form.html', testimonial=testimonial, action='Edit')
 
-@app.route('/admin/testimonial/delete/<int:id>')
+@app.route('/admin/toggle_testimonial', methods=['POST'])
+def toggle_testimonial():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    data = request.get_json()
+    id = data.get('id')
+    is_enabled = data.get('is_enabled')
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
+    try:
+        cursor.execute("UPDATE testimonials SET is_enabled = %s WHERE id = %s", (is_enabled, id))
+        connection.commit()
+        return jsonify({'success': True})
+    except Error as e:
+        print(f"Error toggling testimonial: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to toggle testimonial'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/admin/testimonial/delete/<int:id>', methods=['POST'])
 def admin_testimonial_delete(id):
     if 'user_id' not in session:
         flash('Please login first', 'danger')

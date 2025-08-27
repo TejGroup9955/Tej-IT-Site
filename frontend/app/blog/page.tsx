@@ -8,27 +8,13 @@ export default function BlogPage() {
   const [blogs, setBlogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
-  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
-    // Load theme from localStorage or default to light
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-
-    // Fetch blogs
     fetch(`http://10.10.50.93:5000/api/blogs?category=${category}`)
       .then(res => res.json())
       .then(data => setBlogs(data))
       .catch(err => console.error('Error fetching blogs:', err));
   }, [category]);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -44,27 +30,19 @@ export default function BlogPage() {
       .catch(err => console.error('Error searching blogs:', err));
   };
 
-  const topBlogs = blogs.filter(blog => blog.priority > 0).slice(0, 3);
+const topBlogs = blogs.filter(blog => blog.priority > 0).sort((a, b) => a.sequence - b.sequence).slice(0, 3);
+const additionalBlogs = blogs.filter(blog => !blog.priority).sort((a, b) => a.sequence - b.sequence);
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <nav>
-          <Link href="/">Home</Link>
-          <Link href="/services">Services</Link>
-          <Link href="/blog">Blog</Link>
-          <Link href="/contact">Contact</Link>
-          <button onClick={toggleTheme} className={styles.themeToggle}>
-            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-          </button>
-        </nav>
-      </header>
-
       <section className={styles.hero}>
-        <h1>Tej IT Solutions Blog</h1>
+        <div className={styles.heroContent}>
+          <h1>Tej IT Insights</h1>
+          <p>Discover the latest trends in technology and solutions for your business.</p>
+        </div>
       </section>
 
-      <section className={styles.searchSection}>
+      <div className={styles.searchContainer}>
         <input
           type="text"
           placeholder="Search blogs..."
@@ -84,49 +62,56 @@ export default function BlogPage() {
           <option value="Payroll">Payroll</option>
           <option value="Cloud Services">Cloud Services</option>
         </select>
-      </section>
+      </div>
 
       <section className={styles.topBlogs}>
-        <h2>Top Blogs</h2>
+        <h2>Featured Insights</h2>
         <div className={styles.blogGrid}>
           {topBlogs.map(blog => (
             <div key={blog.id} className={styles.blogCard}>
-              <Image
-                src={blog.image || '/placeholder.jpg'}
-                alt={blog.title}
-                width={300}
-                height={200}
-                className={styles.blogImage}
-              />
+              <div className={styles.imageContainer}>
+                <Image
+                  src={blog.image || '/placeholder.jpg'}
+                  alt={blog.title}
+                  width={400}
+                  height={250}
+                  className={styles.blogImage}
+                />
+              </div>
               <h3><Link href={`/blog/${blog.slug}`}>{blog.title}</Link></h3>
               <p>{blog.excerpt}</p>
-              <p className={styles.meta}>Posted on: {new Date(blog.date).toLocaleDateString()} | Category: {blog.category}</p>
+              <p className={styles.meta}>Posted on: {new Date(blog.date).toLocaleDateString()}</p>
               <Link href={`/blog/${blog.slug}`} className={styles.readMore}>Read More</Link>
             </div>
           ))}
         </div>
+        {topBlogs.length === 0 && <p>No featured blogs yet.</p>}
       </section>
 
-      <section className={styles.allBlogs}>
-        <h2>All Blogs</h2>
-        <div className={styles.blogGrid}>
-          {blogs.map(blog => (
-            <div key={blog.id} className={styles.blogCard}>
-              <Image
-                src={blog.image || '/placeholder.jpg'}
-                alt={blog.title}
-                width={300}
-                height={200}
-                className={styles.blogImage}
-              />
-              <h3><Link href={`/blog/${blog.slug}`}>{blog.title}</Link></h3>
-              <p>{blog.excerpt}</p>
-              <p className={styles.meta}>Posted on: {new Date(blog.date).toLocaleDateString()} | Category: {blog.category}</p>
-              <Link href={`/blog/${blog.slug}`} className={styles.readMore}>Read More</Link>
-            </div>
-          ))}
-        </div>
-      </section>
+      {additionalBlogs.length > 0 && (
+        <section className={styles.additionalBlogs}>
+          <h2>More Insights</h2>
+          <div className={styles.blogColumn}>
+            {additionalBlogs.map(blog => (
+              <div key={blog.id} className={styles.blogCard}>
+                <div className={styles.imageContainer}>
+                  <Image
+                    src={blog.image || '/placeholder.jpg'}
+                    alt={blog.title}
+                    width={400}
+                    height={250}
+                    className={styles.blogImage}
+                  />
+                </div>
+                <h3><Link href={`/blog/${blog.slug}`}>{blog.title}</Link></h3>
+                <p>{blog.excerpt}</p>
+                <p className={styles.meta}>Posted on: {new Date(blog.date).toLocaleDateString()}</p>
+                <Link href={`/blog/${blog.slug}`} className={styles.readMore}>Read More</Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -2,27 +2,38 @@
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3><i class="fas fa-star me-2"></i>{{ action }} Testimonial</h3>
+        <h3>{{ action }} Testimonial</h3>
     </div>
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
                 <input type="text" class="form-control" id="name" name="name" value="{{ testimonial.name if testimonial else '' }}" required>
             </div>
             <div class="mb-3">
+                <label for="company" class="form-label">Company</label>
+                <input type="text" class="form-control" id="company" name="company" value="{{ testimonial.company if testimonial else '' }}">
+            </div>
+            <div class="mb-3">
                 <label for="content" class="form-label">Content</label>
-                <textarea class="form-control" id="content" name="content" rows="5" required>{{ testimonial.content if testimonial else '' }}</textarea>
+                <textarea class="form-control" id="content" name="content" rows="3">{{ testimonial.content if testimonial else '' }}</textarea>
             </div>
             <div class="mb-3">
                 <label for="rating" class="form-label">Rating (1-5)</label>
-                <input type="number" class="form-control" id="rating" name="rating" min="1" max="5" value="{{ testimonial.rating if testimonial else '' }}">
+                <input type="number" class="form-control" id="rating" name="rating" value="{{ testimonial.rating if testimonial else 0 }}" min="1" max="5">
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Image</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                {% if testimonial and testimonial.image %}
+                    <img src="{{ testimonial.image }}" alt="Current image" class="img-thumbnail mt-2" style="max-width: 200px;">
+                {% endif %}
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="is_enabled" name="is_enabled" {% if testimonial.is_enabled|default(True) %}checked{% endif %}>
-                <label class="form-check-label" for="is_enabled">Enabled</label>
+                <label class="form-check-label" for="is_enabled">Enable Testimonial</label>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>{{ action }}</button>
+            <button type="submit" class="btn btn-primary">{{ action }} Testimonial</button>
         </form>
     </div>
 </div>

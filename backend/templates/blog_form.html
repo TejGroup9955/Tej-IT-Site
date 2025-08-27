@@ -28,7 +28,7 @@
             </div>
             <div class="mb-3">
                 <label for="content" class="form-label">Content</label>
-                <textarea class="form-control" id="content" name="content" rows="10" required>{{ blog.content if blog else '' }}</textarea>
+                <textarea class="form-control" id="content" name="content" rows="10">{{ blog.content if blog else '' }}</textarea>
             </div>
             <div class="mb-3">
                 <label for="priority" class="form-label">Priority</label>
@@ -38,11 +38,24 @@
                 <label for="image" class="form-label">Image</label>
                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
                 {% if blog and blog.image %}
-                    <img src="/static/{{ blog.image }}" alt="Current image" class="img-thumbnail mt-2" style="max-width: 200px;">
+                    <img src="{{ blog.image }}" alt="Current image" class="img-thumbnail mt-2" style="max-width: 200px;">
                 {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="sequence" class="form-label">Sequence</label>
+                <input type="number" class="form-control" id="sequence" name="sequence" value="{{ blog.sequence if blog else 0 }}">
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_enabled" name="is_enabled" {% if blog.is_enabled|default(True) %}checked{% endif %}>
+                <label class="form-check-label" for="is_enabled">Enable Blog (Visible on Frontend)</label>
             </div>
             <button type="submit" class="btn btn-primary">{{ action }} Blog</button>
         </form>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        $('#content').summernote();
+    });
+</script>
 {% endblock %}
