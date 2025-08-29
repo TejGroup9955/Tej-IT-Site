@@ -3,7 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
-import { User, Calendar, DollarSign, Users, FileText, Clipboard, Workflow, LayoutDashboard, Smartphone, Check, ChevronRight, Briefcase } from 'lucide-react';
+import { FileText, ShoppingCart, Users, Package, BarChart2, Shield, TrendingUp, Link as LinkIcon, ChevronRight, Truck, Lock } from 'lucide-react';
 
 interface Feature {
   title: string;
@@ -22,195 +22,190 @@ interface Benefit {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-export default function PayrollClient() {
+interface AddOnModule {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+export default function TradeBookClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
 
   const features: Feature[] = [
     {
-      title: 'Biometric & Location-Based Attendance',
-      description: 'Accurate attendance with biometric + GPS check-in.',
+      title: 'Sales Order & Invoice Management',
+      description: 'Stay on top of every sale.',
       keyFeatures: [
-        'Track biometric punches in real time',
-        'Capture employee location while marking attendance',
-        'Automated late-in/early-out deduction rules',
-        'Real-time sync with payroll system',
+        'Create & manage invoices digitally',
+        'Auto-link invoices with customer accounts',
+        'Track payments received & pending',
       ],
-      icon: User,
-      modalId: 'biometric_attendance',
+      icon: FileText,
+      modalId: 'sales_invoice',
     },
     {
-      title: 'Leave Management',
-      description: 'Streamline employee leave approvals and balances.',
+      title: 'Purchase Order & Vendor Management',
+      description: 'Simplify procurement tracking.',
       keyFeatures: [
-        'Employees request & track leave online',
-        'Auto-calculate leave balances',
-        'Automated approvals with manager notifications',
+        'Generate & track purchase orders',
+        'Vendor-wise invoice & payment tracking',
+        'Manage supplier contact & history',
       ],
-      icon: Calendar,
-      modalId: 'leave_management',
+      icon: ShoppingCart,
+      modalId: 'purchase_vendor',
     },
     {
-      title: 'Loans & Advance Management',
-      description: 'Support employees with structured repayment.',
+      title: 'Customer & Supplier Ledger',
+      description: '360° visibility into relationships.',
       keyFeatures: [
-        'Process loan & advance requests easily',
-        'Auto-generate repayment schedules',
-        'Automated salary deductions',
-      ],
-      icon: DollarSign,
-      modalId: 'loan_advance',
-    },
-    {
-      title: 'Staff Tracking',
-      description: 'Centralize staff lifecycle records.',
-      keyFeatures: [
-        'Store joining & relieving dates',
-        'Manage attendance logs & salary records',
-        'One-click staff performance history',
+        'Client-wise sales records',
+        'Vendor-wise purchase history',
+        'Track dues, advances & settlements',
       ],
       icon: Users,
-      modalId: 'staff_tracking',
+      modalId: 'ledger',
     },
     {
-      title: 'Attendance Report',
-      description: 'Get instant attendance insights.',
+      title: 'Inventory & Stock Flow',
+      description: 'Keep your stock in check.',
       keyFeatures: [
-        'Generate daily, weekly, monthly, yearly reports',
-        'One-click full attendance view for management',
-        'Multi-location attendance comparison',
+        'Track goods purchased & sold in real time',
+        'Auto-update stock with every transaction',
+        'Generate movement & shortage reports',
       ],
-      icon: FileText,
-      modalId: 'attendance_report',
+      icon: Package,
+      modalId: 'inventory',
     },
     {
-      title: 'Pay Slip Management',
-      description: 'Fast, accurate, and automated payroll.',
+      title: 'Integrated Finance & GST Reports',
+      description: 'Stay compliant effortlessly.',
       keyFeatures: [
-        'One-click payslip generation for all employees',
-        'Digital access via employee portal/app',
-        'Easy PDF print & email distribution',
+        'Auto GST/TDS calculation in invoices',
+        'Export-ready reports for filing & audits',
+        'Forecast revenue & expenses',
       ],
-      icon: Clipboard,
-      modalId: 'payslip_management',
+      icon: Shield,
+      modalId: 'finance_gst',
     },
     {
-      title: 'Form 16 & Tax Compliance',
-      description: 'Stay compliant and stress-free at tax season.',
+      title: 'Profitability & Analytics Dashboard',
+      description: 'Turn data into decisions.',
       keyFeatures: [
-        'Auto-generate Form 16 for employees',
-        'Integrated TDS/GST compliance',
-        'Export-ready reports for auditors',
+        'Sales vs purchase trend analysis',
+        'Vendor & customer performance insights',
+        'Real-time profit & expense reports',
       ],
-      icon: FileText,
-      modalId: 'tax_compliance',
+      icon: BarChart2,
+      modalId: 'analytics',
     },
     {
-      title: 'HR Workflow Automation',
-      description: 'Bring professionalism to HR processes.',
+      title: 'One-Click Data Access',
+      description: 'Save time with smart workflows.',
       keyFeatures: [
-        'Automated onboarding & document collection',
-        'Centralized employee data management',
-        'Smart approval workflows',
+        'One-click sales summary',
+        'One-click vendor payment history',
+        'Order-to-cash overview in seconds',
       ],
-      icon: Workflow,
-      modalId: 'hr_processes',
+      icon: TrendingUp,
+      modalId: 'one_click',
     },
     {
-      title: 'Asset & Exit Processing',
-      description: 'Smooth employee exits with complete compliance.',
+      title: 'Seamless BDM Integration',
+      description: 'Part of the complete BDM ecosystem.',
       keyFeatures: [
-        'Track company asset recovery',
-        'Auto-generate Experience Letter & Relieving Letter',
-        'Calculate full & final settlement instantly',
+        'Sync with BDM Smart CRM & Accounts',
+        'Connect with Support & Ticketing modules',
+        'Unified Lead → Sale → Purchase → Finance → Support flow',
       ],
-      icon: Briefcase,
-      modalId: 'asset_recovery',
-    },
-    {
-      title: 'All-in-One Dashboard',
-      description: 'Manage everything from a single control panel.',
-      keyFeatures: [
-        'Payroll, attendance, and leave in one view',
-        'Quick snapshots for senior management',
-        'Drill-down reports available instantly',
-      ],
-      icon: LayoutDashboard,
-      modalId: 'dashboard',
-    },
-    {
-      title: 'Android App for Employees',
-      description: 'Empower employees with self-service features.',
-      keyFeatures: [
-        'Mark attendance with GPS-enabled punch',
-        'Access pay slips & Form 16 anytime',
-        'View personalized reports on the go',
-      ],
-      icon: Smartphone,
-      modalId: 'android_app',
+      icon: LinkIcon,
+      modalId: 'bdm_integration',
     },
   ];
 
   const benefits: Benefit[] = [
     {
-      title: 'One-Click Payroll Processing',
-      subtitle: 'Disburse salaries in seconds, error-free',
-      description: 'Automate salary calculations and payslip generation to save time and ensure accuracy.',
+      title: 'Unified Sales & Purchase Tracking',
+      subtitle: 'No more scattered records—manage everything in one place.',
+      description: 'Manage sales, purchases, and payments in one place for complete visibility across departments.',
       keyPoints: [
-        'Auto salary calculation with all deductions',
-        'Instant payslip generation for every employee',
-        'Seamless bank transfer integration',
+        'Easy access for managers & accountants',
+        'End-to-end visibility across departments',
+        'Save time & reduce errors',
       ],
-      image: '/payroll/web_payroll_screenshot.png',
-      icon: Clipboard,
-    },
-    {
-      title: 'Compliance & Tax Management',
-      subtitle: 'Stay audit-ready and 100% compliant',
-      description: 'Simplify tax season with automated Form 16 generation and integrated GST/TDS compliance.',
-      keyPoints: [
-        'Auto-generate Form 16 for all staff',
-        'Integrated GST & TDS deductions',
-        'Export reports for auditors & tax filing',
-      ],
-      image: '/payroll/androidapp_payroll_screenshot.png',
+      image: '/BDM/TradeBook2.jpg',
       icon: FileText,
     },
     {
-      title: 'HR Efficiency & Automation',
-      subtitle: 'Save time and cut down manual HR work',
-      description: 'Streamline onboarding, exits, and employee data management with automated workflows.',
+      title: 'GST & Compliance Ready',
+      subtitle: 'Stay audit-ready, always.',
+      description: 'Automated GST/TDS calculations and export-ready reports for seamless compliance with Indian taxation.',
       keyPoints: [
-        'Automated onboarding & exit workflows',
-        'Digital document storage & retrieval',
-        'Centralized HR data hub',
+        'Automated GST/TDS in invoices',
+        'Export-ready compliance reports',
+        '100% compliant with Indian taxation',
       ],
-      image: '/payroll/web_payroll_screenshot.png',
-      icon: Workflow,
+      image: '/BDM/TradeBook3.jpg',
+      icon: Shield,
     },
     {
-      title: 'Employee Empowerment',
-      subtitle: 'Give employees control & transparency',
-      description: 'Enhance employee satisfaction with self-service features via the mobile app and portal.',
+      title: 'Smarter Vendor & Customer Relations',
+      subtitle: 'Build stronger, long-term partnerships.',
+      description: 'Track supplier and customer history for better relationship management.',
       keyPoints: [
-        'Mobile app for attendance & salary slips',
-        'Self-service leave & loan requests',
-        'Real-time payslip & tax document access',
+        'Supplier-wise purchase history',
+        'Customer-wise sales & payments',
+        'Clear dues & settlement tracking',
       ],
-      image: '/payroll/androidapp_payroll_screenshot.png',
-      icon: Smartphone,
+      image: '/BDM/TradeBook2.jpg',
+      icon: Users,
     },
     {
-      title: 'Real-Time Management Insights',
-      subtitle: 'Smart data for better decision-making',
-      description: 'Access dashboards and reports for instant insights into payroll, attendance, and performance.',
+      title: 'Real-Time Insights for Growth',
+      subtitle: 'Make data-driven decisions.',
+      description: 'Dashboards and reports for analyzing trends and profitability.',
       keyPoints: [
-        'Dashboard with attendance, payroll & compliance',
-        'One-click full attendance for managers',
-        'Performance & workforce analytics',
+        'Dashboards with sales vs purchase trends',
+        'Profitability analysis at a glance',
+        'ROI tracking across vendors & customers',
       ],
-      image: '/payroll/web_payroll_screenshot.png',
-      icon: LayoutDashboard,
+      image: '/BDM/TradeBook3.jpg',
+      icon: BarChart2,
+    },
+    {
+      title: 'Seamless BDM Ecosystem',
+      subtitle: 'One product, multiple possibilities.',
+      description: 'Integrates with BDM Smart System for unified operations across CRM, Accounts, and Support modules.',
+      keyPoints: [
+        'Fully integrated with BDM Smart System',
+        'Works with Accounts, Finance & CRM modules',
+        'Single ecosystem for growth-focused businesses',
+      ],
+      image: '/BDM/TradeBook2.jpg',
+      icon: LinkIcon,
+    },
+  ];
+
+  const addOnModules: AddOnModule[] = [
+    {
+      title: 'E-Way Bill Integration',
+      description: 'Generate E-Way bills directly from TradeBook.',
+      icon: Truck,
+    },
+    {
+      title: 'E-Invoice Integration with GST Portal',
+      description: 'Auto-generate IRN & QR codes for invoices.',
+      icon: FileText,
+    },
+    {
+      title: 'Stock & Inventory Automation',
+      description: 'Real-time stock sync with every transaction.',
+      icon: Package,
+    },
+    {
+      title: 'Secure Authentication',
+      description: 'One user, one PC, key-based secure login.',
+      icon: Lock,
     },
   ];
 
@@ -250,9 +245,9 @@ export default function PayrollClient() {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative bg-gradient-to-r from-blue-800 to-emerald-500 text-white py-32 text-center overflow-hidden"
+        className="relative bg-gradient-to-r from-blue-900 to-emerald-800 text-white py-32 text-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[url('/payroll/Payroll1.jpg')] bg-cover bg-center opacity-20" />
+        <div className="absolute inset-0 bg-[url('/BDM/TradeBook1.jpg')] bg-cover bg-center opacity-20" />
         <div className="relative max-w-4xl mx-auto">
           <motion.h1
             initial={{ opacity: 0, scale: 0.8 }}
@@ -260,7 +255,7 @@ export default function PayrollClient() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-5xl md:text-6xl font-extrabold mb-6 text-white text-shadow-lg"
           >
-            Tej Payroll
+            BDM TradeBook – Sales & Purchase Management
           </motion.h1>
           <motion.h2
             initial={{ opacity: 0, scale: 0.8 }}
@@ -268,7 +263,7 @@ export default function PayrollClient() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-2xl md:text-3xl font-semibold mb-6 text-white"
           >
-            All-in-One Payroll & HR Management Software for Modern Businesses
+            End-to-End Sales & Purchase Record Management for Smarter Business Decisions
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, scale: 0.8 }}
@@ -276,7 +271,7 @@ export default function PayrollClient() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-lg md:text-xl mb-8 max-w-3xl mx-auto"
           >
-            Tej Payroll Software is an intuitive, scalable payroll & HR automation system designed to simplify everything from attendance tracking and salary processing to compliance, tax management, and employee exit formalities.
+            BDM TradeBook is a next-generation sales & purchase management system that integrates seamlessly with the BDM Smart System, empowering businesses to simplify operations, track every transaction, and make smarter financial decisions.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -293,7 +288,7 @@ export default function PayrollClient() {
         </div>
       </motion.section>
 
-      {/* Overview Section */}
+      {/* Why Choose Section */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -302,25 +297,25 @@ export default function PayrollClient() {
       >
         <div className="container mx-auto px-4">
           <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
-            Why Choose Tej Payroll Software?
+            Why Choose BDM TradeBook?
           </motion.h2>
           <div className="grid md:grid-cols-2 gap-8 items-stretch">
             <motion.div variants={itemVariants} className="space-y-4 flex flex-col justify-between">
               <div>
                 <p className="text-lg text-gray-700">
-                  Tej Payroll Software is an intuitive, scalable payroll & HR automation system designed to simplify everything from attendance tracking and salary processing to compliance, tax management, and employee exit formalities.
+                  Running a business means juggling sales invoices, purchase orders, vendor payments, stock tracking, and compliance requirements. TradeBook brings everything under one roof—so you never lose control of your data.
                 </p>
                 <p className="text-lg text-gray-700">
-                  Whether you’re a startup, SME, or large enterprise, Tej Payroll ensures error-free salary disbursement, automated compliance, and complete transparency for employees and management. Our smart dashboard, mobile app, and automated workflows cut down manual work and keep your organization compliant, efficient, and employee-friendly.
+                  Whether you’re in manufacturing, trading, retail, distribution, or services, TradeBook is designed to keep your financial & operational records simple, secure, and accessible.
                 </p>
                 <ul className="list-none space-y-2 mt-4">
                   {[
-                    'Automated salary calculations with a single click',
-                    'Seamless biometric & location-based attendance tracking',
-                    'Smart leave, loan, and advance management',
-                    'Automated Form 16, payslips, and compliance reports',
-                    'End-to-end employee lifecycle management from joining to exit',
-                    'Designed for small businesses to large enterprises',
+                    'Manage sales & purchase records from one platform',
+                    'Fully integrated with BDM Smart System for unified growth',
+                    'Track customer & supplier history in seconds',
+                    'Get real-time stock, orders, and payments visibility',
+                    'Stay audit-ready with GST & compliance reports',
+                    'Cloud-based & secure – access anywhere, anytime',
                   ].map((point, i) => (
                     <li key={i} className="relative pl-6 text-gray-700">
                       <span className="absolute left-0 text-emerald-500 font-bold">✔</span>
@@ -334,7 +329,7 @@ export default function PayrollClient() {
                   href="/contact"
                   className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-8 py-3 rounded-full hover:from-orange-600 hover:to-red-600 transform hover:-translate-y-1 hover:shadow-lg transition-all"
                 >
-                  Get Started Today
+                  Get Started with BDM TradeBook
                 </Link>
               </div>
             </motion.div>
@@ -343,11 +338,50 @@ export default function PayrollClient() {
               className="flex items-center justify-center"
             >
               <Image
-                src="/payroll/Payroll1.jpg"
-                alt="Tej Payroll Dashboard"
+                src="/BDM/BDM3.jpg"
+                alt="BDM TradeBook Dashboard"
                 width={450}
                 height={300}
                 className="w-full h-full max-h-[400px] object-cover rounded-lg shadow-md"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Dashboard Section */}
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="py-20 bg-gray-50"
+      >
+        <div className="container mx-auto px-4">
+          <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
+            BDM TradeBook Dashboard
+          </motion.h2>
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <motion.div variants={itemVariants} className="space-y-4">
+              <p className="text-lg text-gray-700">
+                A powerful, intuitive dashboard that gives one-click access to sales, purchases, vendor history, and profitability reports—all in real time.
+              </p>
+              <Link
+                href="/contact"
+                className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-8 py-3 rounded-full hover:from-orange-600 hover:to-red-600 transform hover:-translate-y-1 hover:shadow-lg transition-all"
+              >
+                Explore the Dashboard
+              </Link>
+            </motion.div>
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center justify-center"
+            >
+              <Image
+                src="/BDM/BDM3.jpg"
+                alt="BDM TradeBook Dashboard"
+                width={500}
+                height={300}
+                className="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-md"
               />
             </motion.div>
           </div>
@@ -363,7 +397,7 @@ export default function PayrollClient() {
       >
         <div className="container mx-auto px-4">
           <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
-            Powerful Features of Tej Payroll
+            Key Features of BDM TradeBook
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
@@ -378,7 +412,7 @@ export default function PayrollClient() {
                 <h3 className="text-xl font-semibold text-blue-800 mb-2">{feature.title}</h3>
                 <p className="text-gray-700 mb-4">{feature.description}</p>
                 <ul className="list-none space-y-2 mb-4 flex-grow">
-                  {feature.keyFeatures.slice(0, 3).map((keyFeature, i) => (
+                  {feature.keyFeatures.map((keyFeature, i) => (
                     <li key={i} className="relative pl-6 text-gray-700 text-sm">
                       <span className="absolute left-0 text-emerald-500 font-bold">✔</span>
                       {keyFeature}
@@ -411,7 +445,7 @@ export default function PayrollClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Benefits of Tej Payroll Software
+            Benefits of BDM TradeBook
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
@@ -426,7 +460,6 @@ export default function PayrollClient() {
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
               >
-                {/* Text Column */}
                 <div className={`${index % 2 === 0 ? 'md:order-1' : 'md:order-2'} space-y-4`}>
                   <div className="flex items-center">
                     <benefit.icon className="w-8 h-8 text-emerald-500 mr-2" />
@@ -443,7 +476,6 @@ export default function PayrollClient() {
                     ))}
                   </ul>
                 </div>
-                {/* Image Column */}
                 <div className={`${index % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}>
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -465,6 +497,49 @@ export default function PayrollClient() {
         </div>
       </motion.section>
 
+      {/* Add-On Modules Section */}
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="py-20 bg-white"
+      >
+        <div className="container mx-auto px-4">
+          <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
+            Advanced Add-On Modules
+          </motion.h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {addOnModules.map((module, index) => (
+              <motion.div
+                key={module.title}
+                variants={itemVariants}
+                whileHover="hover"
+                custom={cardHover}
+                className="bg-white rounded-lg p-6 shadow-md flex items-start space-x-4"
+              >
+                <module.icon className="w-12 h-12 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-semibold text-blue-800 mb-2">{module.title}</h3>
+                  <p className="text-gray-700">{module.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div
+            variants={itemVariants}
+            className="mt-12 flex items-center justify-center"
+          >
+            <Image
+              src="/BDM/mobile.png"
+              alt="BDM TradeBook Mobile Add-Ons"
+              width={400}
+              height={300}
+              className="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-md"
+            />
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Contact CTA Section */}
       <motion.section
         variants={containerVariants}
@@ -473,7 +548,7 @@ export default function PayrollClient() {
         className="py-20 bg-gradient-to-r from-blue-900 to-emerald-600 text-white text-center"
       >
         <motion.h2 variants={itemVariants} className="text-4xl font-bold mb-4 text-white">
-          Ready to Simplify Your Payroll?
+          Ready to Simplify Your Sales & Purchases?
         </motion.h2>
         <motion.p variants={itemVariants} className="text-lg mb-6">
           Contact us at: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001.

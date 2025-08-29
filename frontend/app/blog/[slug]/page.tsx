@@ -54,9 +54,7 @@ export default function BlogDetailPage() {
         </ul>
       </aside>
 
-      <footer className={styles.footer}>
-        <p>© 2025 Tej IT Solutions. All rights reserved.</p>
-      </footer>
+      
     </div>
   );
 }

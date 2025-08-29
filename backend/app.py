@@ -22,7 +22,6 @@ UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-# Create uploads folder if it doesn't exist
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
     os.chmod(app.config['UPLOAD_FOLDER'], 0o775)
@@ -71,13 +70,16 @@ def initialize_db():
     )
     """)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS testimonials (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            content TEXT NOT NULL,
-            rating INT,
-            is_enabled BOOLEAN DEFAULT TRUE
-        )
+    CREATE TABLE IF NOT EXISTS testimonials (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        company VARCHAR(255),
+        content TEXT NOT NULL,
+        rating INT DEFAULT 0,
+        image VARCHAR(255),
+        date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        is_enabled BOOLEAN DEFAULT TRUE
+    )
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS enquiries (
@@ -449,7 +451,6 @@ def admin_testimonial_new():
             cursor.close()
             connection.close()
         return redirect(url_for('admin_testimonials'))
-    # Pass a default testimonial object for new testimonial form
     default_testimonial = {'is_enabled': True}
     return render_template('testimonial_form.html', action='Create', testimonial=default_testimonial)
 
@@ -482,6 +483,23 @@ def submit_testimonial():
     finally:
         cursor.close()
         connection.close()
+
+@app.route('/api/testimonials', methods=['GET'])
+def get_testimonials():
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'error': 'DB connection failed'}), 500
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM testimonials WHERE is_enabled = TRUE ORDER BY date DESC")
+        testimonials = cursor.fetchall()
+    except Error as e:
+        print(f"Error fetching testimonials: {e}")
+        return jsonify({'error': 'Failed to fetch testimonials'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+    return jsonify(testimonials)
 
 @app.route('/api/teams', methods=['GET'])
 @token_required
@@ -626,29 +644,33 @@ def admin_testimonial_delete(id):
         connection.close()
     return redirect(url_for('admin_testimonials'))
 
-@app.route('/api/enquiry', methods=['POST'])
-def api_enquiry():
-    data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
-    phone = data.get('phone')
-    message = data.get('message')
+@app.route('/api/enquiries', methods=['OPTIONS', 'POST'])
+def add_enquiry():
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+        return response
     connection = get_db_connection()
     if not connection:
         return jsonify({'error': 'DB connection failed'}), 500
     cursor = connection.cursor()
     try:
+        data = request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        phone = data.get('phone')
+        message = data.get('message')
+        date = datetime.utcnow()
         cursor.execute("INSERT INTO enquiries (name, email, phone, message, date) VALUES (%s, %s, %s, %s, %s)",
-                       (name, email, phone, message, datetime.now()))
+                       (name, email, phone, message, date))
         connection.commit()
-        flash('Enquiry submitted successfully', 'success')
+        return jsonify({'message': 'Enquiry submitted successfully'}), 200
     except Error as e:
         print(f"Error submitting enquiry: {e}")
+        connection.rollback()
         return jsonify({'error': 'Failed to submit enquiry'}), 500
     finally:
         cursor.close()
         connection.close()
-    return jsonify({'message': 'Enquiry submitted successfully'})
 
 @app.route('/admin/enquiries')
 def admin_enquiries():
@@ -880,5 +902,5 @@ def track_visit():
     return '', 204
 
 if __name__ == '__main__':
-    # initialize_db()  # Commented to prevent table recreation
+    initialize_db()
     app.run(host='0.0.0.0', port=5000, debug=True)

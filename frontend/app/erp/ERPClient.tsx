@@ -1,8 +1,8 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { BarChart, CheckSquare, Users, DollarSign, Calculator, Warehouse, FileText, Book, BarChart2, FileCheck, ChevronRight } from 'lucide-react';
 
 interface Feature {
@@ -144,16 +144,149 @@ export default function ERPClient() {
       icon: BarChart2,
       modalId: 'mis_report',
     },
+  ];
+
+  // Benefits data
+  const benefits = [
+    {
+      title: 'Project Planning & Management',
+      subtitle: 'Plan, track, and control projects with ease',
+      description:
+        'Tej Smart ERP helps Civil, Electrical, and MEP contractors monitor site budgets, BOQs, and profitability in real time.',
+      keyPoints: [
+        'Create and manage site-wise budgets & schedules',
+        'Monitor project-wise Profit & Loss (P&L) instantly',
+        'Upload and manage master project data & BOQs',
+        'Track project progress and cost overruns efficiently',
+      ],
+      image: '/erp/web_erp_screenshot.png',
+      icon: BarChart,
+    },
+    {
+      title: 'Purchase & Procurement Management',
+      subtitle: 'Simplify contractor procurement',
+      description:
+        'Automate POs, vendor comparisons, and bill matching. Ensure the right material reaches every site on time.',
+      keyPoints: [
+        'Generate Purchase Orders (POs) against PRNs',
+        'Compare supplier quotations vs. BOQ rates',
+        'Manage single/multiple POs and PRNs with ease',
+        'Match GRNs with invoices for 100% accuracy',
+      ],
+      image: '/erp/androidapp_erp_screenshot.png',
+      icon: CheckSquare,
+    },
+    {
+      title: 'Site Activity Management',
+      subtitle: 'Track and record site activities from anywhere',
+      description:
+        'Contractors get real-time visibility into labour, materials, and daily progress via mobile or web.',
+      keyPoints: [
+        'Submit and track material requisitions site-wise',
+        'Record GRNs, returns, and daily consumption',
+        'Capture labour attendance and daily work logs',
+        'Track site expenses and advance requests instantly',
+      ],
+      image: '/erp/web_erp_screenshot.png',
+      icon: Users,
+    },
+    {
+      title: 'Subcontractor Management',
+      subtitle: 'Manage subcontractors with confidence',
+      description:
+        'Tej Smart ERP ensures transparent billing, BOQ-linked work orders, and payment tracking.',
+      keyPoints: [
+        'Create BOQ-based subcontractor work orders',
+        'Automate bill submissions, verification, and approvals',
+        'Manage TDS, retention, debit notes & payment holds',
+        'Record and approve subcontractor payments with audit trail',
+      ],
+      image: '/erp/androidapp_erp_screenshot.png',
+      icon: DollarSign,
+    },
+    {
+      title: 'Expense Management',
+      subtitle: 'Gain full control over site expenses',
+      description:
+        'Contractors can track requests, bills, and approvals centrally, avoiding hidden costs and overspending.',
+      keyPoints: [
+        'Submit and approve site expense & advance requests',
+        'Attach supporting bills for expense entries',
+        'View user-wise expense ledgers',
+        'Ensure approval-based disbursements for control',
+      ],
+      image: '/erp/web_erp_screenshot.png',
+      icon: Calculator,
+    },
+    {
+      title: 'Inventory Management',
+      subtitle: 'Stay in control of materials',
+      description:
+        'Multi-site inventory tracking, stock transfers, and supplier summaries.',
+      keyPoints: [
+        'Record opening stock & GRN entries',
+        'Generate delivery challans & stock summaries site-wise',
+        'Manage material returns, adjustments & transfers',
+        'Track supplier/product stock movement reports',
+      ],
+      image: '/erp/androidapp_erp_screenshot.png',
+      icon: Warehouse,
+    },
+    {
+      title: 'Sales Management',
+      subtitle: 'Handle contractor billing',
+      description:
+        'Proforma & sales invoicing, client advances, and annexure reports—all in one ERP system.',
+      keyPoints: [
+        'Generate proforma & sales invoices instantly',
+        'Track billed vs. unbilled items clearly',
+        'Manage client advance payments with accuracy',
+        'Invoice approvals & annexure reports made easy',
+      ],
+      image: '/erp/web_erp_screenshot.png',
+      icon: FileText,
+    },
+    {
+      title: 'Account Management',
+      subtitle: 'Bring all financials under one roof',
+      description:
+        'Tej Smart ERP simplifies payments, ledgers, and GST accounting for contractors.',
+      keyPoints: [
+        'Process approval-based supplier & subcontractor payments',
+        'Manage site-wise & user-wise ledgers',
+        'Record credit/debit notes without errors',
+        'Ensure GST-compliant billing & annexures',
+      ],
+      image: '/erp/androidapp_erp_screenshot.png',
+      icon: Book,
+    },
+    {
+      title: 'MIS Reports & Dashboards',
+      subtitle: 'Make data-driven decisions',
+      description:
+        '30+ ready-to-use ERP reports on cost, stock, GST, and profitability.',
+      keyPoints: [
+        'View site-wise Profit & Loss reports',
+        'Generate GST reports for purchase & sales',
+        'Track BOQ & PRN status instantly',
+        'Access ledger, TDS, and outstanding reports',
+      ],
+      image: '/erp/web_erp_screenshot.png',
+      icon: BarChart2,
+    },
     {
       title: 'E-Invoicing & Tally Integration',
-      description: 'Integrate with government portals and Tally for seamless accounting.',
-      keyFeatures: [
+      subtitle: 'Stay compliant with ease',
+      description:
+        'Direct GST e-invoicing and Tally integration for seamless contractor accounting.',
+      keyPoints: [
         'Generate e-invoices directly from ERP',
-        'Download, view, or cancel e-invoices',
-        'Smooth integration with Tally for accounting',
+        'Download, view, or cancel invoices anytime',
+        'Sync Tally for smooth accounting',
+        'Stay audit-ready and compliant always',
       ],
+      image: '/erp/androidapp_erp_screenshot.png',
       icon: FileCheck,
-      modalId: 'e_invoice_integration',
     },
   ];
 
@@ -322,21 +455,69 @@ export default function ERPClient() {
 
       {/* Benefits Section */}
       <motion.section
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
         className="py-20 bg-gray-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
       >
         <div className="container mx-auto px-4">
-          <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
-            Benefits of Tej Smart ERP
+          <motion.h2
+            className="text-4xl font-bold text-blue-800 text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Module-Wise Benefits of Tej Smart ERP
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-lg text-gray-700 mb-6 text-center max-w-3xl mx-auto">
-            Tej Smart ERP offers detailed attention to projects at every stage, covering project planning, procurement, stock tracking, accounting, and sales-invoicing under one system. Leaders gain cross-departmental visibility to analyze scenarios, discover process improvements, and achieve cost savings and better productivity.
-          </motion.p>
-          <motion.p variants={itemVariants} className="text-lg text-gray-700 mb-6 text-center max-w-3xl mx-auto">
-            Designed for Civil, Electrical, and MEP contractors, our reliable and cost-effective ERP system ensures seamless operations and compliance.
-          </motion.p>
+          {benefits.map((benefit, index) => {
+            const ref = useRef(null);
+            const isInView = useInView(ref, { threshold: 0.5, once: false });
+
+            return (
+              <motion.div
+                key={index}
+                ref={ref}
+                className="grid md:grid-cols-2 gap-8 items-center mb-16"
+                initial={{ opacity: 0, y: 50 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+              >
+                {/* Text Column */}
+                <div className={`${index % 2 === 0 ? 'md:order-1' : 'md:order-2'} space-y-4`}>
+                  <div className="flex items-center">
+                    <benefit.icon className="w-8 h-8 text-emerald-500 mr-2" />
+                    <h3 className="text-3xl font-semibold text-blue-800">{benefit.title}</h3>
+                  </div>
+                  <h4 className="text-lg font-medium text-gray-700">{benefit.subtitle}</h4>
+                  <p className="text-gray-700">{benefit.description}</p>
+                  <ul className="list-none space-y-2">
+                    {benefit.keyPoints.map((point, i) => (
+                      <li key={i} className="relative pl-6 text-gray-700">
+                        <span className="absolute left-0 text-emerald-500 font-bold">✔</span>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {/* Image Column */}
+                <div className={`${index % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Image
+                      src={benefit.image}
+                      alt={`${benefit.title} screenshot`}
+                      width={500}
+                      height={300}
+                      className="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-md"
+                    />
+                  </motion.div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.section>
 
@@ -350,9 +531,6 @@ export default function ERPClient() {
         <motion.h2 variants={itemVariants} className="text-4xl font-bold mb-4 text-white">
           Ready to Transform Your Operations?
         </motion.h2>
-        <motion.p variants={itemVariants} className="text-lg mb-6">
-          Contact us at: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001.
-        </motion.p>
         <motion.div variants={itemVariants}>
           <Link
             href="/contact"

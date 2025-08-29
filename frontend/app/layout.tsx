@@ -5,24 +5,43 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ThemeProvider } from '../components/ThemeProvider';
 import Script from 'next/script';
+import PopupWrapper from './PopupWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Tej IT Solutions',
-  description: 'Innovative IT solutions for your business needs.',
+  description: 'Innovative IT solutions tailored for your business needs.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <ThemeProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </ThemeProvider>
-      </body>
-    </html>
+    <>
+      <html lang="en">
+        <head>
+          <Script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX" strategy="afterInteractive" />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-XXXXXX');
+            `}
+          </Script>
+        </head>
+        <body className={inter.className}>
+          <ThemeProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <PopupWrapper />
+          </ThemeProvider>
+        </body>
+      </html>
+    </>
   );
 }

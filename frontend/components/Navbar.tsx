@@ -28,20 +28,20 @@ const navItems: NavItem[] = [
       { name: 'ERP', href: '/erp' },
       { name: 'BDM', href: '/BDM' },
       { name: 'Class Management', href: '/class-management' },
+      { name: 'BDM TradeBook Sales/Purchase', href: '/tradebook' },
     ],
   },
   {
     name: 'IT Services',
     href: '#',
     dropdown: [
+      { name: 'Cloud Consulting Services', href: '/it-services/cloud-services' },
       { name: 'Software Development', href: '/it-services/software-development' },
       { name: 'Android iOS Application Development', href: '/it-services/mobile-app-development' },
       { name: 'Web Application Development / Designing', href: '/it-services/web-app-design-development' },
-      { name: 'Cloud Consulting Services', href: '/it-services/cloud-services' },
     ],
   },
   { name: 'Blogs', href: '/blog' },
-  { name: 'Testimonials', href: '/testimonials' }, // Added
   { name: 'Contact Us', href: '/contact' },
 ];
 

@@ -3,7 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
-import { User, Calendar, DollarSign, Users, FileText, Clipboard, Workflow, LayoutDashboard, Smartphone, Check, ChevronRight, Briefcase } from 'lucide-react';
+import { UserPlus, Building, Users, FileText, Clipboard, Lock, ArrowRightCircle, CreditCard, Smartphone, BarChart2, ChevronRight } from 'lucide-react';
 
 interface Feature {
   title: string;
@@ -22,195 +22,194 @@ interface Benefit {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-export default function PayrollClient() {
+export default function ClassManagementClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
 
   const features: Feature[] = [
     {
-      title: 'Biometric & Location-Based Attendance',
-      description: 'Accurate attendance with biometric + GPS check-in.',
+      title: 'Simplified Student Registration',
+      description: 'Quick and hassle-free student onboarding.',
       keyFeatures: [
-        'Track biometric punches in real time',
-        'Capture employee location while marking attendance',
-        'Automated late-in/early-out deduction rules',
-        'Real-time sync with payroll system',
+        'Digital admission & registration forms',
+        'Auto ID card & roll number generation',
+        'Centralized student database',
       ],
-      icon: User,
-      modalId: 'biometric_attendance',
+      icon: UserPlus,
+      modalId: 'student_registration',
     },
     {
-      title: 'Leave Management',
-      description: 'Streamline employee leave approvals and balances.',
+      title: 'Branch-Wise Login',
+      description: 'Organize classes by branches for smooth management.',
       keyFeatures: [
-        'Employees request & track leave online',
-        'Auto-calculate leave balances',
-        'Automated approvals with manager notifications',
+        'Branch-level dashboards for institutes with multiple locations',
+        'Separate login for each branch admin',
+        'Consolidated reporting for head office',
       ],
-      icon: Calendar,
-      modalId: 'leave_management',
+      icon: Building,
+      modalId: 'branch_login',
     },
     {
-      title: 'Loans & Advance Management',
-      description: 'Support employees with structured repayment.',
+      title: 'Batch Formation & Management',
+      description: 'Create and manage batches easily.',
       keyFeatures: [
-        'Process loan & advance requests easily',
-        'Auto-generate repayment schedules',
-        'Automated salary deductions',
-      ],
-      icon: DollarSign,
-      modalId: 'loan_advance',
-    },
-    {
-      title: 'Staff Tracking',
-      description: 'Centralize staff lifecycle records.',
-      keyFeatures: [
-        'Store joining & relieving dates',
-        'Manage attendance logs & salary records',
-        'One-click staff performance history',
+        'Group students into batches by subject or schedule',
+        'Auto allocation of students to teachers',
+        'Track batch strength & progress',
       ],
       icon: Users,
-      modalId: 'staff_tracking',
+      modalId: 'batch_management',
     },
     {
-      title: 'Attendance Report',
-      description: 'Get instant attendance insights.',
+      title: 'Assignment & Test Reports',
+      description: 'Track academic progress effortlessly.',
       keyFeatures: [
-        'Generate daily, weekly, monthly, yearly reports',
-        'One-click full attendance view for management',
-        'Multi-location attendance comparison',
+        'Upload assignments & tests digitally',
+        'Students submit answers via mobile app',
+        'Automated result & performance tracking',
       ],
       icon: FileText,
+      modalId: 'assignment_reports',
+    },
+    {
+      title: 'Class Attendance Report',
+      description: 'Ensure attendance accuracy at all levels.',
+      keyFeatures: [
+        'Daily, weekly & monthly reports',
+        'Mobile-based attendance marking',
+        'One-click full attendance summary for management',
+      ],
+      icon: Clipboard,
       modalId: 'attendance_report',
     },
     {
-      title: 'Pay Slip Management',
-      description: 'Fast, accurate, and automated payroll.',
+      title: 'Secure Question Papers & Answer Sheets',
+      description: 'Protect exam confidentiality.',
       keyFeatures: [
-        'One-click payslip generation for all employees',
-        'Digital access via employee portal/app',
-        'Easy PDF print & email distribution',
+        'Upload question papers securely',
+        'Accessible only within the Android app (no download option)',
+        'Auto-expiry after exam completion',
       ],
-      icon: Clipboard,
-      modalId: 'payslip_management',
+      icon: Lock,
+      modalId: 'secure_papers',
     },
     {
-      title: 'Form 16 & Tax Compliance',
-      description: 'Stay compliant and stress-free at tax season.',
+      title: 'Student Transfer to New Class',
+      description: 'Seamless progression year after year.',
       keyFeatures: [
-        'Auto-generate Form 16 for employees',
-        'Integrated TDS/GST compliance',
-        'Export-ready reports for auditors',
+        'Move old students to higher classes with one click',
+        'Preserve academic history & reports',
+        'Auto-update in attendance & fee records',
       ],
-      icon: FileText,
-      modalId: 'tax_compliance',
+      icon: ArrowRightCircle,
+      modalId: 'student_transfer',
     },
     {
-      title: 'HR Workflow Automation',
-      description: 'Bring professionalism to HR processes.',
+      title: 'Staff & Subject Allocation',
+      description: 'Smart workload distribution for teachers.',
       keyFeatures: [
-        'Automated onboarding & document collection',
-        'Centralized employee data management',
-        'Smart approval workflows',
+        'Assign subjects staff-wise',
+        'Monitor subject progress across batches',
+        'Real-time reporting for staff activities',
       ],
-      icon: Workflow,
-      modalId: 'hr_processes',
+      icon: Users,
+      modalId: 'staff_allocation',
     },
     {
-      title: 'Asset & Exit Processing',
-      description: 'Smooth employee exits with complete compliance.',
+      title: 'Fee & Payment Management',
+      description: 'Automated fee collection & tracking.',
       keyFeatures: [
-        'Track company asset recovery',
-        'Auto-generate Experience Letter & Relieving Letter',
-        'Calculate full & final settlement instantly',
+        'Generate fee invoices per student or batch',
+        'Track paid & pending fees with reminders',
+        'Integrated payment gateway support',
       ],
-      icon: Briefcase,
-      modalId: 'asset_recovery',
+      icon: CreditCard,
+      modalId: 'fee_management',
     },
     {
-      title: 'All-in-One Dashboard',
-      description: 'Manage everything from a single control panel.',
+      title: 'Parent & Student App',
+      description: 'Transparency and easy access for students & parents.',
       keyFeatures: [
-        'Payroll, attendance, and leave in one view',
-        'Quick snapshots for senior management',
-        'Drill-down reports available instantly',
-      ],
-      icon: LayoutDashboard,
-      modalId: 'dashboard',
-    },
-    {
-      title: 'Android App for Employees',
-      description: 'Empower employees with self-service features.',
-      keyFeatures: [
-        'Mark attendance with GPS-enabled punch',
-        'Access pay slips & Form 16 anytime',
-        'View personalized reports on the go',
+        'Students check attendance, assignments & results',
+        'Parents monitor performance & fee dues',
+        'Push notifications for updates & announcements',
       ],
       icon: Smartphone,
-      modalId: 'android_app',
+      modalId: 'parent_student_app',
+    },
+    {
+      title: 'Performance Dashboards & Analytics',
+      description: 'Data-driven insights for institutes.',
+      keyFeatures: [
+        'Batch-wise performance charts',
+        'Student ranking & progress trends',
+        'Exportable reports for admin review',
+      ],
+      icon: BarChart2,
+      modalId: 'performance_analytics',
     },
   ];
 
   const benefits: Benefit[] = [
     {
-      title: 'One-Click Payroll Processing',
-      subtitle: 'Disburse salaries in seconds, error-free',
-      description: 'Automate salary calculations and payslip generation to save time and ensure accuracy.',
+      title: 'Smart Student Lifecycle Management',
+      subtitle: 'Manage admissions, batches & progress smoothly',
+      description: 'Streamline student onboarding, batch management, and class transitions with automated workflows.',
       keyPoints: [
-        'Auto salary calculation with all deductions',
-        'Instant payslip generation for every employee',
-        'Seamless bank transfer integration',
+        'One-click student registration',
+        'Auto migration to higher classes',
+        'Centralized student records',
       ],
-      image: '/payroll/web_payroll_screenshot.png',
-      icon: Clipboard,
+      image: '/class-management/web_classmanagement_screenshot.png',
+      icon: UserPlus,
     },
     {
-      title: 'Compliance & Tax Management',
-      subtitle: 'Stay audit-ready and 100% compliant',
-      description: 'Simplify tax season with automated Form 16 generation and integrated GST/TDS compliance.',
+      title: 'Academic Performance & Transparency',
+      subtitle: 'Boost learning outcomes with digital reports',
+      description: 'Track assignments, tests, and results in real-time, with instant access for students and parents.',
       keyPoints: [
-        'Auto-generate Form 16 for all staff',
-        'Integrated GST & TDS deductions',
-        'Export reports for auditors & tax filing',
+        'Assignments & tests tracked in real-time',
+        'Parents & students view results instantly',
+        'Staff performance linked with student outcomes',
       ],
-      image: '/payroll/androidapp_payroll_screenshot.png',
+      image: '/class-management/androidapp_classmanagement_screenshot.png',
       icon: FileText,
     },
     {
-      title: 'HR Efficiency & Automation',
-      subtitle: 'Save time and cut down manual HR work',
-      description: 'Streamline onboarding, exits, and employee data management with automated workflows.',
+      title: 'Secure Learning Material',
+      subtitle: 'Protect critical content with in-app access',
+      description: 'Ensure exam confidentiality with secure, app-only access to question papers and answer sheets.',
       keyPoints: [
-        'Automated onboarding & exit workflows',
-        'Digital document storage & retrieval',
-        'Centralized HR data hub',
+        'Question papers secure in app (no downloads)',
+        'Auto-expiry after exam',
+        'Controlled content sharing',
       ],
-      image: '/payroll/web_payroll_screenshot.png',
-      icon: Workflow,
+      image: '/class-management/web_classmanagement_screenshot.png',
+      icon: Lock,
     },
     {
-      title: 'Employee Empowerment',
-      subtitle: 'Give employees control & transparency',
-      description: 'Enhance employee satisfaction with self-service features via the mobile app and portal.',
+      title: 'Efficiency for Teachers & Staff',
+      subtitle: 'Reduce manual workload with automation',
+      description: 'Automate subject allocation, attendance, and reporting to save time for teachers and staff.',
       keyPoints: [
-        'Mobile app for attendance & salary slips',
-        'Self-service leave & loan requests',
-        'Real-time payslip & tax document access',
+        'Auto staff-wise subject allocation',
+        'Mobile-based attendance marking',
+        'Centralized dashboard for teachers',
       ],
-      image: '/payroll/androidapp_payroll_screenshot.png',
-      icon: Smartphone,
+      image: '/class-management/androidapp_classmanagement_screenshot.png',
+      icon: Users,
     },
     {
-      title: 'Real-Time Management Insights',
-      subtitle: 'Smart data for better decision-making',
-      description: 'Access dashboards and reports for instant insights into payroll, attendance, and performance.',
+      title: 'Data-Driven Institute Growth',
+      subtitle: 'Leverage insights for better planning',
+      description: 'Use performance analytics and fee reports to drive strategic decisions and growth.',
       keyPoints: [
-        'Dashboard with attendance, payroll & compliance',
-        'One-click full attendance for managers',
-        'Performance & workforce analytics',
+        'Batch performance analytics',
+        'Fee collection reports',
+        'Multi-branch comparison dashboards',
       ],
-      image: '/payroll/web_payroll_screenshot.png',
-      icon: LayoutDashboard,
+      image: '/class-management/web_classmanagement_screenshot.png',
+      icon: BarChart2,
     },
   ];
 
@@ -252,7 +251,7 @@ export default function PayrollClient() {
         transition={{ duration: 0.8 }}
         className="relative bg-gradient-to-r from-blue-800 to-emerald-500 text-white py-32 text-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[url('/payroll/Payroll1.jpg')] bg-cover bg-center opacity-20" />
+        <div className="absolute inset-0 bg-[url('/class-management/ClassManagement1.jpg')] bg-cover bg-center opacity-20" />
         <div className="relative max-w-4xl mx-auto">
           <motion.h1
             initial={{ opacity: 0, scale: 0.8 }}
@@ -260,15 +259,15 @@ export default function PayrollClient() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-5xl md:text-6xl font-extrabold mb-6 text-white text-shadow-lg"
           >
-            Tej Payroll
+             Class Management 
           </motion.h1>
           <motion.h2
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-2xl md:text-3xl font-semibold mb-6 text-white"
+            className="text-2xl md:text-3xl font-semibold mb-6 text-white text-shadow-lg"
           >
-            All-in-One Payroll & HR Management Software for Modern Businesses
+            All-in-One Class, Student, and Exam Management Software with Mobile App
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, scale: 0.8 }}
@@ -276,7 +275,7 @@ export default function PayrollClient() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-lg md:text-xl mb-8 max-w-3xl mx-auto"
           >
-            Tej Payroll Software is an intuitive, scalable payroll & HR automation system designed to simplify everything from attendance tracking and salary processing to compliance, tax management, and employee exit formalities.
+            Tej Class Management System is a modern, scalable platform designed for schools, coaching institutes, and training centers to manage students, staff, batches, attendance, exams, and learning material with ease.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -302,25 +301,25 @@ export default function PayrollClient() {
       >
         <div className="container mx-auto px-4">
           <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
-            Why Choose Tej Payroll Software?
+            Why Choose Tej Class Management System?
           </motion.h2>
           <div className="grid md:grid-cols-2 gap-8 items-stretch">
             <motion.div variants={itemVariants} className="space-y-4 flex flex-col justify-between">
               <div>
                 <p className="text-lg text-gray-700">
-                  Tej Payroll Software is an intuitive, scalable payroll & HR automation system designed to simplify everything from attendance tracking and salary processing to compliance, tax management, and employee exit formalities.
+                  Tej Class Management System is a modern, scalable platform designed for schools, coaching institutes, and training centers to manage students, staff, batches, attendance, exams, and learning material with ease.
                 </p>
                 <p className="text-lg text-gray-700">
-                  Whether you’re a startup, SME, or large enterprise, Tej Payroll ensures error-free salary disbursement, automated compliance, and complete transparency for employees and management. Our smart dashboard, mobile app, and automated workflows cut down manual work and keep your organization compliant, efficient, and employee-friendly.
+                  With an integrated Android application, both students and staff get real-time access to classes, assignments, and attendance. It ensures data security, operational efficiency, and transparency between management, teachers, students, and parents.
                 </p>
                 <ul className="list-none space-y-2 mt-4">
                   {[
-                    'Automated salary calculations with a single click',
-                    'Seamless biometric & location-based attendance tracking',
-                    'Smart leave, loan, and advance management',
-                    'Automated Form 16, payslips, and compliance reports',
-                    'End-to-end employee lifecycle management from joining to exit',
-                    'Designed for small businesses to large enterprises',
+                    'Simplified student & batch registration process',
+                    'Centralized class & branch-wise login',
+                    'Secure assignment, test & question paper management',
+                    'Real-time attendance & performance tracking',
+                    'Mobile-first learning experience with Android app',
+                    'Easy migration for old students to new classes',
                   ].map((point, i) => (
                     <li key={i} className="relative pl-6 text-gray-700">
                       <span className="absolute left-0 text-emerald-500 font-bold">✔</span>
@@ -343,8 +342,8 @@ export default function PayrollClient() {
               className="flex items-center justify-center"
             >
               <Image
-                src="/payroll/Payroll1.jpg"
-                alt="Tej Payroll Dashboard"
+                src="/class-management/ClassManagement1.jpg"
+                alt="Tej Class Management Dashboard"
                 width={450}
                 height={300}
                 className="w-full h-full max-h-[400px] object-cover rounded-lg shadow-md"
@@ -363,7 +362,7 @@ export default function PayrollClient() {
       >
         <div className="container mx-auto px-4">
           <motion.h2 variants={itemVariants} className="text-4xl font-bold text-blue-800 text-center mb-12">
-            Powerful Features of Tej Payroll
+            Powerful Features of Tej Class Management
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
@@ -411,7 +410,7 @@ export default function PayrollClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Benefits of Tej Payroll Software
+            Benefits of Tej Class Management System
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
@@ -473,11 +472,8 @@ export default function PayrollClient() {
         className="py-20 bg-gradient-to-r from-blue-900 to-emerald-600 text-white text-center"
       >
         <motion.h2 variants={itemVariants} className="text-4xl font-bold mb-4 text-white">
-          Ready to Simplify Your Payroll?
+          Ready to Transform Your Institute?
         </motion.h2>
-        <motion.p variants={itemVariants} className="text-lg mb-6">
-          Contact us at: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001.
-        </motion.p>
         <motion.div variants={itemVariants}>
           <Link
             href="/contact"

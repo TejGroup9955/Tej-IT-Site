@@ -341,9 +341,9 @@ export default function About() {
         <motion.h2 variants={itemVariants} className="text-3xl font-bold mb-4 text-text">
           Ready to Grow with Us?
         </motion.h2>
-        <motion.p variants={itemVariants} className="text-lg mb-6 text-text">
+        {/* <motion.p variants={itemVariants} className="text-lg mb-6 text-text">
           Contact us at: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001.
-        </motion.p>
+        </motion.p> */}
         <motion.div variants={itemVariants}>
           <Link href="/contact" className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-full hover:bg-secondary transition">
             Get in Touch

@@ -5,5 +5,4 @@
 
 cd /var/www/html/Tej-IT-Site/backend/
 source venv/bin/activate
-
 python app.py
