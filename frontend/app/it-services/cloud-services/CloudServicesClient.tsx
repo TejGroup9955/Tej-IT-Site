@@ -45,37 +45,6 @@ export default function CloudServicesClient() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-<<<<<<< HEAD
-  const services: Service[] = [
-    {
-      title: 'AWS Solutions',
-      description: 'Expert deployment and management of AWS infrastructure, including EC2 for virtual servers, S3 for storage, and Lambda for serverless computing, ensuring seamless scalability.',
-      icon: Server,
-    },
-    {
-      title: 'DevOps',
-      description: 'Automate workflows with CI/CD pipelines, Jenkins, Docker, and infrastructure as code (Terraform, Ansible) for faster, reliable software delivery.',
-      icon: Wrench,
-    },
-    {
-      title: 'Database Services',
-      description: 'Secure, high-performance cloud databases (Amazon RDS, DynamoDB, Azure SQL) with migration, optimization, and scaling for relational and NoSQL environments.',
-      icon: Database,
-    },
-    {
-      title: 'Cloud Migration Consulting',
-      description: 'Plan and execute seamless transitions to cloud platforms with customized strategies for minimal disruption.',
-      icon: UploadCloud,
-    },
-    {
-      title: 'Security & Compliance',
-      description: 'Robust solutions like IAM, encryption, and compliance with GDPR, HIPAA to protect data and meet regulatory standards.',
-      icon: Shield,
-    },
-    {
-      title: 'AI/ML Integration',
-      description: 'Leverage AWS SageMaker or Azure Machine Learning for advanced analytics and data-driven decision-making.',
-=======
   const cloudServices: Service[] = [
     {
       title: 'AWS Solutions',
@@ -105,17 +74,10 @@ export default function CloudServicesClient() {
     {
       title: 'AI/ML Integration',
       description: 'AWS SageMaker, predictive analytics, data-driven insights for smarter business decisions.',
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       icon: Brain,
     },
   ];
 
-<<<<<<< HEAD
-  const benefits: Benefit[] = [
-    {
-      title: 'Cost Savings',
-      description: 'Reduce costs by up to 60% with pay-as-you-go models, eliminating upfront hardware investments.',
-=======
   const devOpsServices: Service[] = [
     {
       title: 'CI/CD Pipelines',
@@ -148,32 +110,20 @@ export default function CloudServicesClient() {
     {
       title: 'Cost Efficiency',
       description: 'Pay-as-you-go, no upfront hardware costs.',
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       icon: DollarSign,
     },
     {
       title: 'Scalability & Flexibility',
-<<<<<<< HEAD
-      description: 'Instantly scale resources to meet demand, ensuring no over-provisioning or downtime.',
-      icon: Maximize2,
-    },
-    {
-      title: 'Speed & Agility',
-      description: 'Accelerate time-to-market with rapid deployment and prototyping capabilities.',
-=======
       description: 'Auto-scale resources, reduce over-provisioning.',
       icon: Maximize2,
     },
     {
       title: 'Reliability & Uptime',
       description: '99.9% uptime SLA with disaster recovery.',
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       icon: Zap,
     },
   ];
 
-<<<<<<< HEAD
-=======
   const devOpsBenefits: Benefit[] = [
     {
       title: 'Faster Releases',
@@ -192,20 +142,10 @@ export default function CloudServicesClient() {
     },
   ];
 
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   const caseStudies: CaseStudy[] = [
     {
       title: 'Manufacturing AWS Migration',
       problem: 'Legacy systems slowed production.',
-<<<<<<< HEAD
-      solution: 'Migrated to AWS EC2 and S3.',
-      result: '50% faster deployment, 30% cost reduction.',
-    },
-    {
-      title: 'DevOps for Education',
-      problem: 'Slow software updates.',
-      solution: 'Implemented CI/CD with Jenkins and Docker.',
-=======
       solution: 'EC2/S3 migration, auto-scaling, CI/CD pipelines.',
       result: '50% faster deployment, 30% cost reduction.',
     },
@@ -213,46 +153,18 @@ export default function CloudServicesClient() {
       title: 'Educational Platform',
       problem: 'Slow software updates.',
       solution: 'DevOps automation with Jenkins & Docker.',
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       result: '40% faster release cycles.',
     },
     {
       title: 'Database Optimization',
-<<<<<<< HEAD
-      problem: 'High-latency data access.',
-      solution: 'Migrated to DynamoDB.',
-      result: '60% improved query performance.',
-=======
       problem: 'High-latency queries.',
       solution: 'DynamoDB migration, monitoring dashboards.',
       result: '60% improved performance.',
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     },
   ];
 
   const resources: Resource[] = [
     {
-<<<<<<< HEAD
-      title: 'How to Choose the Right Cloud Provider',
-      description: 'Learn key factors to consider when selecting a cloud platform for your business.',
-      href: '/blogs/cloud-provider-guide',
-      icon: Book,
-    },
-    {
-      title: 'DevOps Best Practices',
-      description: 'Discover how to streamline development with our proven DevOps strategies.',
-      href: '/blogs/devops-practices',
-      icon: Settings,
-    },
-    {
-      title: 'Cloud Migration Guide',
-      description: 'A step-by-step guide to seamless cloud transitions.',
-      href: '/blogs/cloud-migration-guide',
-      icon: DownloadCloud,
-    },
-  ];
-
-=======
       title: 'Cloud Migration Guide',
       description: 'Step-by-step migration to AWS.',
       href: '/blogs/cloud-migration-guide',
@@ -274,7 +186,6 @@ export default function CloudServicesClient() {
 
   const partners = ['aws', 'docker', 'kubernetes', 'jenkins', 'terraform', 'ansible', 'grafana', 'gitlab', 'git'];
 
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -303,11 +214,7 @@ export default function CloudServicesClient() {
     e.preventDefault();
     const { name, email, message } = formData;
     if (name && email && message) {
-<<<<<<< HEAD
-      alert('Thank you for your submission! We will get back to you soon.');
-=======
       alert('Thank you! Our cloud & DevOps experts will contact you shortly.');
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       setFormData({ name: '', email: '', message: '' });
       setIsModalOpen(false);
       setFormError('');
@@ -328,17 +235,6 @@ export default function CloudServicesClient() {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-<<<<<<< HEAD
-        className="relative bg-[url('/it-services/cloud-bg.jpg')] bg-cover bg-center text-white py-24 text-center"
-      >
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold mb-6"
-            style={{ color: 'white' }}
-          >
-            Transform Your Future with Cloud & DevOps Excellence
-=======
         className="relative bg-[url('/it-services/cloud-bg.jpg')] bg-cover bg-center text-white py-24 text-center overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-teal-900/50" />
@@ -348,27 +244,18 @@ export default function CloudServicesClient() {
             className="text-4xl md:text-5xl font-bold mb-6 text-white"
           >
             Transform, Automate, and Scale Your Business
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
           </motion.h2>
           <motion.p
             variants={itemVariants}
             className="text-lg md:text-xl mb-8 max-w-3xl mx-auto"
           >
-<<<<<<< HEAD
-            Unlock unparalleled efficiency and innovation with Tej IT Solutions’ cloud and DevOps expertise, delivering scalable, secure, and agile solutions for your digital transformation.
-=======
             Unlock the full potential of AWS cloud infrastructure and DevOps practices. Tej IT Solutions delivers seamless cloud migration, secure infrastructure, CI/CD automation, container orchestration, and managed services to accelerate digital transformation.
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
           </motion.p>
           <motion.button
             variants={itemVariants}
             onClick={() => setIsModalOpen(true)}
             className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-8 rounded-full text-lg"
           >
-<<<<<<< HEAD
-            Get a Free Consultation
-          </motion.button>
-=======
             Request Free Consultation
           </motion.button>
           <div className="mt-8 flex justify-center gap-4 flex-wrap">
@@ -384,7 +271,6 @@ export default function CloudServicesClient() {
               </motion.div>
             ))}
           </div>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
         </div>
       </motion.section>
 
@@ -401,12 +287,6 @@ export default function CloudServicesClient() {
             className="text-3xl md:text-4xl font-bold text-center mb-12"
             style={{ color: '#1e40af' }}
           >
-<<<<<<< HEAD
-            Our Cloud Services Offerings
-          </motion.h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-=======
             Cloud Services
           </motion.h3>
           <motion.p
@@ -417,18 +297,13 @@ export default function CloudServicesClient() {
           </motion.p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {cloudServices.map((service, index) => (
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               <motion.div
                 key={service.title}
                 variants={itemVariants}
                 whileHover="hover"
                 custom={cardHover}
                 className="bg-gray-50 p-6 rounded-lg shadow-lg"
-<<<<<<< HEAD
-                style={{ animationDelay: `${0.2 * (index + 1)}s` }}
-=======
                 style={{ backgroundColor: index % 2 === 0 ? '#f8fafc' : '#e0f2fe' }}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               >
                 <motion.div variants={iconHover} whileHover="hover">
                   <service.icon className="w-8 h-8 text-teal-500 mb-4 mx-auto" />
@@ -443,11 +318,7 @@ export default function CloudServicesClient() {
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-      {/* Benefits Section */}
-=======
       {/* Cloud Benefits Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -463,20 +334,13 @@ export default function CloudServicesClient() {
             Benefits of Our Cloud Services
           </motion.h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-<<<<<<< HEAD
-            {benefits.map((benefit, index) => (
-=======
             {cloudBenefits.map((benefit, index) => (
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               <motion.div
                 key={benefit.title}
                 variants={itemVariants}
                 whileHover="hover"
                 custom={cardHover}
                 className="bg-white p-6 rounded-lg shadow-lg"
-<<<<<<< HEAD
-                style={{ animationDelay: `${0.2 * (index + 1)}s` }}
-=======
                 style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f9ff' }}
               >
                 <motion.div variants={iconHover} whileHover="hover">
@@ -560,7 +424,6 @@ export default function CloudServicesClient() {
                 custom={cardHover}
                 className="bg-white p-6 rounded-lg shadow-lg"
                 style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f9ff' }}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               >
                 <motion.div variants={iconHover} whileHover="hover">
                   <benefit.icon className="w-8 h-8 text-teal-500 mb-4 mx-auto" />
@@ -598,10 +461,6 @@ export default function CloudServicesClient() {
                 whileHover="hover"
                 custom={cardHover}
                 className="bg-gray-50 p-6 rounded-lg shadow-lg"
-<<<<<<< HEAD
-                style={{ animationDelay: `${0.2 * (index + 1)}s` }}
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               >
                 <h4 className="text-xl font-semibold mb-4 text-center" style={{ color: '#1e40af' }}>
                   {caseStudy.title}
@@ -630,24 +489,6 @@ export default function CloudServicesClient() {
             className="text-3xl md:text-4xl font-bold text-center mb-12"
             style={{ color: '#1e40af' }}
           >
-<<<<<<< HEAD
-            Our Technology Partners
-          </motion.h3>
-          <div className="flex justify-center space-x-12 flex-wrap">
-            {['aws.png', 'azure.png', 'gcp.png', 'jenkins.png', 'ansible.png', 'terraform.png', 'docker.png', 'kubernetes.png'].map((logo, index) => (
-              <motion.div
-                key={logo}
-                variants={itemVariants}
-                whileHover={{ scale: 1.1 }}
-                className="grayscale hover:grayscale-0 transition-all"
-              >
-                <Image
-                  src={`/icons/${logo}`}
-                  alt={`${logo.split('.')[0].toUpperCase()} Partner`}
-                  width={100}
-                  height={64}
-                  className="object-contain mb-4"
-=======
             Technology Partners
           </motion.h3>
           <div className="flex overflow-x-auto space-x-8 pb-4">
@@ -664,7 +505,6 @@ export default function CloudServicesClient() {
                   width={100}
                   height={64}
                   className="object-contain"
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
                 />
               </motion.div>
             ))}
@@ -685,11 +525,7 @@ export default function CloudServicesClient() {
             className="text-3xl md:text-4xl font-bold text-center mb-12"
             style={{ color: '#1e40af' }}
           >
-<<<<<<< HEAD
-            Insights & Resources
-=======
             Resources & Guides
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
           </motion.h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {resources.map((resource, index) => (
@@ -700,10 +536,6 @@ export default function CloudServicesClient() {
                 whileHover="hover"
                 custom={cardHover}
                 className="bg-gray-50 p-6 rounded-lg shadow-lg"
-<<<<<<< HEAD
-                style={{ animationDelay: `${0.2 * (index + 1)}s` }}
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               >
                 <motion.div variants={iconHover} whileHover="hover">
                   <resource.icon className="w-8 h-8 text-teal-500 mb-4 mx-auto" />
@@ -718,8 +550,6 @@ export default function CloudServicesClient() {
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-=======
       {/* CTA Section */}
       <motion.section
         variants={containerVariants}
@@ -744,7 +574,6 @@ export default function CloudServicesClient() {
         </div>
       </motion.section>
 
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       {/* Sticky CTA */}
       {showStickyCta && (
         <motion.button
@@ -754,11 +583,7 @@ export default function CloudServicesClient() {
           onClick={() => setIsModalOpen(true)}
           className="fixed bottom-5 right-5 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg z-[1000]"
         >
-<<<<<<< HEAD
-          Contact Us
-=======
           Get Free Consultation
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
         </motion.button>
       )}
 
@@ -778,11 +603,7 @@ export default function CloudServicesClient() {
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold" style={{ color: '#1e40af' }}>
-<<<<<<< HEAD
-                Get a Free Consultation
-=======
                 Request Free Consultation
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-600 hover:text-gray-800">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -830,11 +651,7 @@ export default function CloudServicesClient() {
               {formError && <p className="text-red-500 mb-4">{formError}</p>}
               <button
                 type="submit"
-<<<<<<< HEAD
-                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-2 rounded-md hover:from-orange-600 hover:to-red-600"
-=======
                 className="w-full bg-teal-500 text-white font-semibold py-2 rounded-md hover:bg-teal-600"
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               >
                 Submit
               </button>

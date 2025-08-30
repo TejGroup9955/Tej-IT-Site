@@ -3,92 +3,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-<<<<<<< HEAD
-import { Code, Server, Cloud, Wrench, Shield, Check, ChevronRight, Star, PhoneCall } from 'lucide-react';
-=======
 import { Code, Server, Wrench, Shield, Check, ChevronRight, PhoneCall, BarChart, Users, Settings, Plug, Monitor, Search, Pencil, Rocket, Database } from 'lucide-react';
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
 export default function SoftwareDevelopmentPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formError, setFormError] = useState('');
   const [showStickyCta, setShowStickyCta] = useState(false);
-<<<<<<< HEAD
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
   useEffect(() => {
     const handleScroll = () => setShowStickyCta(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
-<<<<<<< HEAD
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(interval);
-=======
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     };
   }, []);
 
   const services = [
     {
-<<<<<<< HEAD
-      title: 'Custom Application Development',
-      description: 'Tailor-made applications designed to meet your specific business needs with scalability and performance.',
-      icon: Code,
-      href: '/it-services/custom-app-dev',
-    },
-    {
-      title: 'Enterprise Software Solutions',
-      description: 'Robust solutions for large organizations to enhance efficiency and decision-making.',
-      icon: Server,
-      href: '/it-services/enterprise-solutions',
-    },
-    {
-      title: 'API Development & Integration',
-      description: 'Secure and high-performance APIs to connect your systems seamlessly.',
-      icon: Cloud,
-      href: '/it-services/api-integration',
-    },
-    {
-      title: 'Legacy System Modernization',
-      description: 'Upgrade outdated systems into agile, cloud-ready solutions with modern UI.',
-      icon: Wrench,
-      href: '/it-services/legacy-modernization',
-    },
-    {
-      title: 'Cloud-Based Applications',
-      description: 'Scalable, secure cloud apps built on AWS, Azure, or Google Cloud.',
-      icon: Cloud,
-      href: '/it-services/cloud-apps',
-    },
-    {
-      title: 'Software Maintenance & Support',
-      description: 'Ongoing support with updates, bug fixes, and performance optimization.',
-      icon: Shield,
-      href: '/it-services/support',
-    },
-  ];
-
-  const testimonials = [
-    { quote: 'Their software solutions revolutionized our operations!', author: 'Vikram Singh, CIO, Innovate Corp' },
-    { quote: 'Expertise and support that exceeded our expectations.', author: 'Anjali Desai, Operations Manager' },
-  ];
-
-  const processSteps = [
-    { title: 'Requirement Analysis & Consulting', description: 'Define your vision and business goals.' },
-    { title: 'Planning & Architecture', description: 'Design scalable and secure software architecture.' },
-    { title: 'Agile Development', description: 'Iterative development with continuous feedback.' },
-    { title: 'Quality Assurance & Testing', description: 'Ensure reliability and high performance.' },
-    { title: 'Deployment & Integration', description: 'Seamless rollout with minimal disruption.' },
-    { title: 'Ongoing Support', description: 'Continuous monitoring and enhancements.' },
-=======
       title: 'ERP & Business Management Solutions',
       description: 'Centralized systems for finance, HR, inventory, and operations, tailored to your business needs.',
       icon: BarChart,
@@ -160,7 +92,6 @@ export default function SoftwareDevelopmentPage() {
       title: 'Post-Launch Support',
       description: '24/7 monitoring, SLA-driven response, and feature upgrades to ensure long-term success.',
     },
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   ];
 
   const containerVariants = {
@@ -188,11 +119,7 @@ export default function SoftwareDevelopmentPage() {
     e.preventDefault();
     const { name, email, message } = formData;
     if (name && email && message) {
-<<<<<<< HEAD
-      alert('Thank you! We will contact you shortly.');
-=======
       alert('Thank you! Our custom software development experts will contact you shortly.');
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       setFormData({ name: '', email: '', message: '' });
       setIsModalOpen(false);
       setFormError('');
@@ -208,12 +135,6 @@ export default function SoftwareDevelopmentPage() {
 
   return (
     <div className="bg-gradient-to-b from-gray-50 via-white to-gray-100 min-h-screen font-sans text-gray-900">
-<<<<<<< HEAD
-      {/* Navbar Gap */}
-      {/* <div className="h-16 bg-gradient-to-b from-gray-50 via-white to-gray-100"></div> */}
-
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       {/* Hero Section */}
       <motion.section
         initial="hidden"
@@ -230,27 +151,6 @@ export default function SoftwareDevelopmentPage() {
             className="opacity-50 blur-md"
           />
         </div>
-<<<<<<< HEAD
-        <div className="container mx-auto px-4 text-black text-center relative z-10">
-          <motion.h1
-            variants={itemVariants}
-            className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight text-gray-900" // Changed to dark gray
-          >
-            Software Development Services
-          </motion.h1>
-          <motion.p
-            variants={itemVariants}
-            className="text-base sm:text-lg md:text-xl mb-8 max-w-3xl mx-auto text-black" // Changed to black
-          >
-            Building reliable, scalable, and future-ready software to empower your business growth.
-          </motion.p>
-          <motion.div variants={itemVariants}>
-            <Link
-              href="/contact"
-              className="inline-block bg-white text-indigo-700 font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-gray-100 transition-colors"
-            >
-              Request a Quote
-=======
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.h1
             variants={itemVariants}
@@ -274,60 +174,12 @@ export default function SoftwareDevelopmentPage() {
               >
                Start Your Project
               </motion.button>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
             </Link>
           </motion.div>
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-      {/* Overview Section */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-        className="py-16 bg-white"
-      >
-        <div className="container mx-auto px-4 text-center">
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-gray-800 mb-8"
-          >
-            {/* Software Development Services */}
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto"
-          >
-            {/* Building Reliable, Scalable & Future-Ready Software */}
-          </motion.p>
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-col md:flex-row justify-center items-center gap-8"
-          >
-            <div className="max-w-prose text-center">
-              <p className="text-gray-700 mb-4">
-                At Tej IT Solutions, we understand that every business is unique — and so are its challenges. That’s why our software development services are focused on delivering custom-built, secure, and scalable applications that align perfectly with your business goals. From concept to deployment, and ongoing support, we provide end-to-end software development solutions that empower businesses to innovate and grow.
-              </p>
-            </div>
-            <div className="hidden md:block">
-              <Image
-                src="/it-services/software-overview.jpg"
-                alt="Software Development Overview"
-                width={400}
-                height={300}
-                className="rounded-lg shadow-md object-cover"
-              />
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Services Section */}
-=======
       {/* What We Build Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -342,28 +194,18 @@ export default function SoftwareDevelopmentPage() {
           >
             Our Software Development Expertise
           </motion.h2>
-<<<<<<< HEAD
-=======
           <motion.p
             variants={itemVariants}
             className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center"
           >
             We build software that adapts to your industry, scales with your growth, and integrates seamlessly with your existing ecosystem, delivering enterprise application development expertise.
           </motion.p>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
               <motion.div
                 key={service.title}
                 variants={itemVariants}
                 className="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col items-center text-center h-full transition-all duration-300"
-<<<<<<< HEAD
-                whileHover={{
-                  filter: 'blur(2px)',
-                  transition: { duration: 0.2 }
-                }}
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
                 whileHover={{ boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)', scale: 1.02 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 10 }}
               >
@@ -374,23 +216,14 @@ export default function SoftwareDevelopmentPage() {
                   <service.icon className="w-12 h-12 text-teal-600 mb-4" />
                 </motion.div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">{service.title}</h3>
-<<<<<<< HEAD
-                <p className="text-gray-600 mb-4 flex-grow text-sm">{service.description}</p>
-                {/* Removed Learn More link */}
-=======
                 <p className="text-gray-600 text-sm">{service.description}</p>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               </motion.div>
             ))}
           </div>
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-      {/* Process Section */}
-=======
       {/* Our Process Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -403,10 +236,6 @@ export default function SoftwareDevelopmentPage() {
             variants={itemVariants}
             className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12"
           >
-<<<<<<< HEAD
-            Our Development Approach
-          </motion.h2>
-=======
             How We Build Software That Works
           </motion.h2>
           <motion.p
@@ -415,29 +244,11 @@ export default function SoftwareDevelopmentPage() {
           >
             Our development approach ensures transparency, agility, and continuous collaboration at every stage for effective ERP and CRM development services.
           </motion.p>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
           <div className="relative">
             {processSteps.map((step, index) => (
               <motion.div
                 key={step.title}
                 variants={itemVariants}
-<<<<<<< HEAD
-                initial={{ opacity: 0, x: 0 }} // Start centered
-                whileInView={{
-                  opacity: 1,
-                  x: index % 2 === 0 ? -100 : 100, // Move to zigzag position
-                  transition: { duration: 0.8, ease: 'easeOut' }
-                }}
-                viewport={{ once: true }}
-                className={`flex flex-col md:flex-row items-center justify-center gap-6 mb-12 ${
-                  index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'
-                }`}
-              >
-                <div className="flex-shrink-0 w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">{index + 1}</span>
-                </div>
-                <div className={`text-center md:${index % 2 === 0 ? 'text-right' : 'text-left'} flex-grow md:pr-6 md:pl-6`}>
-=======
                 className="flex items-center justify-center gap-6 mb-12 flex-col md:flex-row"
               >
                 <motion.div
@@ -448,23 +259,15 @@ export default function SoftwareDevelopmentPage() {
                   <step.icon className="w-6 h-6 text-white" />
                 </motion.div>
                 <div className="text-center md:text-left flex-grow">
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
                   <h3 className="text-lg font-semibold text-gray-800">{step.title}</h3>
                   <p className="text-gray-600 text-sm">{step.description}</p>
                 </div>
                 {index < processSteps.length - 1 && (
                   <motion.div
-<<<<<<< HEAD
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="hidden md:block flex-grow border-t border-dashed border-gray-300"
-=======
                     initial={{ height: 0 }}
                     animate={{ height: '100%' }}
                     transition={{ duration: 1, delay: 0.2 }}
                     className="w-0.5 h-12 bg-gray-300 md:h-0 md:w-full border-t border-dashed border-gray-300"
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
                   />
                 )}
               </motion.div>
@@ -473,11 +276,7 @@ export default function SoftwareDevelopmentPage() {
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-      {/* Benefits Section */}
-=======
       {/* Why Tej IT Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -485,41 +284,6 @@ export default function SoftwareDevelopmentPage() {
         variants={containerVariants}
         className="py-16 bg-white"
       >
-<<<<<<< HEAD
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12"
-          >
-            Why Choose Us?
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              'Client-Centric Approach – We focus on your business objectives, not just coding.',
-              'Technology Expertise – Skilled in Java, .NET, PHP, Python, Node.js, Laravel, React, Angular, Flutter, and more.',
-              'Agile & Transparent Process – Regular updates, flexible adjustments, and faster time-to-market.',
-              'End-to-End Services – From ideation to long-term support, we cover the full lifecycle.',
-              'Scalable & Secure Solutions – Built to grow with your business while keeping your data safe.',
-              'Proven Track Record – Trusted by startups, SMEs, and enterprises for delivering reliable and impactful solutions.',
-            ].map((benefit, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition-colors"
-              >
-                <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                <p className="text-gray-600 text-sm">{benefit}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Testimonials Section */}
-=======
         <div className="container mx-auto px-4 flex flex-col md:flex-row gap-8">
           <motion.div variants={itemVariants} className="md:w-1/2">
             <motion.h2
@@ -557,53 +321,16 @@ export default function SoftwareDevelopmentPage() {
       </motion.section>
 
       {/* Final CTA Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-<<<<<<< HEAD
-        className="py-16 bg-gray-50"
-=======
         className="py-20 bg-gradient-to-br from-teal-600 to-indigo-600 text-center"
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       >
         <div className="container mx-auto px-4">
           <motion.h2
             variants={itemVariants}
-<<<<<<< HEAD
-            className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12"
-          >
-            Client Testimonials
-          </motion.h2>
-          <div className="relative max-w-xl mx-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentTestimonial}
-                variants={itemVariants}
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -50, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-center"
-              >
-                <Star className="w-10 h-10 text-teal-600 mx-auto mb-4" />
-                <p className="text-gray-600 italic mb-4 text-base">" {testimonials[currentTestimonial].quote} "</p>
-                <p className="text-teal-600 font-medium text-sm">- {testimonials[currentTestimonial].author}</p>
-              </motion.div>
-            </AnimatePresence>
-            <div className="flex justify-center mt-4 gap-2">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-2 h-2 rounded-full ${currentTestimonial === index ? 'bg-teal-600' : 'bg-gray-300'}`}
-                />
-              ))}
-            </div>
-          </div>
-=======
             className="text-3xl md:text-4xl font-bold text-white mb-6 drop-shadow-md"
           >
             Ready to Transform Your Business with Custom Software?
@@ -626,7 +353,6 @@ export default function SoftwareDevelopmentPage() {
               </motion.button>
             </Link>
           </motion.div>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
         </div>
       </motion.section>
 
@@ -642,11 +368,6 @@ export default function SoftwareDevelopmentPage() {
           <PhoneCall className="w-4 h-4" /> Contact Us
         </motion.button>
       )}
-<<<<<<< HEAD
-    </div>
-  );
-} 
-=======
 
       {/* Consultation Modal */}
       {isModalOpen && (
@@ -721,4 +442,3 @@ export default function SoftwareDevelopmentPage() {
     </div>
   );
 }
->>>>>>> d5691fe (updated it-services pages with careers page with backend)

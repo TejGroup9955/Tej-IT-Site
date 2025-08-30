@@ -7,10 +7,6 @@ from datetime import datetime, timedelta
 import jwt
 import os
 from dotenv import load_dotenv
-<<<<<<< HEAD
-load_dotenv()
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 from werkzeug.utils import secure_filename
 import requests
 
@@ -23,11 +19,7 @@ CORS(app, supports_credentials=True, resources={r"/*": {"origins": os.getenv('FR
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-<<<<<<< HEAD
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-=======
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -63,32 +55,6 @@ def initialize_db():
         )
     """)
     cursor.execute("""
-<<<<<<< HEAD
-    CREATE TABLE IF NOT EXISTS blogs (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        content TEXT NOT NULL,
-        image VARCHAR(255),
-        date DATETIME NOT NULL,
-        priority INT DEFAULT 0,
-        category VARCHAR(50) DEFAULT 'General',
-        excerpt TEXT,
-        slug VARCHAR(255) UNIQUE,
-        is_enabled BOOLEAN DEFAULT TRUE
-    )
-    """)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS testimonials (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        company VARCHAR(255),
-        content TEXT NOT NULL,
-        rating INT DEFAULT 0,
-        image VARCHAR(255),
-        date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        is_enabled BOOLEAN DEFAULT TRUE
-    )
-=======
         CREATE TABLE IF NOT EXISTS blogs (
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
@@ -113,7 +79,6 @@ def initialize_db():
             date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             is_enabled BOOLEAN DEFAULT TRUE
         )
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS enquiries (
@@ -150,8 +115,6 @@ def initialize_db():
             page VARCHAR(100) DEFAULT 'home'
         )
     """)
-<<<<<<< HEAD
-=======
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -179,7 +142,6 @@ def initialize_db():
             FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
         )
     """)
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", ('admin', 'admin123'))
@@ -270,13 +232,10 @@ def admin_dashboard():
     enquiry_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM teams")
     team_count = cursor.fetchone()['count']
-<<<<<<< HEAD
-=======
     cursor.execute("SELECT COUNT(*) as count FROM jobs")
     job_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM job_applications")
     application_count = cursor.fetchone()['count']
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     cursor.execute("SELECT COUNT(*) as count FROM site_visits")
     visit_count = cursor.fetchone()['count']
     cursor.execute("SELECT country, COUNT(*) as count FROM site_visits GROUP BY country ORDER BY count DESC LIMIT 5")
@@ -286,14 +245,9 @@ def admin_dashboard():
     cursor.close()
     connection.close()
     return render_template('dashboard.html', blog_count=blog_count, testimonial_count=testimonial_count,
-<<<<<<< HEAD
-                          enquiry_count=enquiry_count, team_count=team_count,
-                          visit_count=visit_count, top_countries=top_countries, top_pages=top_pages)
-=======
                           enquiry_count=enquiry_count, team_count=team_count, job_count=job_count,
                           application_count=application_count, visit_count=visit_count,
                           top_countries=top_countries, top_pages=top_pages)
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
 @app.route('/admin/blogs')
 def admin_blogs():
@@ -339,11 +293,7 @@ def admin_blog_new():
         cursor = connection.cursor()
         try:
             cursor.execute("INSERT INTO blogs (title, content, image, date, priority, category, excerpt, slug, is_enabled, sequence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-<<<<<<< HEAD
-               (title, content, image_path, datetime.now(), priority, category, excerpt, slug, is_enabled, sequence))
-=======
                            (title, content, image_path, datetime.now(), priority, category, excerpt, slug, is_enabled, sequence))
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
             connection.commit()
             flash('Blog created successfully', 'success')
         except Error as e:
@@ -391,11 +341,7 @@ def admin_blog_edit(id):
             image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
         try:
             cursor.execute("UPDATE blogs SET title = %s, content = %s, image = %s, priority = %s, category = %s, excerpt = %s, slug = %s, is_enabled = %s, sequence = %s WHERE id = %s",
-<<<<<<< HEAD
-               (title, content, image_path, priority, category, excerpt, slug, is_enabled, sequence, id))
-=======
                            (title, content, image_path, priority, category, excerpt, slug, is_enabled, sequence, id))
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
             connection.commit()
             flash('Blog updated successfully', 'success')
         except Error as e:
@@ -986,8 +932,6 @@ def track_visit():
             print("Failed to connect to database for tracking visit")
     return '', 204
 
-<<<<<<< HEAD
-=======
 @app.route('/api/job-openings', methods=['GET'])
 def get_job_openings():
     connection = get_db_connection()
@@ -1266,7 +1210,6 @@ def admin_application_delete(id):
         connection.close()
     return redirect(url_for('admin_applications'))
 
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 if __name__ == '__main__':
     initialize_db()
     app.run(host='0.0.0.0', port=5000, debug=True)

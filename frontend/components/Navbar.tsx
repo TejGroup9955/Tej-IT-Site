@@ -42,7 +42,8 @@ const navItems: NavItem[] = [
     ],
   },
   { name: 'Blogs', href: '/blog' },
-  { name: 'Contact Us', href: '/contact' },
+  { name: 'Careers', href: '/careers' },
+  { name: 'Contact Us', href: '/contact' }
 ];
 
 export default function Navbar() {

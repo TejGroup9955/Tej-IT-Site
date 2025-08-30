@@ -3,70 +3,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-<<<<<<< HEAD
-import { Globe, Palette, Layout, Monitor, Mail, CheckCircle } from 'lucide-react';
-=======
 import { Globe, Palette, Layout, Monitor, Mail, Code, Database, ShoppingCart, FileText, Cloud, LayoutDashboard, PlugZap, Shield, Rocket, Server, Radio } from 'lucide-react';
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
 export default function WebAppDesignDevelopmentPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formError, setFormError] = useState('');
   const [showStickyCta, setShowStickyCta] = useState(false);
-<<<<<<< HEAD
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-=======
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
   useEffect(() => {
     const handleScroll = () => setShowStickyCta(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
-<<<<<<< HEAD
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(interval);
-=======
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     };
   }, []);
 
   const services = [
     {
-<<<<<<< HEAD
-      title: 'Web Design',
-      description: 'We create responsive, SEO-friendly, and user-centric designs that strengthen your online presence and enhance brand identity.',
-      icon: Palette,
-    },
-    {
-      title: 'Web Development',
-      description: 'From corporate websites to complex applications, we deliver scalable, secure, and high-performance web solutions using modern frameworks.',
-      icon: Layout,
-    },
-    {
-      title: 'UI/UX Optimization',
-      description: 'Our UI/UX design experts focus on intuitive interfaces and smooth navigation to boost engagement and conversions.',
-      icon: Monitor,
-    },
-  ];
-
-  const testimonials = [
-    { quote: 'Their web design elevated our brand to new heights!', author: 'Sneha Kapoor, Creative Director' },
-    { quote: 'Top-notch development with a flawless user experience.', author: 'Arjun Mehta, CTO' },
-  ];
-
-  const processSteps = [
-    { title: 'Creative Consultation', description: 'We understand your goals, target audience, and business needs.' },
-    { title: 'Prototype Design', description: 'Interactive mockups for review and collaboration.' },
-    { title: 'Development & Integration', description: 'Robust coding with the latest web development frameworks.' },
-    { title: 'Testing & Refinement', description: 'Ensuring performance, security, and cross-device compatibility.' },
-    { title: 'Launch & Ongoing Support', description: 'Hassle-free deployment with continuous monitoring and upgrades.' },
-=======
       category: 'Frontend & Design',
       items: [
         { title: 'Responsive Website Design', description: 'Crafted with HTML5, CSS3, Tailwind, and Bootstrap for seamless experiences across devices.', icon: Palette },
@@ -106,7 +60,6 @@ export default function WebAppDesignDevelopmentPage() {
     { title: 'Performance-Driven', description: 'Optimized code, caching, and fast load times', icon: Rocket },
     { title: 'Cloud-Ready', description: 'Deployable on AWS, Azure, or Google Cloud', icon: Cloud },
     { title: 'Future-Proof & Scalable', description: 'Built to handle business growth', icon: Database },
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   ];
 
   const containerVariants = {
@@ -116,11 +69,7 @@ export default function WebAppDesignDevelopmentPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 40 },
-<<<<<<< HEAD
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-=======
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, type: 'spring', bounce: 0.4 } },
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   };
 
   const heroVariants = {
@@ -134,8 +83,6 @@ export default function WebAppDesignDevelopmentPage() {
     tap: { scale: 0.98 },
   };
 
-<<<<<<< HEAD
-=======
   const card3DVariants = {
     rest: { rotateX: 0, rotateY: 0, scale: 1, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' },
     hover: {
@@ -150,7 +97,6 @@ export default function WebAppDesignDevelopmentPage() {
     back: { rotateY: 180, opacity: 1, transition: { duration: 0.4 } },
   };
 
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const { name, email, message } = formData;
@@ -169,20 +115,17 @@ export default function WebAppDesignDevelopmentPage() {
     setFormError('');
   };
 
-<<<<<<< HEAD
-=======
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, setTransform: (transform: { rotateX: number; rotateY: number }) => void) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     const mouseX = e.clientX - centerX;
     const mouseY = e.clientY - centerY;
-    const rotateX = (mouseY / rect.height) * 20; // Max 20deg tilt
+    const rotateX = (mouseY / rect.height) * 20;
     const rotateY = (mouseX / rect.width) * 20;
     setTransform({ rotateX, rotateY });
   };
 
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
   return (
     <div className="bg-gradient-to-br from-purple-50 via-white to-blue-50 min-h-screen font-sans text-gray-900">
       {/* Hero Section */}
@@ -210,16 +153,6 @@ export default function WebAppDesignDevelopmentPage() {
             Web Design & Development
           </motion.h1>
           <motion.div variants={itemVariants}>
-<<<<<<< HEAD
-            <Link
-              href="/contact"
-              className="inline-block bg-purple-600 text-white font-semibold py-3 px-10 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300"
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              Start Your Project
-=======
             <Link href="/contact" passHref>
               <motion.button
                 className="inline-block bg-purple-600 text-white font-semibold py-3 px-10 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300"
@@ -229,7 +162,6 @@ export default function WebAppDesignDevelopmentPage() {
               >
                 Start Your Project
               </motion.button>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
             </Link>
           </motion.div>
         </div>
@@ -257,7 +189,7 @@ export default function WebAppDesignDevelopmentPage() {
             <div className="max-w-prose text-center">
               <p className="text-gray-700 mb-6">
                 Explore our portfolio of modern websites, enterprise applications, and digital solutions designed to help brands stand out in today’s competitive market. Each project reflects our commitment to quality, innovation, and client success.
-                Looking for a trusted web design company that delivers stunning websites and high-performance applications? At Tej IT Solutions, we combine creative design, cutting-edge technology, and business strategy to build websites that captivate, convert, and scale. Our mission is simple: to help businesses unleash their digital potential with tailored IT solutions that make an impact. Discover how we transform ideas into visually stunning and functional web experiences.
+                Looking for a trusted web design company that delivers stunning websites and high-performance applications? At Tej IT Solutions, we combine creative design, cutting-edge technology, and business strategy to build websites that captivate, convert, and scale.
               </p>
             </div>
             <div className="relative w-full md:w-1/2">
@@ -273,11 +205,7 @@ export default function WebAppDesignDevelopmentPage() {
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-      {/* Services Section */}
-=======
       {/* Our Web App Services Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -290,37 +218,9 @@ export default function WebAppDesignDevelopmentPage() {
             variants={itemVariants}
             className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
           >
-<<<<<<< HEAD
-            Our Web Expertise
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <motion.div
-                key={service.title}
-                variants={itemVariants}
-                className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center text-center h-full transition-all duration-300 hover:bg-purple-50 hover:shadow-xl"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 10 }}
-              >
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
-                >
-                  <service.icon className="w-12 h-12 text-purple-600 mb-4" />
-                </motion.div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.title}</h3>
-                <p className="text-gray-600 text-sm">{service.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Process Section */}
-=======
             💡 Our Web App Services
           </motion.h2>
-          {services.map((category, index) => (
+          {services.map((category) => (
             <div key={category.category} className="mb-12">
               <motion.h3
                 variants={itemVariants}
@@ -329,7 +229,7 @@ export default function WebAppDesignDevelopmentPage() {
                 {category.category}
               </motion.h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {category.items.map((service, idx) => {
+                {category.items.map((service) => {
                   const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
                   return (
                     <motion.div
@@ -361,7 +261,6 @@ export default function WebAppDesignDevelopmentPage() {
       </motion.section>
 
       {/* Why Work With Tej IT Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -374,45 +273,10 @@ export default function WebAppDesignDevelopmentPage() {
             variants={itemVariants}
             className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
           >
-<<<<<<< HEAD
-            Our Creative Process
-          </motion.h2>
-          <div className="relative">
-            {processSteps.map((step, index) => (
-              <motion.div
-                key={step.title}
-                variants={itemVariants}
-                initial={{ opacity: 0, x: 0 }}
-                whileInView={{
-                  opacity: 1,
-                  x: index < processSteps.length - 1 ? (index % 2 === 0 ? -100 : 100) : 0,
-                  transition: { duration: 0.8, ease: 'easeOut' }
-                }}
-                viewport={{ once: true }}
-                className={`flex flex-col md:flex-row items-center justify-center gap-8 mb-12 ${
-                  index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'
-                }`}
-              >
-                <div className="flex-shrink-0 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
-                  <CheckCircle className="text-white w-6 h-6" />
-                </div>
-                <div className={`text-center md:${index % 2 === 0 ? 'text-right' : 'text-left'} flex-grow md:pr-8 md:pl-8 max-w-prose`}>
-                  <h3 className="text-lg font-semibold text-gray-800">{step.title}</h3>
-                  <p className="text-gray-600 text-sm">{step.description}</p>
-                </div>
-                {index < processSteps.length - 1 && (
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="hidden md:block flex-grow border-t border-dashed border-gray-300"
-                  />
-                )}
-=======
             🎨 Why Work With Tej IT?
           </motion.h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {whyChooseUs.map((item, index) => (
+            {whyChooseUs.map((item) => (
               <motion.div
                 key={item.title}
                 variants={itemVariants}
@@ -445,86 +309,32 @@ export default function WebAppDesignDevelopmentPage() {
                     <p className="text-gray-600 text-sm">{item.description}</p>
                   </motion.div>
                 </AnimatePresence>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
               </motion.div>
             ))}
           </div>
         </div>
       </motion.section>
 
-<<<<<<< HEAD
-      {/* Testimonials Section */}
-=======
       {/* Got a Web App Idea? Section */}
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       <motion.section
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-<<<<<<< HEAD
-        className="py-20 bg-gray-50"
-=======
         className="py-20 bg-gradient-to-br from-blue-600 to-purple-600 text-center"
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
       >
         <div className="container mx-auto px-4">
           <motion.h2
             variants={itemVariants}
-<<<<<<< HEAD
-            className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
-          >
-            What Our Clients Say
-          </motion.h2>
-          <div className="relative max-w-2xl mx-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentTestimonial}
-                variants={itemVariants}
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -50, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-center bg-white p-6 rounded-xl shadow-lg"
-              >
-                <Globe className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <p className="text-gray-600 italic mb-4 text-base">" {testimonials[currentTestimonial].quote} "</p>
-                <p className="text-purple-600 font-medium text-sm">- {testimonials[currentTestimonial].author}</p>
-              </motion.div>
-            </AnimatePresence>
-            <div className="flex justify-center mt-6 gap-3">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full ${currentTestimonial === index ? 'bg-purple-600' : 'bg-gray-300'}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Sticky CTA */}
-      {showStickyCta && (
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-full shadow-xl flex items-center gap-2 z-50"
-        >
-          <Mail className="w-5 h-5" /> Get in Touch
-        </motion.button>
-=======
             className="text-4xl md:text-5xl font-bold text-white mb-6 drop-shadow-md"
           >
-             Got a web app idea? Let’s make it real, scalable, and stunning.
+            Got a web app idea? Let’s make it real, scalable, and stunning.
           </motion.h2>
           <motion.p
             variants={itemVariants}
             className="text-lg text-white mb-8 max-w-2xl mx-auto drop-shadow-md"
           >
+            Ready to transform your vision into reality? Book a free consultation with our experts today.
           </motion.p>
           <motion.div variants={itemVariants} className="flex justify-center gap-4 flex-wrap">
             <Link href="/contact" passHref>
@@ -539,84 +349,82 @@ export default function WebAppDesignDevelopmentPage() {
                 👉 Book Free Consultation
               </motion.button>
             </Link>
-            <Link href="/contact" passHref>
-              
-            </Link>
           </motion.div>
         </div>
       </motion.section>
 
       {/* Consultation Modal */}
-      {isModalOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        >
+      <AnimatePresence>
+        {isModalOpen && (
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-white rounded-lg max-w-md w-full mx-4 p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-purple-600">Request Free Consultation</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-600 hover:text-gray-800">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <form onSubmit={handleFormSubmit}>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700 mb-2">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded-md"
-                  required
-                />
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-white rounded-lg max-w-md w-full mx-4 p-6"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-purple-600">Request Free Consultation</h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-gray-600 hover:text-gray-800">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="message" className="block text-gray-700 mb-2">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded-md"
-                  rows={4}
-                  required
-                ></textarea>
-              </div>
-              {formError && <p className="text-red-500 mb-4">{formError}</p>}
-              <button
-                type="submit"
-                className="w-full bg-purple-600 text-white font-semibold py-2 rounded-md hover:bg-purple-700"
-              >
-                Submit
-              </button>
-            </form>
+              <form onSubmit={handleFormSubmit}>
+                <div className="mb-4">
+                  <label htmlFor="name" className="block text-gray-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="message" className="block text-gray-700 mb-2">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md"
+                    rows={4}
+                    required
+                  ></textarea>
+                </div>
+                {formError && <p className="text-red-500 mb-4">{formError}</p>}
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 text-white font-semibold py-2 rounded-md hover:bg-purple-700"
+                >
+                  Submit
+                </button>
+              </form>
+            </motion.div>
           </motion.div>
-        </motion.div>
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

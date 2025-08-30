@@ -1,15 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-<<<<<<< HEAD
-    "lib": ["dom", "dom.iterable", "esnext"],
-=======
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,11 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-<<<<<<< HEAD
-    "jsx": "react-jsx",
-=======
     "jsx": "preserve",
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
     "incremental": true,
     "plugins": [
       {
@@ -31,13 +23,6 @@
       }
     ],
     "paths": {
-<<<<<<< HEAD
-      "@/*": ["./*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-=======
       "@/*": [
         "./*"
       ]
@@ -52,5 +37,4 @@
   "exclude": [
     "node_modules"
   ]
->>>>>>> d5691fe (updated it-services pages with careers page with backend)
 }
