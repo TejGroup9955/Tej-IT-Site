@@ -7,7 +7,10 @@ from datetime import datetime, timedelta
 import jwt
 import os
 from dotenv import load_dotenv
+<<<<<<< HEAD
 load_dotenv()
+=======
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
 from werkzeug.utils import secure_filename
 import requests
 
@@ -20,7 +23,11 @@ CORS(app, supports_credentials=True, resources={r"/*": {"origins": os.getenv('FR
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+<<<<<<< HEAD
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+=======
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -56,6 +63,7 @@ def initialize_db():
         )
     """)
     cursor.execute("""
+<<<<<<< HEAD
     CREATE TABLE IF NOT EXISTS blogs (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
@@ -80,6 +88,32 @@ def initialize_db():
         date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         is_enabled BOOLEAN DEFAULT TRUE
     )
+=======
+        CREATE TABLE IF NOT EXISTS blogs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            image VARCHAR(255),
+            date DATETIME NOT NULL,
+            priority INT DEFAULT 0,
+            category VARCHAR(50) DEFAULT 'General',
+            excerpt TEXT,
+            slug VARCHAR(255) UNIQUE,
+            is_enabled BOOLEAN DEFAULT TRUE
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS testimonials (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            company VARCHAR(255),
+            content TEXT NOT NULL,
+            rating INT DEFAULT 0,
+            image VARCHAR(255),
+            date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            is_enabled BOOLEAN DEFAULT TRUE
+        )
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS enquiries (
@@ -116,6 +150,36 @@ def initialize_db():
             page VARCHAR(100) DEFAULT 'home'
         )
     """)
+<<<<<<< HEAD
+=======
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS jobs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(100) NOT NULL,
+            description TEXT NOT NULL,
+            location VARCHAR(100) NOT NULL,
+            type VARCHAR(50) NOT NULL,
+            posted_date DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS job_applications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            job_id INT NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100) NOT NULL,
+            phone VARCHAR(20),
+            resume VARCHAR(255),
+            cover_letter TEXT,
+            permanent_address TEXT,
+            current_location VARCHAR(100),
+            highest_education VARCHAR(100),
+            skills TEXT,
+            applied_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
+        )
+    """)
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", ('admin', 'admin123'))
@@ -206,6 +270,13 @@ def admin_dashboard():
     enquiry_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM teams")
     team_count = cursor.fetchone()['count']
+<<<<<<< HEAD
+=======
+    cursor.execute("SELECT COUNT(*) as count FROM jobs")
+    job_count = cursor.fetchone()['count']
+    cursor.execute("SELECT COUNT(*) as count FROM job_applications")
+    application_count = cursor.fetchone()['count']
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
     cursor.execute("SELECT COUNT(*) as count FROM site_visits")
     visit_count = cursor.fetchone()['count']
     cursor.execute("SELECT country, COUNT(*) as count FROM site_visits GROUP BY country ORDER BY count DESC LIMIT 5")
@@ -215,8 +286,14 @@ def admin_dashboard():
     cursor.close()
     connection.close()
     return render_template('dashboard.html', blog_count=blog_count, testimonial_count=testimonial_count,
+<<<<<<< HEAD
                           enquiry_count=enquiry_count, team_count=team_count,
                           visit_count=visit_count, top_countries=top_countries, top_pages=top_pages)
+=======
+                          enquiry_count=enquiry_count, team_count=team_count, job_count=job_count,
+                          application_count=application_count, visit_count=visit_count,
+                          top_countries=top_countries, top_pages=top_pages)
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
 
 @app.route('/admin/blogs')
 def admin_blogs():
@@ -262,7 +339,11 @@ def admin_blog_new():
         cursor = connection.cursor()
         try:
             cursor.execute("INSERT INTO blogs (title, content, image, date, priority, category, excerpt, slug, is_enabled, sequence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+<<<<<<< HEAD
                (title, content, image_path, datetime.now(), priority, category, excerpt, slug, is_enabled, sequence))
+=======
+                           (title, content, image_path, datetime.now(), priority, category, excerpt, slug, is_enabled, sequence))
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
             connection.commit()
             flash('Blog created successfully', 'success')
         except Error as e:
@@ -310,7 +391,11 @@ def admin_blog_edit(id):
             image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
         try:
             cursor.execute("UPDATE blogs SET title = %s, content = %s, image = %s, priority = %s, category = %s, excerpt = %s, slug = %s, is_enabled = %s, sequence = %s WHERE id = %s",
+<<<<<<< HEAD
                (title, content, image_path, priority, category, excerpt, slug, is_enabled, sequence, id))
+=======
+                           (title, content, image_path, priority, category, excerpt, slug, is_enabled, sequence, id))
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
             connection.commit()
             flash('Blog updated successfully', 'success')
         except Error as e:
@@ -901,6 +986,287 @@ def track_visit():
             print("Failed to connect to database for tracking visit")
     return '', 204
 
+<<<<<<< HEAD
+=======
+@app.route('/api/job-openings', methods=['GET'])
+def get_job_openings():
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'error': 'DB connection failed'}), 500
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM jobs ORDER BY posted_date DESC")
+        jobs = cursor.fetchall()
+        print(f"API /job-openings fetched jobs: {jobs}")  # Debug
+    except Error as e:
+        print(f"Error fetching jobs: {e}")
+        return jsonify({'error': 'Failed to fetch jobs'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+    return jsonify(jobs)
+
+@app.route('/admin/jobs')
+def admin_jobs():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        print("Redirecting to login: user_id not in session")  # Debug
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        print("Database connection failed")  # Debug
+        return redirect(url_for('admin_jobs'))
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM jobs ORDER BY posted_date DESC")
+        jobs = cursor.fetchall()
+        print(f"Fetched jobs for admin: {jobs}")  # Debug
+    except Error as e:
+        print(f"Error fetching jobs: {e}")
+        flash('Failed to fetch jobs', 'danger')
+        jobs = []
+    finally:
+        cursor.close()
+        connection.close()
+    return render_template('jobs_list.html', jobs=jobs)
+
+@app.route('/admin/job/new', methods=['GET', 'POST'])
+def admin_job_new():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        location = request.form.get('location')
+        type = request.form.get('type')
+        connection = get_db_connection()
+        if not connection:
+            flash('Database connection failed', 'danger')
+            return redirect(url_for('admin_job_new'))
+        cursor = connection.cursor()
+        try:
+            cursor.execute("INSERT INTO jobs (title, description, location, type, posted_date) VALUES (%s, %s, %s, %s, %s)",
+                           (title, description, location, type, datetime.now()))
+            connection.commit()
+            flash('Job opening created successfully', 'success')
+        except Error as e:
+            print(f"Error inserting job: {e}")
+            flash('Failed to create job due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_jobs'))
+    return render_template('job_form.html', action='Create', job={'title': '', 'description': '', 'location': '', 'type': ''})
+
+@app.route('/admin/job/edit/<int:id>', methods=['GET', 'POST'])
+def admin_job_edit(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_jobs'))
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM jobs WHERE id = %s", (id,))
+    job = cursor.fetchone()
+    if not job:
+        cursor.close()
+        connection.close()
+        flash('Job opening not found', 'danger')
+        return redirect(url_for('admin_jobs'))
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        location = request.form.get('location')
+        type = request.form.get('type')
+        try:
+            cursor.execute("UPDATE jobs SET title = %s, description = %s, location = %s, type = %s WHERE id = %s",
+                           (title, description, location, type, id))
+            connection.commit()
+            flash('Job opening updated successfully', 'success')
+        except Error as e:
+            print(f"Error updating job: {e}")
+            flash('Failed to update job due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_jobs'))
+    cursor.close()
+    connection.close()
+    return render_template('job_form.html', job=job, action='Edit')
+
+@app.route('/admin/job/delete/<int:id>')
+def admin_job_delete(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_jobs'))
+    cursor = connection.cursor()
+    try:
+        cursor.execute("DELETE FROM jobs WHERE id = %s", (id,))
+        connection.commit()
+        flash('Job opening deleted successfully', 'success')
+    except Error as e:
+        print(f"Error deleting job: {e}")
+        flash('Failed to delete job due to database error', 'danger')
+    finally:
+        cursor.close()
+        connection.close()
+    return redirect(url_for('admin_jobs'))
+
+@app.route('/api/submit-application', methods=['POST'])
+def submit_application():
+    job_id = request.form.get('job_id')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    permanent_address = request.form.get('permanent_address')
+    current_location = request.form.get('current_location')
+    highest_education = request.form.get('highest_education')
+    skills = request.form.get('skills')
+    cover_letter = request.form.get('cover_letter')
+    resume = request.files.get('resume')
+    resume_path = None
+    if resume and allowed_file(resume.filename):
+        filename = secure_filename(resume.filename)
+        resume_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        resume.save(resume_path)
+        resume_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO job_applications (
+                job_id, name, email, phone, permanent_address, current_location, 
+                highest_education, skills, cover_letter, resume, applied_date
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (job_id, name, email, phone, permanent_address, current_location, 
+              highest_education, skills, cover_letter, resume_path, datetime.now()))
+        connection.commit()
+        return jsonify({'success': True, 'message': 'Application submitted successfully'}), 200
+    except Error as e:
+        print(f"Error submitting application: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to submit application'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/admin/applications')
+def admin_applications():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        print("Redirecting to login: user_id not in session")  # Debug
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        print("Database connection failed")  # Debug
+        return redirect(url_for('admin_applications'))
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT ja.*, j.title AS job_title
+            FROM job_applications ja
+            JOIN jobs j ON ja.job_id = j.id
+            ORDER BY ja.applied_date DESC
+        """)
+        applications = cursor.fetchall()
+        print(f"Fetched applications: {applications}")  # Debug
+    except Error as e:
+        print(f"Error fetching applications: {e}")
+        flash('Failed to fetch applications', 'danger')
+        applications = []
+    finally:
+        cursor.close()
+        connection.close()
+    return render_template('applications_list.html', applications=applications)
+
+@app.route('/admin/application/new', methods=['GET', 'POST'])
+def admin_application_new():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_application_new'))
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT id, title FROM jobs ORDER BY title")
+    jobs = cursor.fetchall()
+    if request.method == 'POST':
+        job_id = request.form.get('job_id')
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        permanent_address = request.form.get('permanent_address')
+        current_location = request.form.get('current_location')
+        highest_education = request.form.get('highest_education')
+        skills = request.form.get('skills')
+        cover_letter = request.form.get('cover_letter')
+        resume = request.files.get('resume')
+        resume_path = None
+        if resume and allowed_file(resume.filename):
+            filename = secure_filename(resume.filename)
+            resume_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            resume.save(resume_path)
+            resume_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
+        try:
+            cursor.execute("""
+                INSERT INTO job_applications (
+                    job_id, name, email, phone, permanent_address, current_location, 
+                    highest_education, skills, cover_letter, resume, applied_date
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (job_id, name, email, phone, permanent_address, current_location, 
+                  highest_education, skills, cover_letter, resume_path, datetime.now()))
+            connection.commit()
+            flash('Application created successfully', 'success')
+        except Error as e:
+            print(f"Error inserting application: {e}")
+            flash('Failed to create application due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_applications'))
+    cursor.close()
+    connection.close()
+    return render_template('application_form.html', action='Create', 
+                         application={'job_id': '', 'name': '', 'email': '', 'phone': '', 
+                                      'permanent_address': '', 'current_location': '', 
+                                      'highest_education': '', 'skills': '', 'cover_letter': ''}, 
+                         jobs=jobs)
+
+@app.route('/admin/application/delete/<int:id>')
+def admin_application_delete(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_applications'))
+    cursor = connection.cursor()
+    try:
+        cursor.execute("DELETE FROM job_applications WHERE id = %s", (id,))
+        connection.commit()
+        flash('Application deleted successfully', 'success')
+    except Error as e:
+        print(f"Error deleting application: {e}")
+        flash('Failed to delete application due to database error', 'danger')
+    finally:
+        cursor.close()
+        connection.close()
+    return redirect(url_for('admin_applications'))
+
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
 if __name__ == '__main__':
     initialize_db()
     app.run(host='0.0.0.0', port=5000, debug=True)

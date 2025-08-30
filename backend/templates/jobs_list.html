@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Job Openings</h2>
+    <a href="{{ url_for('admin_job_new') }}" class="btn btn-primary mb-3">Add New Job</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Posted Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>{{ job.title }}</td>
+                <td>{{ job.location }}</td>
+                <td>{{ job.type }}</td>
+                <td>{{ job.posted_date }}</td>
+                <td>
+                    <a href="{{ url_for('admin_job_edit', id=job.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{{ url_for('admin_job_delete', id=job.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this job opening?');">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No job openings found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

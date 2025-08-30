@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ action }} Job Application</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="job_id" class="form-label">Job</label>
+            <select class="form-control" id="job_id" name="job_id" required>
+                <option value="" disabled {% if not application.job_id %}selected{% endif %}>Select a job</option>
+                {% for job in jobs %}
+                <option value="{{ job.id }}" {% if application.job_id == job.id %}selected{% endif %}>{{ job.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ application.name | default('') }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ application.email | default('') }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="{{ application.phone | default('') }}">
+        </div>
+        <div class="mb-3">
+            <label for="permanent_address" class="form-label">Permanent Address</label>
+            <textarea class="form-control" id="permanent_address" name="permanent_address">{{ application.permanent_address | default('') }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="current_location" class="form-label">Current Location</label>
+            <input type="text" class="form-control" id="current_location" name="current_location" value="{{ application.current_location | default('') }}">
+        </div>
+        <div class="mb-3">
+            <label for="highest_education" class="form-label">Highest Education</label>
+            <input type="text" class="form-control" id="highest_education" name="highest_education" value="{{ application.highest_education | default('') }}">
+        </div>
+        <div class="mb-3">
+            <label for="skills" class="form-label">Skills (comma-separated)</label>
+            <input type="text" class="form-control" id="skills" name="skills" value="{{ application.skills | default('') }}">
+        </div>
+        <div class="mb-3">
+            <label for="cover_letter" class="form-label">Cover Letter</label>
+            <textarea class="form-control" id="cover_letter" name="cover_letter">{{ application.cover_letter | default('') }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="resume" class="form-label">Resume (PDF)</label>
+            <input type="file" class="form-control" id="resume" name="resume" accept=".pdf">
+        </div>
+        <button type="submit" class="btn btn-primary">{{ action }} Application</button>
+        <a href="{{ url_for('admin_applications') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#cover_letter').summernote({
+            height: 200,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        $('#permanent_address').summernote({
+            height: 100,
+            toolbar: [
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
+        });
+    });
+</script>
+{% endblock %}

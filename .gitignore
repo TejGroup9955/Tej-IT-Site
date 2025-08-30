@@ -1,0 +1,48 @@
+# --- Frontend (Next.js / Node.js) ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+frontend/.vercel
+
+# Frontend logs & env
+frontend/logs/
+frontend/*.log
+frontend/*.log.*
+frontend/*.out
+frontend/*.err
+frontend/.env*
+frontend/.vscode/
+frontend/.idea/
+frontend/.DS_Store
+
+# --- Backend (Flask / Python) ---
+backend/__pycache__/
+backend/*.py[cod]
+backend/*.so
+backend/venv/
+backend/.env/
+backend/.venv/
+backend/venv
+backend/session
+backend/instance/
+backend/flask_session/
+backend/*.log
+backend/*.sqlite3
+backend/*.db
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/build/
+backend/dist/
+backend/*.egg-info/
+
+# Backend IDE / Editor
+backend/.vscode/
+backend/.idea/
+backend/.DS_Store
+
+# --- Global ---
+*.swp
+*.swo

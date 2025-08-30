@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Job Applications</h2>
+    <!-- <a href="{{ url_for('admin_application_new') }}" class="btn btn-primary mb-3">Add New Application</a> -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Permanent Address</th>
+                <th>Current Location</th>
+                <th>Highest Education</th>
+                <th>Skills</th>
+                <th>Applied Date</th>
+                <th>Resume</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for application in applications %}
+            <tr>
+                <td>{{ application.job_title }}</td>
+                <td>{{ application.name }}</td>
+                <td>{{ application.email }}</td>
+                <td>{{ application.phone | default('N/A') }}</td>
+                <td>{{ application.permanent_address | default('N/A') }}</td>
+                <td>{{ application.current_location | default('N/A') }}</td>
+                <td>{{ application.highest_education | default('N/A') }}</td>
+                <td>{{ application.skills | default('N/A') }}</td>
+                <td>{{ application.applied_date }}</td>
+                <td>
+                    {% if application.resume %}
+                    <a href="{{ application.resume }}" target="_blank" class="btn btn-sm btn-info">View Resume</a>
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin_application_delete', id=application.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this application?');">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="11" class="text-center">No job applications found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

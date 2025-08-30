@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ action }} Job Opening</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ job.title | default('') }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" required>{{ job.description | default('') }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" value="{{ job.location | default('') }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="type" class="form-label">Type</label>
+            <select class="form-control" id="type" name="type" required>
+                <option value="Full-Time" {% if job.type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
+                <option value="Part-Time" {% if job.type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
+                <option value="Remote" {% if job.type == 'Remote' %}selected{% endif %}>Remote</option>
+                <option value="Contract" {% if job.type == 'Contract' %}selected{% endif %}>Contract</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ action }} Job</button>
+        <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#description').summernote({
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+    });
+</script>
+{% endblock %}

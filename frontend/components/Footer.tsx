@@ -168,6 +168,7 @@ export default function Footer() {
         </div>
       </motion.footer>
 
+<<<<<<< HEAD
       {/* Tawk.to Chat Widget */}
       <Script
         id="tawk-to"
@@ -177,6 +178,8 @@ export default function Footer() {
         crossOrigin="anonymous"
         charSet="UTF-8"
       />
+=======
+>>>>>>> d5691fe (updated it-services pages with careers page with backend)
     </>
   );
 }
