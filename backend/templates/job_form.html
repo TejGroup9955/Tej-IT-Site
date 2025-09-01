@@ -3,31 +3,71 @@
 <div class="container mt-5">
     <h2>{{ action }} Job Opening</h2>
     <form method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control" id="title" name="title" value="{{ job.title | default('') }}" required>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Job Title</label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ job.title | default('') }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="department_id" class="form-label">Department</label>
+                    <select class="form-control" id="department_id" name="department_id">
+                        <option value="">Select Department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}" {% if job.department_id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
+        
         <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
+            <label for="description" class="form-label">Job Description</label>
             <textarea class="form-control" id="description" name="description" required>{{ job.description | default('') }}</textarea>
         </div>
-        <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-            <input type="text" class="form-control" id="location" name="location" value="{{ job.location | default('') }}" required>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <select class="form-control" id="location" name="location" required>
+                        <option value="">Select Location</option>
+                        <option value="Work From Office" {% if job.location == 'Work From Office' %}selected{% endif %}>Work From Office</option>
+                        <option value="Hybrid" {% if job.location == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                        <option value="Remote" {% if job.location == 'Remote' %}selected{% endif %}>Remote</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="type" class="form-label">Job Type</label>
+                    <select class="form-control" id="type" name="type" required>
+                        <option value="">Select Type</option>
+                        <option value="Full-Time" {% if job.type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
+                        <option value="Part-Time" {% if job.type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
+                        <option value="Contract" {% if job.type == 'Contract' %}selected{% endif %}>Contract</option>
+                        <option value="Internship" {% if job.type == 'Internship' %}selected{% endif %}>Internship</option>
+                    </select>
+                </div>
+            </div>
         </div>
+        
         <div class="mb-3">
-            <label for="type" class="form-label">Type</label>
-            <select class="form-control" id="type" name="type" required>
-                <option value="Full-Time" {% if job.type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
-                <option value="Part-Time" {% if job.type == 'Part-Time' %}selected{% endif %}>Part-Time</option>
-                <option value="Remote" {% if job.type == 'Remote' %}selected{% endif %}>Remote</option>
-                <option value="Contract" {% if job.type == 'Contract' %}selected{% endif %}>Contract</option>
-            </select>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="status" name="status" {% if job.status == 'Active' %}checked{% endif %}>
+                <label class="form-check-label" for="status">
+                    Active (Show on website)
+                </label>
+            </div>
         </div>
+        
         <button type="submit" class="btn btn-primary">{{ action }} Job</button>
         <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+
 <script>
     $(document).ready(function() {
         $('#description').summernote({

@@ -19,7 +19,7 @@ CORS(app, supports_credentials=True, resources={r"/*": {"origins": os.getenv('FR
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -116,13 +116,25 @@ def initialize_db():
         )
     """)
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS departments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            status ENUM('Active', 'Inactive') DEFAULT 'Active',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(100) NOT NULL,
             description TEXT NOT NULL,
+            department_id INT,
             location VARCHAR(100) NOT NULL,
             type VARCHAR(50) NOT NULL,
-            posted_date DATETIME DEFAULT CURRENT_TIMESTAMP
+            posted_by VARCHAR(50) NOT NULL,
+            status ENUM('Active', 'Inactive') DEFAULT 'Active',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
         )
     """)
     cursor.execute("""
@@ -138,8 +150,20 @@ def initialize_db():
             current_location VARCHAR(100),
             highest_education VARCHAR(100),
             skills TEXT,
+            status ENUM('Pending', 'Reviewed', 'Hired', 'Rejected') DEFAULT 'Pending',
             applied_date DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS employee_testimonials (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            employee_name VARCHAR(255) NOT NULL,
+            job_role VARCHAR(255) NOT NULL,
+            feedback TEXT NOT NULL,
+            rating INT NOT NULL,
+            status BOOLEAN DEFAULT FALSE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
     cursor.execute("SELECT COUNT(*) FROM users")
@@ -148,6 +172,13 @@ def initialize_db():
     cursor.execute("SELECT COUNT(*) FROM about_us")
     if cursor.fetchone()[0] == 0:
         cursor.execute("INSERT INTO about_us (content) VALUES (%s)", ('Default about us content.',))
+    cursor.execute("SELECT COUNT(*) FROM departments")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("""
+            INSERT INTO departments (name) VALUES
+            ('HR'), ('Support'), ('Development'), ('Sales'), ('Marketing'),
+            ('DevOps'), ('Cloud'), ('Back Office')
+        """)
     connection.commit()
     cursor.close()
     connection.close()
@@ -236,6 +267,8 @@ def admin_dashboard():
     job_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM job_applications")
     application_count = cursor.fetchone()['count']
+    cursor.execute("SELECT COUNT(*) as count FROM departments")
+    department_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM site_visits")
     visit_count = cursor.fetchone()['count']
     cursor.execute("SELECT country, COUNT(*) as count FROM site_visits GROUP BY country ORDER BY count DESC LIMIT 5")
@@ -246,8 +279,8 @@ def admin_dashboard():
     connection.close()
     return render_template('dashboard.html', blog_count=blog_count, testimonial_count=testimonial_count,
                           enquiry_count=enquiry_count, team_count=team_count, job_count=job_count,
-                          application_count=application_count, visit_count=visit_count,
-                          top_countries=top_countries, top_pages=top_pages)
+                          application_count=application_count, department_count=department_count,
+                          visit_count=visit_count, top_countries=top_countries, top_pages=top_pages)
 
 @app.route('/admin/blogs')
 def admin_blogs():
@@ -454,9 +487,9 @@ def admin_testimonial_new():
         return redirect(url_for('admin_login'))
     if request.method == 'POST':
         name = request.form.get('name')
-        company = request.form.get('company')
+        job_role = request.form.get('job_role')
         content = request.form.get('content')
-        rating = request.form.get('rating', 0)
+        uploaded_by = session.get('user_id', 'admin')
         is_enabled = 'is_enabled' in request.form
         image = request.files.get('image')
         image_path = None
@@ -471,8 +504,8 @@ def admin_testimonial_new():
             return redirect(url_for('admin_testimonial_new'))
         cursor = connection.cursor()
         try:
-            cursor.execute("INSERT INTO testimonials (name, company, content, rating, image, date, is_enabled) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                           (name, company, content, rating, image_path, datetime.now(), is_enabled))
+            cursor.execute("INSERT INTO testimonials (name, job_role, content, image, date, is_enabled, uploaded_by) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                           (name, job_role, content, image_path, datetime.now(), is_enabled, uploaded_by))
             connection.commit()
             flash('Testimonial created successfully', 'success')
         except Error as e:
@@ -488,9 +521,9 @@ def admin_testimonial_new():
 @app.route('/api/submit_testimonial', methods=['POST'])
 def submit_testimonial():
     name = request.form.get('name')
-    company = request.form.get('company')
+    job_role = request.form.get('job_role')
     content = request.form.get('content')
-    rating = request.form.get('rating', 0)
+    uploaded_by = 'anonymous'
     image = request.files.get('image')
     image_path = None
     if image and allowed_file(image.filename):
@@ -503,8 +536,8 @@ def submit_testimonial():
         return jsonify({'success': False, 'message': 'Database connection failed'}), 500
     cursor = connection.cursor()
     try:
-        cursor.execute("INSERT INTO testimonials (name, company, content, rating, image, date) VALUES (%s, %s, %s, %s, %s, %s)",
-                       (name, company, content, rating, image_path, datetime.now()))
+        cursor.execute("INSERT INTO testimonials (name, job_role, content, image, date, uploaded_by) VALUES (%s, %s, %s, %s, %s, %s)",
+                       (name, job_role, content, image_path, datetime.now(), uploaded_by))
         connection.commit()
         return jsonify({'success': True, 'message': 'Testimonial submitted successfully'}), 200
     except Error as e:
@@ -603,9 +636,9 @@ def admin_testimonial_edit(id):
         return redirect(url_for('admin_testimonials'))
     if request.method == 'POST':
         name = request.form.get('name')
-        company = request.form.get('company')
+        job_role = request.form.get('job_role')
         content = request.form.get('content')
-        rating = request.form.get('rating', 0)
+        uploaded_by = session.get('user_id', 'admin')
         is_enabled = 'is_enabled' in request.form
         image = request.files.get('image')
         image_path = testimonial['image']
@@ -615,8 +648,8 @@ def admin_testimonial_edit(id):
             image.save(image_path)
             image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
         try:
-            cursor.execute("UPDATE testimonials SET name = %s, company = %s, content = %s, rating = %s, image = %s, is_enabled = %s WHERE id = %s",
-                           (name, company, content, rating, image_path, is_enabled, id))
+            cursor.execute("UPDATE testimonials SET name = %s, job_role = %s, content = %s, image = %s, is_enabled = %s, uploaded_by = %s WHERE id = %s",
+                           (name, job_role, content, image_path, is_enabled, uploaded_by, id))
             connection.commit()
             flash('Testimonial updated successfully', 'success')
         except Error as e:
@@ -932,16 +965,63 @@ def track_visit():
             print("Failed to connect to database for tracking visit")
     return '', 204
 
+@app.route('/api/departments', methods=['GET'])
+def get_departments():
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'error': 'DB connection failed'}), 500
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM departments WHERE status = 'Active' ORDER BY name")
+        departments = cursor.fetchall()
+    except Error as e:
+        print(f"Error fetching departments: {e}")
+        return jsonify({'error': 'Failed to fetch departments'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+    return jsonify(departments)
+
+@app.route('/api/jobs/<int:id>', methods=['GET'])
+def get_job(id):
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'error': 'DB connection failed'}), 500
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT j.*, d.name AS department FROM jobs j LEFT JOIN departments d ON j.department_id = d.id WHERE j.id = %s", (id,))
+        job = cursor.fetchone()
+        if not job:
+            return jsonify({'error': 'Job not found'}), 404
+        return jsonify(job)
+    except Error as e:
+        print(f"Error fetching job: {e}")
+        return jsonify({'error': 'Failed to fetch job'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 @app.route('/api/job-openings', methods=['GET'])
 def get_job_openings():
     connection = get_db_connection()
     if not connection:
         return jsonify({'error': 'DB connection failed'}), 500
     cursor = connection.cursor(dictionary=True)
+    department = request.args.get('department', 'All')
+    location = request.args.get('location', 'All')
     try:
-        cursor.execute("SELECT * FROM jobs ORDER BY posted_date DESC")
+        query = "SELECT j.*, d.name AS department FROM jobs j LEFT JOIN departments d ON j.department_id = d.id WHERE j.status = 'Active'"
+        params = []
+        if department != 'All':
+            query += " AND d.name = %s"
+            params.append(department)
+        if location != 'All':
+            query += " AND j.location = %s"
+            params.append(location)
+        query += " ORDER BY j.posted_date DESC"
+        cursor.execute(query, params)
         jobs = cursor.fetchall()
-        print(f"API /job-openings fetched jobs: {jobs}")  # Debug
+        print(f"API /job-openings fetched jobs: {jobs}")
     except Error as e:
         print(f"Error fetching jobs: {e}")
         return jsonify({'error': 'Failed to fetch jobs'}), 500
@@ -950,22 +1030,191 @@ def get_job_openings():
         connection.close()
     return jsonify(jobs)
 
-@app.route('/admin/jobs')
-def admin_jobs():
+@app.route('/api/job/add', methods=['POST'])
+@token_required
+def add_job():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    title = request.form.get('title')
+    description = request.form.get('description')
+    department_id = request.form.get('department_id')
+    location = request.form.get('location')
+    type = request.form.get('type')
+    posted_by = session.get('user_id', 'admin')
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
+    try:
+        cursor.execute("INSERT INTO jobs (title, description, department_id, location, type, posted_by, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                       (title, description, department_id, location, type, posted_by, datetime.now()))
+        connection.commit()
+        return jsonify({'success': True, 'message': 'Job added successfully'}), 200
+    except Error as e:
+        print(f"Error inserting job: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to add job'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/api/testimonial/add', methods=['POST'])
+@token_required
+def add_testimonial():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    name = request.form.get('name')
+    job_role = request.form.get('job_role')
+    content = request.form.get('content')
+    uploaded_by = session.get('user_id', 'admin')
+    is_enabled = request.form.get('is_enabled', 'false') == 'true'
+    image = request.files.get('image')
+    image_path = None
+    if image and allowed_file(image.filename):
+        filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(image_path)
+        image_path = f'http://10.10.50.93:5000/static/uploads/{filename}'
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
+    try:
+        cursor.execute("INSERT INTO testimonials (name, job_role, content, image, date, is_enabled, uploaded_by) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                       (name, job_role, content, image_path, datetime.now(), is_enabled, uploaded_by))
+        connection.commit()
+        return jsonify({'success': True, 'message': 'Testimonial added successfully'}), 200
+    except Error as e:
+        print(f"Error inserting testimonial: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to add testimonial'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/admin/departments')
+def admin_departments():
     if 'user_id' not in session:
         flash('Please login first', 'danger')
-        print("Redirecting to login: user_id not in session")  # Debug
         return redirect(url_for('admin_login'))
     connection = get_db_connection()
     if not connection:
         flash('Database connection failed', 'danger')
-        print("Database connection failed")  # Debug
+        return redirect(url_for('admin_departments'))
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM departments ORDER BY name")
+        departments = cursor.fetchall()
+    except Error as e:
+        print(f"Error fetching departments: {e}")
+        flash('Failed to fetch departments', 'danger')
+        departments = []
+    finally:
+        cursor.close()
+        connection.close()
+    return render_template('departments_list.html', departments=departments)
+
+@app.route('/admin/department/new', methods=['GET', 'POST'])
+def admin_department_new():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        name = request.form.get('name')
+        status = request.form.get('status', 'Active')
+        connection = get_db_connection()
+        if not connection:
+            flash('Database connection failed', 'danger')
+            return redirect(url_for('admin_department_new'))
+        cursor = connection.cursor()
+        try:
+            cursor.execute("INSERT INTO departments (name, status, created_at) VALUES (%s, %s, %s)",
+                           (name, status, datetime.now()))
+            connection.commit()
+            flash('Department added successfully', 'success')
+        except Error as e:
+            print(f"Error inserting department: {e}")
+            flash('Failed to add department due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_departments'))
+    return render_template('department_form.html', action='Add', department={'name': '', 'status': 'Active'})
+
+@app.route('/admin/department/edit/<int:id>', methods=['GET', 'POST'])
+def admin_department_edit(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_departments'))
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM departments WHERE id = %s", (id,))
+    department = cursor.fetchone()
+    if not department:
+        cursor.close()
+        connection.close()
+        flash('Department not found', 'danger')
+        return redirect(url_for('admin_departments'))
+    if request.method == 'POST':
+        name = request.form.get('name')
+        status = request.form.get('status')
+        try:
+            cursor.execute("UPDATE departments SET name = %s, status = %s WHERE id = %s",
+                           (name, status, id))
+            connection.commit()
+            flash('Department updated successfully', 'success')
+        except Error as e:
+            print(f"Error updating department: {e}")
+            flash('Failed to update department due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_departments'))
+    cursor.close()
+    connection.close()
+    return render_template('department_form.html', department=department, action='Edit')
+
+@app.route('/admin/department/delete/<int:id>')
+def admin_department_delete(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_departments'))
+    cursor = connection.cursor()
+    try:
+        cursor.execute("DELETE FROM departments WHERE id = %s", (id,))
+        connection.commit()
+        flash('Department deleted successfully', 'success')
+    except Error as e:
+        print(f"Error deleting department: {e}")
+        flash('Failed to delete department due to database error', 'danger')
+    finally:
+        cursor.close()
+        connection.close()
+    return redirect(url_for('admin_departments'))
+
+@app.route('/admin/jobs')
+def admin_jobs():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        print("Redirecting to login: user_id not in session")
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        print("Database connection failed")
         return redirect(url_for('admin_jobs'))
     cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM jobs ORDER BY posted_date DESC")
         jobs = cursor.fetchall()
-        print(f"Fetched jobs for admin: {jobs}")  # Debug
+        print(f"Fetched jobs for admin: {jobs}")
     except Error as e:
         print(f"Error fetching jobs: {e}")
         flash('Failed to fetch jobs', 'danger')
@@ -980,19 +1229,23 @@ def admin_job_new():
     if 'user_id' not in session:
         flash('Please login first', 'danger')
         return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_job_new'))
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT id, name FROM departments WHERE status = 'Active' ORDER BY name")
+    departments = cursor.fetchall()
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
+        department_id = request.form.get('department_id') or None
         location = request.form.get('location')
         type = request.form.get('type')
-        connection = get_db_connection()
-        if not connection:
-            flash('Database connection failed', 'danger')
-            return redirect(url_for('admin_job_new'))
-        cursor = connection.cursor()
+        status = 'Active' if request.form.get('status') == 'on' else 'Inactive'
         try:
-            cursor.execute("INSERT INTO jobs (title, description, location, type, posted_date) VALUES (%s, %s, %s, %s, %s)",
-                           (title, description, location, type, datetime.now()))
+            cursor.execute("INSERT INTO jobs (title, description, department_id, location, type, status, posted_date) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                           (title, description, department_id, location, type, status, datetime.now()))
             connection.commit()
             flash('Job opening created successfully', 'success')
         except Error as e:
@@ -1002,7 +1255,9 @@ def admin_job_new():
             cursor.close()
             connection.close()
         return redirect(url_for('admin_jobs'))
-    return render_template('job_form.html', action='Create', job={'title': '', 'description': '', 'location': '', 'type': ''})
+    cursor.close()
+    connection.close()
+    return render_template('job_form.html', action='Create', job={'title': '', 'description': '', 'department_id': '', 'location': '', 'type': '', 'status': 'Active'}, departments=departments)
 
 @app.route('/admin/job/edit/<int:id>', methods=['GET', 'POST'])
 def admin_job_edit(id):
@@ -1016,6 +1271,8 @@ def admin_job_edit(id):
     cursor = connection.cursor(dictionary=True)
     cursor.execute("SELECT * FROM jobs WHERE id = %s", (id,))
     job = cursor.fetchone()
+    cursor.execute("SELECT id, name FROM departments WHERE status = 'Active' ORDER BY name")
+    departments = cursor.fetchall()
     if not job:
         cursor.close()
         connection.close()
@@ -1024,11 +1281,13 @@ def admin_job_edit(id):
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
+        department_id = request.form.get('department_id') or None
         location = request.form.get('location')
         type = request.form.get('type')
+        status = 'Active' if request.form.get('status') == 'on' else 'Inactive'
         try:
-            cursor.execute("UPDATE jobs SET title = %s, description = %s, location = %s, type = %s WHERE id = %s",
-                           (title, description, location, type, id))
+            cursor.execute("UPDATE jobs SET title = %s, description = %s, department_id = %s, location = %s, type = %s, status = %s WHERE id = %s",
+                           (title, description, department_id, location, type, status, id))
             connection.commit()
             flash('Job opening updated successfully', 'success')
         except Error as e:
@@ -1040,7 +1299,7 @@ def admin_job_edit(id):
         return redirect(url_for('admin_jobs'))
     cursor.close()
     connection.close()
-    return render_template('job_form.html', job=job, action='Edit')
+    return render_template('job_form.html', job=job, action='Edit', departments=departments)
 
 @app.route('/admin/job/delete/<int:id>')
 def admin_job_delete(id):
@@ -1064,6 +1323,29 @@ def admin_job_delete(id):
         connection.close()
     return redirect(url_for('admin_jobs'))
 
+@app.route('/admin/toggle_job', methods=['POST'])
+def toggle_job():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    data = request.get_json()
+    id = data.get('id')
+    status = data.get('status')
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor()
+    try:
+        cursor.execute("UPDATE jobs SET status = %s WHERE id = %s", (status, id))
+        connection.commit()
+        return jsonify({'success': True})
+    except Error as e:
+        print(f"Error toggling job: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to toggle job'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 @app.route('/api/submit-application', methods=['POST'])
 def submit_application():
     job_id = request.form.get('job_id')
@@ -1076,8 +1358,12 @@ def submit_application():
     skills = request.form.get('skills')
     cover_letter = request.form.get('cover_letter')
     resume = request.files.get('resume')
+    if not job_id or not name or not email:
+        return jsonify({'success': False, 'message': 'Required fields missing'}), 400
+    if resume and not allowed_file(resume.filename):
+        return jsonify({'success': False, 'message': 'Invalid file type. Only PDF or DOC/DOCX allowed'}), 400
     resume_path = None
-    if resume and allowed_file(resume.filename):
+    if resume:
         filename = secure_filename(resume.filename)
         resume_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         resume.save(resume_path)
@@ -1089,11 +1375,11 @@ def submit_application():
     try:
         cursor.execute("""
             INSERT INTO job_applications (
-                job_id, name, email, phone, permanent_address, current_location, 
-                highest_education, skills, cover_letter, resume, applied_date
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (job_id, name, email, phone, permanent_address, current_location, 
-              highest_education, skills, cover_letter, resume_path, datetime.now()))
+                job_id, name, email, phone, permanent_address, current_location,
+                highest_education, skills, cover_letter, resume, applied_date, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (job_id, name, email, phone, permanent_address, current_location,
+              highest_education, skills, cover_letter, resume_path, datetime.now(), 'Pending'))
         connection.commit()
         return jsonify({'success': True, 'message': 'Application submitted successfully'}), 200
     except Error as e:
@@ -1108,23 +1394,24 @@ def submit_application():
 def admin_applications():
     if 'user_id' not in session:
         flash('Please login first', 'danger')
-        print("Redirecting to login: user_id not in session")  # Debug
+        print("Redirecting to login: user_id not in session")
         return redirect(url_for('admin_login'))
     connection = get_db_connection()
     if not connection:
         flash('Database connection failed', 'danger')
-        print("Database connection failed")  # Debug
+        print("Database connection failed")
         return redirect(url_for('admin_applications'))
     cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute("""
-            SELECT ja.*, j.title AS job_title
+            SELECT ja.*, j.title AS job_title, d.name AS department
             FROM job_applications ja
             JOIN jobs j ON ja.job_id = j.id
+            LEFT JOIN departments d ON j.department_id = d.id
             ORDER BY ja.applied_date DESC
         """)
         applications = cursor.fetchall()
-        print(f"Fetched applications: {applications}")  # Debug
+        print(f"Fetched applications: {applications}")
     except Error as e:
         print(f"Error fetching applications: {e}")
         flash('Failed to fetch applications', 'danger')
@@ -1144,8 +1431,10 @@ def admin_application_new():
         flash('Database connection failed', 'danger')
         return redirect(url_for('admin_application_new'))
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT id, title FROM jobs ORDER BY title")
+    cursor.execute("SELECT id, title FROM jobs WHERE status = 'Active' ORDER BY title")
     jobs = cursor.fetchall()
+    cursor.execute("SELECT id, name FROM departments WHERE status = 'Active' ORDER BY name")
+    departments = cursor.fetchall()
     if request.method == 'POST':
         job_id = request.form.get('job_id')
         name = request.form.get('name')
@@ -1156,6 +1445,7 @@ def admin_application_new():
         highest_education = request.form.get('highest_education')
         skills = request.form.get('skills')
         cover_letter = request.form.get('cover_letter')
+        status = request.form.get('status', 'Pending')
         resume = request.files.get('resume')
         resume_path = None
         if resume and allowed_file(resume.filename):
@@ -1166,11 +1456,11 @@ def admin_application_new():
         try:
             cursor.execute("""
                 INSERT INTO job_applications (
-                    job_id, name, email, phone, permanent_address, current_location, 
-                    highest_education, skills, cover_letter, resume, applied_date
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (job_id, name, email, phone, permanent_address, current_location, 
-                  highest_education, skills, cover_letter, resume_path, datetime.now()))
+                    job_id, name, email, phone, permanent_address, current_location,
+                    highest_education, skills, cover_letter, resume, applied_date, status
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (job_id, name, email, phone, permanent_address, current_location,
+                  highest_education, skills, cover_letter, resume_path, datetime.now(), status))
             connection.commit()
             flash('Application created successfully', 'success')
         except Error as e:
@@ -1182,11 +1472,11 @@ def admin_application_new():
         return redirect(url_for('admin_applications'))
     cursor.close()
     connection.close()
-    return render_template('application_form.html', action='Create', 
-                         application={'job_id': '', 'name': '', 'email': '', 'phone': '', 
-                                      'permanent_address': '', 'current_location': '', 
-                                      'highest_education': '', 'skills': '', 'cover_letter': ''}, 
-                         jobs=jobs)
+    return render_template('application_form.html', action='Create',
+                         application={'job_id': '', 'name': '', 'email': '', 'phone': '',
+                                      'permanent_address': '', 'current_location': '',
+                                      'highest_education': '', 'skills': '', 'cover_letter': '', 'status': 'Pending'},
+                         jobs=jobs, departments=departments)
 
 @app.route('/admin/application/delete/<int:id>')
 def admin_application_delete(id):
@@ -1209,6 +1499,148 @@ def admin_application_delete(id):
         cursor.close()
         connection.close()
     return redirect(url_for('admin_applications'))
+
+@app.route('/admin/application/update_status/<int:id>', methods=['POST'])
+def admin_application_update_status(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    status = request.form.get('status')
+    if status not in ['Pending', 'Reviewed', 'Hired', 'Rejected']:
+        flash('Invalid status', 'danger')
+        return redirect(url_for('admin_applications'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_applications'))
+    cursor = connection.cursor()
+    try:
+        cursor.execute("UPDATE job_applications SET status = %s WHERE id = %s", (status, id))
+        connection.commit()
+        flash('Application status updated successfully', 'success')
+    except Error as e:
+        print(f"Error updating application status: {e}")
+        flash('Failed to update application status', 'danger')
+    finally:
+        cursor.close()
+        connection.close()
+    return redirect(url_for('admin_applications'))
+
+@app.route('/admin/employee_testimonials')
+def admin_employee_testimonials():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM employee_testimonials ORDER BY created_at DESC")
+        testimonials = cursor.fetchall()
+    except Error as e:
+        print(f"Error fetching employee testimonials: {e}")
+        flash('Failed to fetch employee testimonials', 'danger')
+        testimonials = []
+    finally:
+        cursor.close()
+        connection.close()
+    return render_template('employee_testimonials_list.html', testimonials=testimonials)
+
+@app.route('/admin/employee/testimonial/new', methods=['GET', 'POST'])
+def admin_employee_testimonial_new():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        employee_name = request.form.get('employee_name')
+        job_role = request.form.get('job_role')
+        feedback = request.form.get('feedback')
+        rating = request.form.get('rating')
+        status = 'status' in request.form  # Checkbox for Active/Inactive
+        connection = get_db_connection()
+        if not connection:
+            flash('Database connection failed', 'danger')
+            return redirect(url_for('admin_employee_testimonials'))
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO employee_testimonials (employee_name, job_role, feedback, rating, status, created_at) VALUES (%s, %s, %s, %s, %s, %s)",
+                (employee_name, job_role, feedback, rating, status, datetime.now())
+            )
+            connection.commit()
+            flash('Employee testimonial created successfully', 'success')
+        except Error as e:
+                        flash('Failed to create employee testimonial due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_employee_testimonials'))
+    return render_template('employee_testimonial_form.html', action='Create', testimonial={'employee_name': '', 'job_role': '', 'feedback': '', 'rating': 0, 'status': False})
+
+@app.route('/admin/employee/testimonial/edit/<int:id>', methods=['GET', 'POST'])
+def admin_employee_testimonial_edit(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_employee_testimonials'))
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM employee_testimonials WHERE id = %s", (id,))
+    testimonial = cursor.fetchone()
+    if not testimonial:
+        cursor.close()
+        connection.close()
+        flash('Employee testimonial not found', 'danger')
+        return redirect(url_for('admin_employee_testimonials'))
+    if request.method == 'POST':
+        employee_name = request.form.get('employee_name')
+        job_role = request.form.get('job_role')
+        feedback = request.form.get('feedback')
+        rating = request.form.get('rating')
+        status = 'status' in request.form
+        try:
+            cursor.execute(
+                "UPDATE employee_testimonials SET employee_name = %s, job_role = %s, feedback = %s, rating = %s, status = %s WHERE id = %s",
+                (employee_name, job_role, feedback, rating, status, id)
+            )
+            connection.commit()
+            flash('Employee testimonial updated successfully', 'success')
+        except Error as e:
+            print(f"Error updating employee testimonial: {e}")
+            flash('Failed to update employee testimonial due to database error', 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin_employee_testimonials'))
+    cursor.close()
+    connection.close()
+    return render_template('employee_testimonial_form.html', testimonial=testimonial, action='Edit')
+
+@app.route('/admin/employee/testimonial/delete/<int:id>', methods=['POST'])
+def admin_employee_testimonial_delete(id):
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_employee_testimonials'))
+    cursor = connection.cursor()
+    try:
+        cursor.execute("DELETE FROM employee_testimonials WHERE id = %s", (id,))
+        connection.commit()
+        flash('Employee testimonial deleted successfully', 'success')
+    except Error as e:
+        print(f"Error deleting employee testimonial: {e}")
+        flash('Failed to delete employee testimonial due to database error', 'danger')
+    finally:
+        cursor.close()
+        connection.close()
+    return redirect(url_for('admin_employee_testimonials'))
 
 if __name__ == '__main__':
     initialize_db()
