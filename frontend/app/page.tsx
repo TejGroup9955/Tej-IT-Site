@@ -185,6 +185,7 @@ export default function Home() {
   const stats = [
     { number: '10+', label: 'Years Experience' },
     { number: '500+', label: 'Projects Delivered' },
+    { number: '', label: '', icon: true },
     { number: '100+', label: 'Happy Clients' },
     { number: '24/7', label: 'Support' },
   ];
@@ -207,6 +208,20 @@ export default function Home() {
     '/client-logo/resized/sapscon.png',
     '/client-logo/resized/shreebalaji.png',
   ];
+
+  const scrollWheelVariants = {
+    animate: {
+      y: [0, 5, 0],
+      transition: {
+        y: {
+          repeat: Infinity,
+          repeatType: 'loop',
+          duration: 1.5,
+          ease: 'easeInOut',
+        },
+      },
+    },
+  };
 
   const statVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -310,24 +325,54 @@ export default function Home() {
         <motion.section
           initial="hidden"
           animate="visible"
-          className="py-12 bg-gray-50 text-center"
+          className="py-6 bg-gray-50 flex items-center justify-center ml-[-84px]"
         >
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="flex justify-center items-center gap-8 flex-wrap">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  custom={index}
-                  variants={statVariants}
-                  className="flex flex-col items-center min-w-[120px]"
-                >
+          <div className="flex justify-center gap-8 flex-wrap max-w-6xl px-4">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                custom={index}
+                variants={statVariants}
+                className="flex flex-col items-center min-w-[120px]"
+              >
+                {stat.icon ? (
+                  <motion.svg
+                    width="40"
+                    height="60"
+                    viewBox="0 0 40 60"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="mb-2"
+                  >
+                    <path
+                      d="M10 10C10 5.58172 13.5817 2 18 2H22C26.4183 2 30 5.58172 30 10V50C30 54.4183 26.4183 58 22 58H18C13.5817 58 10 54.4183 10 50V10Z"
+                      fill="url(#mouseGradient)"
+                    />
+                    <motion.rect
+                      x="15"
+                      y="20"
+                      width="10"
+                      height="5"
+                      rx="2"
+                      fill="#E5E7EB"
+                      variants={scrollWheelVariants}
+                      animate="animate"
+                    />
+                    <defs>
+                      <linearGradient id="mouseGradient" x1="10" y1="2" x2="30" y2="58" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#3B82F6" />
+                        <stop offset="1" stopColor="#14B8A6" />
+                      </linearGradient>
+                    </defs>
+                  </motion.svg>
+                ) : (
                   <div className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
                     {stat.number}
                   </div>
-                  <div className="text-sm uppercase tracking-wider text-gray-600">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
+                )}
+                <div className="text-sm uppercase tracking-wider text-gray-600">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </motion.section>
 
@@ -414,16 +459,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-
-            {/* <div className="text-center mt-16">
-              <Link
-                href="#contact"
-                className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold rounded-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 group"
-              >
-                <span>Discuss Your Project</span>
-                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
-            </div> */}
           </div>
         </section>
 
@@ -515,30 +550,20 @@ export default function Home() {
                 </div>
               ))}
             </div>
-
-            {/* <div className="text-center mt-16">
-              <Link
-                href="/contact"
-                className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold rounded-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 group"
-              >
-                <span>Explore All Solutions</span>
-                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
-            </div> */}
           </div>
         </section>
 
         {/* Testimonial Section */}
-        <section className="py-16 bg-gray-100 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-gray-800">
-            What Our Clients Say
-          </h2>
-          {isLoading ? (
-            <p className="text-gray-600" aria-live="polite">Loading testimonials...</p>
-          ) : testimonials.length === 0 ? (
-            <p className="text-gray-600" aria-live="polite">No testimonials available at the moment.</p>
-          ) : (
-            <div className="max-w-6xl mx-auto px-4 testimonial-slider">
+        <section className="py-16 bg-gray-100 text-center flex items-center justify-center min-h-[50vh]">
+          <div className="max-w-6xl mx-auto px-4 testimonial-slider">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-gray-800">
+              What Our Clients Say
+            </h2>
+            {isLoading ? (
+              <p className="text-gray-600" aria-live="polite">Loading testimonials...</p>
+            ) : testimonials.length === 0 ? (
+              <p className="text-gray-600" aria-live="polite">No testimonials available at the moment.</p>
+            ) : (
               <Swiper
                 modules={[Navigation, Pagination, Autoplay]}
                 loop={true}
@@ -632,12 +657,12 @@ export default function Home() {
                 <div className="swiper-button-next text-blue-500 hover:text-blue-600" aria-label="Next testimonial"></div>
                 <div className="swiper-pagination mt-4"></div>
               </Swiper>
-            </div>
-          )}
+            )}
+          </div>
         </section>
 
         {/* Client Logos Section */}
-        <section className="py-8 bg-gray-50">
+        <section className="py-8 bg-gray-50 flex items-center justify-center min-h-[50vh]">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-gray-800">
               Our Trusted Clients
@@ -677,7 +702,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 1.0 }}
-          className="relative py-8 bg-white text-center rounded-lg overflow-hidden"
+          className="relative py-8 bg-white text-center rounded-lg overflow-hidden flex items-center justify-center min-h-[50vh]"
         >
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.6972463507894!2d77.58367297505847!3d12.926309487398848!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15b277d8d8d7%3A0x6f3733db73d3469f!2sTej%20IT%20Solutions!5e0!3m2!1sen!2sin!4v1726661234567!5m2!1sen!2sin"
