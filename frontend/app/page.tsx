@@ -3,14 +3,18 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Check, ChevronRight, PhoneCall, Code, Smartphone, Globe, Cloud, ArrowRight } from 'lucide-react';
+import { Check, ChevronRight, PhoneCall, Code, Smartphone, Globe, Cloud, ArrowRight, Star, Quote, Briefcase, DollarSign, Users, BookOpen, ShoppingCart } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 export default function Home() {
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [hoveredService, setHoveredService] = useState<number | null>(null);
   const [testimonials, setTestimonials] = useState([]);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -18,9 +22,6 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     const imageInterval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 2000);
-    const testimonialInterval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % Math.max(testimonials.length, 1));
     }, 2000);
 
     // Fetch testimonials
@@ -30,7 +31,6 @@ export default function Home() {
       .then(data => {
         if (Array.isArray(data)) {
           setTestimonials(data);
-          if (data.length > 0) setCurrentTestimonial(0);
         } else {
           console.error('Unexpected data format:', data);
         }
@@ -41,9 +41,8 @@ export default function Home() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(imageInterval);
-      clearInterval(testimonialInterval);
     };
-  }, [testimonials.length]);
+  }, []);
 
   const images = [
     '/images/tej_1.jpg',
@@ -105,67 +104,109 @@ export default function Home() {
     },
   ];
 
+  const products = [
+    {
+      icon: Briefcase,
+      title: 'Tej Smart ERP',
+      description: 'A cloud-based ERP for contractors, streamlining project management, procurement, and financials.',
+      features: [
+        { text: 'Project Planning & Tracking', bullet: true },
+        { text: 'Procurement Automation', bullet: true },
+        { text: 'Inventory Management', bullet: true },
+        { text: 'Financial Reporting', bullet: true },
+        { text: 'Subcontractor Coordination', bullet: true },
+        { text: 'Real-Time Analytics', bullet: true },
+      ],
+      href: '/erp',
+      gradient: 'from-blue-500 to-purple-600',
+    },
+    {
+      icon: DollarSign,
+      title: 'Tej Payroll Software',
+      description: 'All-in-one payroll & HR management with automated salary, compliance, and employee lifecycle tools.',
+      features: [
+        { text: 'Automated Payroll Processing', bullet: true },
+        { text: 'Biometric Attendance', bullet: true },
+        { text: 'Tax Compliance', bullet: true },
+        { text: 'Employee Self-Service', bullet: true },
+        { text: 'Leave Management', bullet: true },
+        { text: 'Loan Tracking', bullet: true },
+      ],
+      href: '/payroll',
+      gradient: 'from-teal-500 to-green-600',
+    },
+    {
+      icon: Users,
+      title: 'Smart BDM',
+      description: 'Business development & CRM platform for lead capture, sales tracking, and after-sales support.',
+      features: [
+        { text: 'Lead Capture Automation', bullet: true },
+        { text: 'Sales Pipeline Tracking', bullet: true },
+        { text: 'GPS Field Team Monitoring', bullet: true },
+        { text: 'Quotation Management', bullet: true },
+        { text: 'After-Sales Support', bullet: true },
+        { text: 'Customer Analytics', bullet: true },
+      ],
+      href: '/bdm',
+      gradient: 'from-orange-500 to-red-600',
+    },
+    {
+      icon: BookOpen,
+      title: 'Class Management System',
+      description: 'Manage students, batches, exams, and fees for schools and coaching institutes with a mobile app.',
+      features: [
+        { text: 'Student Registration', bullet: true },
+        { text: 'Batch Scheduling', bullet: true },
+        { text: 'Exam Management', bullet: true },
+        { text: 'Fee Tracking', bullet: true },
+        { text: 'Parent Portal', bullet: true },
+        { text: 'Mobile App Access', bullet: true },
+      ],
+      href: '/class-management',
+      gradient: 'from-purple-500 to-pink-600',
+    },
+    {
+      icon: ShoppingCart,
+      title: 'BDM TradeBook Sales & Purchase',
+      description: 'Streamline sales and purchase processes with integrated invoicing, inventory, and financial tracking.',
+      features: [
+        { text: 'Sales Invoicing', bullet: true },
+        { text: 'Purchase Orders', bullet: true },
+        { text: 'Inventory Tracking', bullet: true },
+        { text: 'GST Compliance', bullet: true },
+        { text: 'Financial Reports', bullet: true },
+        { text: 'Stock Alerts', bullet: true },
+      ],
+      href: '/tradebook',
+      gradient: 'from-blue-500 to-purple-600',
+    },
+  ];
+
   const stats = [
     { number: '10+', label: 'Years Experience' },
     { number: '500+', label: 'Projects Delivered' },
-    { number: '', label: '', icon: true },
     { number: '100+', label: 'Happy Clients' },
     { number: '24/7', label: 'Support' },
   ];
 
   const clientLogos = [
-    '/client-logo/abk.jpg',
-    '/client-logo/ajpower.jpg',
-    '/client-logo/lamika.jpg',
-    '/client-logo/malghe.jpg',
-    '/client-logo/oraipl.jpg',
-    '/client-logo/rajelectrical.png',
-    '/client-logo/sai shyam.jpg',
-    '/client-logo/shravan.jpg',
-    '/client-logo/accuon.jpg',
-    '/client-logo/gsky logo.jpg',
-    '/client-logo/logo.png',
-    '/client-logo/megha.jpg',
-    '/client-logo/Rachnafire.jpg',
-    '/client-logo/saikrishna.jpg',
-    '/client-logo/sapscon.png',
-    '/client-logo/shreebalaji.png',
+    '/client-logo/resized/abk.jpg',
+    '/client-logo/resized/accuon.jpg',
+    '/client-logo/resized/ajpower.jpg',
+    '/client-logo/resized/gsky-logo.jpg',
+    '/client-logo/resized/lamika.jpg',
+    '/client-logo/resized/malghe.jpg',
+    '/client-logo/resized/logo.png',
+    '/client-logo/resized/megha.jpg',
+    '/client-logo/resized/oraipl.jpg',
+    '/client-logo/resized/rachnafire.jpg',
+    '/client-logo/resized/rajelectrical.png',
+    '/client-logo/resized/saikrishna.jpg',
+    '/client-logo/resized/sai-shyam.jpg',
+    '/client-logo/resized/shravan.jpg',
+    '/client-logo/resized/sapscon.png',
+    '/client-logo/resized/shreebalaji.png',
   ];
-
-  const shakeVariants = {
-    hover: {
-      rotate: [0, 2, -2, 2, 0],
-      transition: { duration: 0.3, repeat: 1 },
-    },
-  };
-
-  const logoScrollVariants = {
-    animate: {
-      x: ['0%', '-100%'],
-      transition: {
-        x: {
-          repeat: Infinity,
-          repeatType: 'loop',
-          duration: 30,
-          ease: 'linear',
-        },
-      },
-    },
-  };
-
-  const scrollWheelVariants = {
-    animate: {
-      y: [0, 5, 0],
-      transition: {
-        y: {
-          repeat: Infinity,
-          repeatType: 'loop',
-          duration: 1.5,
-          ease: 'easeInOut',
-        },
-      },
-    },
-  };
 
   const statVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -176,27 +217,58 @@ export default function Home() {
     }),
   };
 
-  const slideVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 300 : -300,
-      opacity: 0.3,
-      scale: 0.9,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      scale: 1,
-    },
-    exit: (direction) => ({
-      x: direction < 0 ? 300 : -300,
-      opacity: 0.3,
-      scale: 0.9,
-    }),
-  };
-
   return (
     <div>
       <div className="bg-gradient-to-b from-white via-gray-100 to-gray-200 min-h-screen font-sans text-gray-800">
+        <style jsx global>{`
+          .testimonial-slider .swiper-slide {
+            transition: all 0.3s ease;
+            filter: blur(4px);
+            opacity: 0.15;
+            transform: scale(0.9);
+          }
+          .testimonial-slider .swiper-slide-prev,
+          .testimonial-slider .swiper-slide-next {
+            filter: blur(1px);
+            opacity: 0.95;
+            transform: scale(0.95);
+          }
+          .testimonial-slider .swiper-slide-active {
+            filter: none;
+            opacity: 1;
+            transform: scale(1);
+          }
+          .client-logo-slider .swiper-slide {
+            width: 120px !important;
+          }
+          .client-logo {
+            width: 120px;
+            height: 80px;
+            object-fit: contain;
+            object-position: center;
+            transition: filter 0.3s ease;
+            filter: grayscale(100%);
+          }
+          .client-logo:hover {
+            filter: grayscale(0%);
+          }
+          .swiper-button-prev,
+          .swiper-button-next {
+            color: #3b82f6;
+            transition: color 0.3s;
+          }
+          .swiper-button-prev:hover,
+          .swiper-button-next:hover {
+            color: #2563eb;
+          }
+          .swiper-pagination-bullet {
+            background: #9ca3af;
+          }
+          .swiper-pagination-bullet-active {
+            background: #3b82f6;
+          }
+        `}</style>
+
         {/* Hero Section */}
         <motion.section
           initial={{ opacity: 0 }}
@@ -241,7 +313,7 @@ export default function Home() {
           className="py-12 bg-gray-50 text-center"
         >
           <div className="container mx-auto px-4 max-w-6xl">
-            <div className="flex justify-center gap-8 flex-wrap">
+            <div className="flex justify-center items-center gap-8 flex-wrap">
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
@@ -249,41 +321,9 @@ export default function Home() {
                   variants={statVariants}
                   className="flex flex-col items-center min-w-[120px]"
                 >
-                  {stat.icon ? (
-                    <motion.svg
-                      width="40"
-                      height="60"
-                      viewBox="0 0 40 60"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="mb-2"
-                    >
-                      <path
-                        d="M10 10C10 5.58172 13.5817 2 18 2H22C26.4183 2 30 5.58172 30 10V50C30 54.4183 26.4183 58 22 58H18C13.5817 58 10 54.4183 10 50V10Z"
-                        fill="url(#mouseGradient)"
-                      />
-                      <motion.rect
-                        x="15"
-                        y="20"
-                        width="10"
-                        height="5"
-                        rx="2"
-                        fill="#E5E7EB"
-                        variants={scrollWheelVariants}
-                        animate="animate"
-                      />
-                      <defs>
-                        <linearGradient id="mouseGradient" x1="10" y1="2" x2="30" y2="58" gradientUnits="userSpaceOnUse">
-                          <stop stopColor="#3B82F6" />
-                          <stop offset="1" stopColor="#14B8A6" />
-                        </linearGradient>
-                      </defs>
-                    </motion.svg>
-                  ) : (
-                    <div className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-                      {stat.number}
-                    </div>
-                  )}
+                  <div className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                    {stat.number}
+                  </div>
                   <div className="text-sm uppercase tracking-wider text-gray-600">{stat.label}</div>
                 </motion.div>
               ))}
@@ -375,7 +415,7 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="text-center mt-16">
+            {/* <div className="text-center mt-16">
               <Link
                 href="#contact"
                 className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold rounded-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 group"
@@ -383,114 +423,254 @@ export default function Home() {
                 <span>Discuss Your Project</span>
                 <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
+            </div> */}
+          </div>
+        </section>
+
+        {/* Our Products Section */}
+        <section id="products" className="py-24 relative overflow-hidden bg-gray-50">
+          <div className="absolute inset-0">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
+                  Our Core
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent">
+                  Products
+                </span>
+              </h2>
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+                Explore our suite of innovative IT solutions designed to streamline operations and drive business growth.
+              </p>
             </div>
+
+            {/* Row 1: 2 Product Cards (Centered) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              {products.slice(0, 2).map((product, index) => (
+                <div
+                  key={index}
+                  className="group relative"
+                >
+                  <div className="relative min-h-[300px] bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-center text-center h-full transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
+                    <div className={`relative w-16 h-16 bg-gradient-to-r ${product.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                      <product.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">{product.title}</h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{product.description}</p>
+                    <ul className="list-none space-y-2 mb-6 flex-grow">
+                      {product.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="relative pl-6 text-gray-600 text-sm">
+                          <Check className="absolute left-0 top-0.5 text-emerald-500" size={16} />
+                          {feature.text}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={product.href}
+                      className="inline-flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors duration-300 mt-auto"
+                    >
+                      <span>Learn More</span>
+                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Row 2: 3 Product Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {products.slice(2).map((product, index) => (
+                <div
+                  key={index}
+                  className="group relative"
+                >
+                  <div className="relative min-h-[300px] bg-white border border-gray-200 rounded-2xl p-6 flex flex-col h-full transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
+                    <div className={`relative w-16 h-16 bg-gradient-to-r ${product.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                      <product.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">{product.title}</h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{product.description}</p>
+                    <ul className="list-none space-y-2 mb-6 flex-grow">
+                      {product.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="relative pl-6 text-gray-600 text-sm">
+                          <Check className="absolute left-0 top-0.5 text-emerald-500" size={16} />
+                          {feature.text}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={product.href}
+                      className="inline-flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors duration-300 mt-auto"
+                    >
+                      <span>Learn More</span>
+                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* <div className="text-center mt-16">
+              <Link
+                href="/contact"
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold rounded-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 group"
+              >
+                <span>Explore All Solutions</span>
+                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </div> */}
           </div>
         </section>
 
         {/* Testimonial Section */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="py-16 bg-gray-100 text-center relative overflow-hidden"
-        >
-          <motion.h2
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.7 }}
-            className="text-3xl md:text-4xl font-bold mb-6 text-gray-800"
-          >
+        <section className="py-16 bg-gray-100 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-gray-800">
             What Our Clients Say
-          </motion.h2>
+          </h2>
           {isLoading ? (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="text-gray-600"
-            >
-              Loading testimonials...
-            </motion.p>
+            <p className="text-gray-600" aria-live="polite">Loading testimonials...</p>
+          ) : testimonials.length === 0 ? (
+            <p className="text-gray-600" aria-live="polite">No testimonials available at the moment.</p>
           ) : (
-            <div className="relative w-full max-w-4xl mx-auto overflow-hidden">
-              <AnimatePresence initial={false} custom={1}>
-                {testimonials.length > 0 && (
-                  <motion.div
-                    key={currentTestimonial}
-                    custom={1}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.5 }}
-                    className="flex w-full"
-                    style={{
-                      transform: `translateX(-${currentTestimonial * 100}%)`,
-                      transition: 'transform 0.5s ease-in-out',
-                    }}
-                  >
-                    {testimonials.map((testimonial, index) => (
-                      <div
-                        key={index}
-                        className="min-w-full p-6 bg-white rounded-lg shadow-md flex-shrink-0"
-                        style={{
-                          opacity: index === currentTestimonial ? 1 : 0.4,
-                          transform: index === currentTestimonial ? 'scale(1)' : 'scale(0.8)',
-                          transition: 'opacity 0.5s, transform 0.5s',
-                        }}
-                      >
-                        <p className="text-lg text-gray-600 mb-2">&quot;{testimonial.content || 'No content available'}&quot;</p>
-                        <p className="text-teal-500 font-semibold">
-                          {testimonial.name || 'Anonymous'}
-                          {testimonial.company ? `, ${testimonial.company}` : ''}
-                        </p>
-                        <div className="flex justify-center mt-2">
-                          {Array.from({ length: testimonial.rating || 0 }).map((_, i) => (
-                            <Check key={i} size={16} className="text-teal-500" />
-                          ))}
+            <div className="max-w-6xl mx-auto px-4 testimonial-slider">
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                loop={true}
+                centeredSlides={true}
+                slidesPerView={3}
+                spaceBetween={30}
+                autoplay={{
+                  delay: 6000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }}
+                navigation={{
+                  nextEl: '.swiper-button-next',
+                  prevEl: '.swiper-button-prev',
+                }}
+                pagination={{
+                  el: '.swiper-pagination',
+                  clickable: true,
+                }}
+                breakpoints={{
+                  0: {
+                    slidesPerView: 1,
+                    spaceBetween: 10,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                  },
+                }}
+                className="relative"
+                role="region"
+                aria-label="Testimonials slider"
+              >
+                {testimonials.map((testimonial, index) => (
+                  <SwiperSlide key={index}>
+                    <div className="bg-white p-8 rounded-xl shadow-lg text-center h-full flex flex-col justify-between relative">
+                      <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent opacity-20 rounded-xl"></div>
+                      <Quote className="mx-auto mb-4 text-blue-200" size={40} aria-hidden="true" />
+                      <p className="text-gray-600 mb-6 flex-grow text-lg leading-relaxed">"{testimonial.content || 'No content available'}"</p>
+                      <div className="flex justify-center mb-4">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={20}
+                            className={i < (testimonial.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                            aria-label={i < (testimonial.rating || 0) ? 'Filled star' : 'Empty star'}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xl mr-4 overflow-hidden">
+                          {testimonial.profilePicture ? (
+                            <Image
+                              src={testimonial.profilePicture}
+                              alt={`Profile picture of ${testimonial.name || 'Anonymous'}`}
+                              width={48}
+                              height={48}
+                              className="object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            testimonial.name ? testimonial.name.charAt(0).toUpperCase() : 'A'
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-semibold text-gray-800">{testimonial.name || 'Anonymous'}</p>
+                          <p className="text-sm text-gray-500">
+                            {testimonial.designation || 'Client'}
+                            {testimonial.company ? `, ${testimonial.company}` : ''}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {/* Gradient overlay for fade effect */}
-              <div className="absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-gray-100 to-transparent pointer-events-none z-20" />
-              <div className="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-gray-100 to-transparent pointer-events-none z-20" />
+                      {testimonial.companyLogo && (
+                        <Image
+                          src={testimonial.companyLogo}
+                          alt={`${testimonial.company} logo`}
+                          width={80}
+                          height={32}
+                          className="mt-4 mx-auto object-contain"
+                          loading="lazy"
+                        />
+                      )}
+                    </div>
+                  </SwiperSlide>
+                ))}
+                <div className="swiper-button-prev text-blue-500 hover:text-blue-600" aria-label="Previous testimonial"></div>
+                <div className="swiper-button-next text-blue-500 hover:text-blue-600" aria-label="Next testimonial"></div>
+                <div className="swiper-pagination mt-4"></div>
+              </Swiper>
             </div>
           )}
-        </motion.section>
+        </section>
 
         {/* Client Logos Section */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          className="py-8 bg-gray-50"
-        >
-          <div className="container mx-auto px-4 overflow-hidden">
-            <motion.div
-              className="flex"
-              variants={logoScrollVariants}
-              animate="animate"
+        <section className="py-8 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-gray-800">
+              Our Trusted Clients
+            </h2>
+            <Swiper
+              modules={[Autoplay]}
+              slidesPerView="auto"
+              spaceBetween={20}
+              loop={true}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              speed={5000}
+              freeMode={true}
+              className="client-logo-slider"
             >
-              {[...clientLogos, ...clientLogos].map((logo, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 mx-4 p-2 rounded-md shadow-sm bg-white"
-                >
+              {clientLogos.map((logo, index) => (
+                <SwiperSlide key={index}>
                   <Image
                     src={logo}
                     alt={`Client Logo ${index + 1}`}
-                    width={80}
-                    height={32}
-                    className="object-contain"
+                    width={120}
+                    height={80}
+                    className="client-logo"
+                    loading="lazy"
                   />
-                </div>
+                </SwiperSlide>
               ))}
-            </motion.div>
+            </Swiper>
           </div>
-        </motion.section>
+        </section>
 
         {/* CTA Section with Google Maps */}
         <motion.section
@@ -507,6 +687,7 @@ export default function Home() {
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
+            title="Tej IT Solutions Location"
           ></iframe>
           <div className="relative z-10 bg-black bg-opacity-50 py-8">
             <motion.h2
@@ -540,17 +721,18 @@ export default function Home() {
         </motion.section>
 
         {/* Sticky CTA */}
-        {/* {showStickyCta && (
+        {showStickyCta && (
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             onClick={() => window.location.href = '/contact'}
             className="fixed bottom-5 right-5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg z-[1000] flex items-center gap-2"
+            aria-label="Contact Us"
           >
             <PhoneCall className="w-4 h-4" /> Contact Us
           </motion.button>
-        )} */}
+        )}
       </div>
     </div>
   );
