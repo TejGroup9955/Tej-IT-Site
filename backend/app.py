@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 import requests
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key')
+app.secret_key = os.getenv('SECRET_KEY', '2b8dd5a508de9870b120238f6588a138')
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(__file__), 'flask_session')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
@@ -1088,6 +1088,25 @@ def add_testimonial():
         print(f"Error inserting testimonial: {e}")
         connection.rollback()
         return jsonify({'success': False, 'message': 'Failed to add testimonial'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/api/employee_testimonials', methods=['GET'])
+def get_employee_testimonials():
+    connection = get_db_connection()
+    if not connection:
+        print("Database connection failed")
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id, employee_name, job_role, feedback, rating, status, created_at FROM employee_testimonials WHERE status = TRUE")
+        testimonials = cursor.fetchall()
+        print(f"Fetched testimonials: {testimonials}")  # Debug log
+        return jsonify(testimonials), 200
+    except Error as e:
+        print(f"Error fetching employee testimonials: {e}")
+        return jsonify({'success': False, 'message': 'Failed to fetch employee testimonials'}), 500
     finally:
         cursor.close()
         connection.close()

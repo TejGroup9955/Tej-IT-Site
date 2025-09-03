@@ -1,16 +1,26 @@
-'use client';
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { Rocket, Briefcase, BookOpen, Users, Clock, Trophy, PartyPopper, Mail, User, Phone, MapPin, GraduationCap, Code, FileText, Send, X, Filter, Search, Star } from 'lucide-react';
+'use client'
+import React, { useState, useEffect } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/effect-coverflow';
 
+// Interfaces for data from backend
 interface Job {
   id: number;
   title: string;
   description: string;
   location: string;
   type: string;
-  department: string;
+  status?: string;
   posted_date: string;
+  department?: string;
 }
 
 interface Testimonial {
@@ -19,159 +29,33 @@ interface Testimonial {
   job_role: string;
   feedback: string;
   rating?: number;
+  status?: boolean | number;
+  created_at?: string;
 }
 
-interface Department {
-  id: number;
-  name: string;
-}
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2, delayChildren: 0.3 },
+  },
+};
 
-// Component for individual job card
-function JobCard({ job, onApply, onViewDetails }: { job: Job; onApply: (jobId: number) => void; onViewDetails: (job: Job) => void }) {
-  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
 
-  const card3DVariants = {
-    rest: { rotateX: 0, rotateY: 0, scale: 1, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' },
-    hover: {
-      scale: 1.05,
-      boxShadow: '0 8px 24px rgba(147, 51, 234, 0.3)',
-      transition: { type: 'spring', stiffness: 300, damping: 15 },
-    },
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const mouseX = e.clientX - centerX;
-    const mouseY = e.clientY - centerY;
-    const rotateX = (mouseY / rect.height) * 20;
-    const rotateY = (mouseX / rect.width) * 20;
-    setTransform({ rotateX, rotateY });
-  };
-
-  return (
-    <motion.div
-      variants={card3DVariants}
-      initial="rest"
-      whileHover="hover"
-      animate={{ ...card3DVariants.rest, rotateX: transform.rotateX, rotateY: transform.rotateY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTransform({ rotateX: 0, rotateY: 0 })}
-      className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col text-left h-full transition-all duration-300"
-      style={{ perspective: 1000 }}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <Briefcase className="w-8 h-8 text-purple-600" />
-        <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
-          {job.department || 'General'}
-        </span>
-      </div>
-      <h4 className="text-lg font-semibold text-gray-800 mb-2">{job.title}</h4>
-      <div className="text-sm text-gray-600 mb-4 flex-grow">
-        <div className="flex items-center gap-1 mb-1">
-          <MapPin className="w-4 h-4" />
-          {job.location}
-        </div>
-        <div className="flex items-center gap-1 mb-2">
-          <Clock className="w-4 h-4" />
-          {job.type}
-        </div>
-        <p className="text-gray-500 text-xs">
-          Posted: {new Date(job.posted_date).toLocaleDateString()}
-        </p>
-      </div>
-      <div className="flex gap-2 mt-auto">
-        <motion.button
-          className="flex-1 bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-300"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onViewDetails(job)}
-        >
-          Read More
-        </motion.button>
-        <motion.button
-          className="flex-1 bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700 transition-all duration-300"
-          whileHover={{ scale: 1.02, backgroundColor: '#9333ea' }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onApply(job.id)}
-        >
-          Apply Now
-        </motion.button>
-      </div>
-    </motion.div>
-  );
-}
-
-// Component for testimonial card
-function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
-  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const mouseX = e.clientX - centerX;
-    const mouseY = e.clientY - centerY;
-    const rotateX = (mouseY / rect.height) * 10;
-    const rotateY = (mouseX / rect.width) * 10;
-    setTransform({ rotateX, rotateY });
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02, boxShadow: '0 8px 24px rgba(147, 51, 234, 0.2)' }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTransform({ rotateX: 0, rotateY: 0 })}
-      style={{ 
-        transform: `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`,
-        perspective: 1000 
-      }}
-      className="bg-white p-6 rounded-xl border border-gray-200 transition-all duration-300"
-    >
-      <div className="flex items-center mb-4">
-        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-          <User className="w-6 h-6 text-purple-600" />
-        </div>
-        <div>
-          <h4 className="font-semibold text-gray-800">{testimonial.employee_name}</h4>
-          <p className="text-sm text-gray-600">{testimonial.job_role}</p>
-        </div>
-      </div>
-      {testimonial.rating && (
-        <div className="flex mb-3">
-          {[...Array(5)].map((_, i) => (
-            <Star 
-              key={i} 
-              className={`w-4 h-4 ${i < testimonial.rating! ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-            />
-          ))}
-        </div>
-      )}
-      <p className="text-gray-700 italic">"{testimonial.feedback}"</p>
-    </motion.div>
-  );
-}
-
-export default function CareersPage() {
+const App: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [showJobDetails, setShowJobDetails] = useState(false);
-  const [showApplicationModal, setShowApplicationModal] = useState(false);
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-  const [filters, setFilters] = useState({
-    department: 'All',
-    location: 'All',
-    search: ''
-  });
-  
+  const [showJobPopup, setShowJobPopup] = useState<boolean>(false);
+  const [showApplyPopup, setShowApplyPopup] = useState<boolean>(false);
   const [formData, setFormData] = useState({
-    job_id: '',
     name: '',
     email: '',
     phone: '',
@@ -182,667 +66,703 @@ export default function CareersPage() {
     cover_letter: '',
     resume: null as File | null,
   });
-  const [formMessage, setFormMessage] = useState('');
+  const [formError, setFormError] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const jobsPerPage = 5;
+
+  const { scrollY } = useScroll();
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3]);
+  const heroScale = useTransform(scrollY, [0, 300], [1, 0.95]);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    setErrorMessage('');
+    try {
+      // Fetch jobs
+      const jobsResponse = await fetch('http://10.10.50.93:5000/api/job-openings', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!jobsResponse.ok) {
+        console.error('Jobs fetch failed:', jobsResponse.status, jobsResponse.statusText);
+        throw new Error(`Failed to fetch jobs: ${jobsResponse.status}`);
+      }
+      const jobsData = await jobsResponse.json();
+      if (Array.isArray(jobsData)) {
+        setJobs(jobsData);
+      } else {
+        console.error('Unexpected job data format:', jobsData);
+        setErrorMessage('Unexpected job data format.');
+      }
+
+      // Fetch testimonials
+      const testimonialsResponse = await fetch('http://10.10.50.93:5000/api/employee_testimonials', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!testimonialsResponse.ok) {
+        console.error('Testimonials fetch failed:', testimonialsResponse.status, testimonialsResponse.statusText);
+        throw new Error(`Failed to fetch testimonials: ${testimonialsResponse.status}`);
+      }
+      const testimonialsData = await testimonialsResponse.json();
+      console.log('Testimonials raw data:', testimonialsData);
+      if (Array.isArray(testimonialsData)) {
+        const filteredTestimonials = testimonialsData.filter((t: Testimonial) => t.status === true || t.status === 1);
+        console.log('Filtered testimonials:', filteredTestimonials);
+        setTestimonials(filteredTestimonials);
+      } else {
+        console.error('Unexpected testimonial data format:', testimonialsData);
+        setErrorMessage('Unexpected testimonial data format.');
+      }
+    } catch (error: any) {
+      console.error('Fetch error:', error.message);
+      setErrorMessage(`Failed to load data: ${error.message}.`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch jobs
-        const jobsResponse = await fetch('http://10.10.50.93:5000/api/job-openings');
-        if (jobsResponse.ok) {
-          const jobsData = await jobsResponse.json();
-          setJobs(jobsData);
-        }
-
-        // Fetch testimonials
-        const testimonialsResponse = await fetch('http://10.10.50.93:5000/api/testimonials');
-        if (testimonialsResponse.ok) {
-          const testimonialsData = await testimonialsResponse.json();
-          setTestimonials(testimonialsData.filter((t: any) => t.is_enabled));
-        }
-
-        // Fetch departments
-        const deptResponse = await fetch('http://10.10.50.93:5000/api/departments');
-        if (deptResponse.ok) {
-          const deptData = await deptResponse.json();
-          setDepartments(deptData);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  const handleViewDetails = (job: Job) => {
+  const handleReadMore = (job: Job) => {
     setSelectedJob(job);
-    setShowJobDetails(true);
+    setShowJobPopup(true);
   };
 
-  const handleApplyClick = (jobId: number) => {
-    setSelectedJobId(jobId);
-    setFormData((prev) => ({ ...prev, job_id: jobId.toString() }));
-    setShowJobDetails(false);
-    setShowApplicationModal(true);
+  const handleApplyNow = (job: Job) => {
+    setSelectedJob(job);
+    setShowApplyPopup(true);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleClosePopup = () => {
+    setShowJobPopup(false);
+    setShowApplyPopup(false);
+    setSelectedJob(null);
+    setFormError('');
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      permanent_address: '',
+      current_location: '',
+      highest_education: '',
+      skills: '',
+      cover_letter: '',
+      resume: null,
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData((prev) => ({ ...prev, resume: file }));
+    const file = e.target.files?.[0];
+    if (file && file.type !== 'application/pdf') {
+      setFormError('Please upload a PDF file.');
+      return;
+    }
+    setFormData((prev) => ({ ...prev, resume: file || null }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormMessage('');
+    if (!selectedJob) return;
 
-    if (!formData.job_id || !formData.name || !formData.email) {
-      setFormMessage('Please fill in all required fields (Job, Name, Email).');
+    if (!formData.name || !formData.email) {
+      setFormError('Name and email are required.');
       return;
     }
 
-    const form = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'resume' && value) {
-        form.append(key, value);
-      } else if (value) {
-        form.append(key, value.toString());
-      }
-    });
+    const formDataToSend = new FormData();
+    formDataToSend.append('job_id', selectedJob.id.toString());
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('phone', formData.phone);
+    formDataToSend.append('permanent_address', formData.permanent_address);
+    formDataToSend.append('current_location', formData.current_location);
+    formDataToSend.append('highest_education', formData.highest_education);
+    formDataToSend.append('skills', formData.skills);
+    formDataToSend.append('cover_letter', formData.cover_letter);
+    if (formData.resume) {
+      formDataToSend.append('resume', formData.resume);
+    }
 
     try {
       const response = await fetch('http://10.10.50.93:5000/api/submit-application', {
         method: 'POST',
-        body: form,
+        body: formDataToSend,
       });
-      const data = await response.json();
-      if (data.success) {
-        setFormMessage('Application submitted successfully!');
-        setFormData({
-          job_id: selectedJobId?.toString() || '',
-          name: '',
-          email: '',
-          phone: '',
-          permanent_address: '',
-          current_location: '',
-          highest_education: '',
-          skills: '',
-          cover_letter: '',
-          resume: null,
-        });
-        setTimeout(() => {
-          setShowApplicationModal(false);
-          setFormMessage('');
-        }, 2000);
-      } else {
-        setFormMessage('Failed to submit application. Please try again.');
+
+      if (!response.ok) {
+        throw new Error(`Failed to submit application: ${response.status}`);
       }
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      setFormMessage('An error occurred. Please try again.');
+
+      alert('Application submitted successfully!');
+      handleClosePopup();
+    } catch (error: any) {
+      setFormError(`Failed to submit application: ${error.message}`);
     }
   };
 
-  // Filter jobs based on current filters
-  const filteredJobs = jobs.filter(job => {
-    const matchesDepartment = filters.department === 'All' || job.department === filters.department;
-    const matchesLocation = filters.location === 'All' || job.location === filters.location;
-    const matchesSearch = !filters.search || 
-      job.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.description.toLowerCase().includes(filters.search.toLowerCase());
-    
-    return matchesDepartment && matchesLocation && matchesSearch;
-  });
+  // Pagination logic
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  const paginatedJobs = jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
-  const uniqueLocations = [...new Set(jobs.map(job => job.location))];
-  const uniqueDepartments = [...new Set(jobs.map(job => job.department))];
-
-  const whyWorkWithUs = [
-    { title: 'Exciting Projects', description: 'Work on ERP, Web, Cloud, and Mobile apps for global clients', icon: Briefcase },
-    { title: 'Continuous Learning', description: 'Training, certifications, and upskilling opportunities', icon: BookOpen },
-    { title: 'Collaborative Culture', description: 'Open, supportive, and innovation-driven environment', icon: Users },
-    { title: 'Work-Life Balance', description: 'Flexible hours and hybrid work opportunities', icon: Clock },
-    { title: 'Career Growth', description: 'Clear career paths, mentorship, and leadership opportunities', icon: Rocket },
-  ];
-
-  const lifeAtTej = [
-    { title: 'Hackathons & Innovation', description: 'Regular hackathons and innovation challenges', icon: PartyPopper },
-    { title: 'Recognition & Rewards', description: 'Celebrating outstanding contributions and achievements', icon: Trophy },
-    { title: 'Flat Hierarchy', description: 'Your voice matters in our open and collaborative culture', icon: Users },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, type: 'spring', bounce: 0.4 } },
-  };
-
-  const heroVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 1, delay: 0.3 } },
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3, type: 'spring', stiffness: 300, damping: 20 } },
-    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
+  // Sanitize feedback to prevent rendering issues
+  const sanitizeFeedback = (feedback: string) => {
+    return feedback.replace(/[^a-zA-Z0-9\s.,!?]/g, '');
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-white to-blue-50 min-h-screen font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 font-inter">
       {/* Hero Section */}
       <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={heroVariants}
-        className="relative py-28 md:py-36 overflow-hidden"
+        style={{ opacity: heroOpacity, scale: heroScale }}
+        className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white py-24 px-4 text-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-blue-900/20"></div>
-        <div className="absolute inset-0">
-          <img
-            src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg"
-            alt="Professional Team"
-            className="w-full h-full object-cover opacity-40"
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src="/about/about_1.jpg"
+            alt="Team Background"
+            layout="fill"
+            objectFit="cover"
+            priority
           />
         </div>
-        <div className="container mx-auto px-4 text-center relative z-10">
+        <div className="relative max-w-4xl mx-auto">
           <motion.h1
-            variants={itemVariants}
-            className="text-5xl md:text-6xl font-bold text-black mb-6 drop-shadow-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-4xl md:text-5xl font-bold font-roboto text-white"
           >
-            Join Our Team
+            Careers at Tej IT – Join Our Growing Team
           </motion.h1>
           <motion.p
-            variants={itemVariants}
-            className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mt-4 text-lg md:text-xl text-white"
           >
-            Be part of a dynamic IT company shaping the future of Cloud, DevOps, AI, Full-stack Development, 
-            Data Analytics, Cybersecurity, Mobile App Development, and more.
+            We are always looking for passionate and skilled professionals who want to grow with us. Explore our open roles and apply today.
           </motion.p>
-          <motion.div variants={itemVariants}>
-            <motion.button
-              className="inline-block bg-purple-600 text-white font-semibold py-3 px-10 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300"
-              whileHover={{ scale: 1.05, backgroundColor: '#9333ea' }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => document.getElementById('job-openings')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              View Openings
-            </motion.button>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Why Work With Us Section */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-        className="py-20 bg-white"
-      >
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
-          >
-            Why Work With Us?
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {whyWorkWithUs.map((item, index) => (
-              <motion.div
-                key={item.title}
-                variants={itemVariants}
-                className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center text-center h-full transition-all duration-300 hover:shadow-lg"
-              >
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 8, delay: index * 0.5 }}
-                >
-                  <item.icon className="w-12 h-12 text-purple-600 mb-4" />
-                </motion.div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">{item.title}</h4>
-                <p className="text-gray-600 text-sm">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Employee Testimonials Section */}
-      {testimonials.length > 0 && (
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={containerVariants}
-          className="py-20 bg-gray-50"
-        >
-          <div className="container mx-auto px-4">
-            <motion.h2
-              variants={itemVariants}
-              className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
-            >
-              Life at Tej IT
-            </motion.h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {testimonials.slice(0, 6).map((testimonial) => (
-                <motion.div key={testimonial.id} variants={itemVariants}>
-                  <TestimonialCard testimonial={testimonial} />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.section>
-      )}
-
-      {/* Company Culture Section */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-        className="py-20 bg-white"
-      >
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
-          >
-            Our Culture
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lifeAtTej.map((item, index) => (
-              <motion.div
-                key={item.title}
-                variants={itemVariants}
-                className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center text-center h-full transition-all duration-300 hover:shadow-lg"
-              >
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 10, delay: index * 0.7 }}
-                >
-                  <item.icon className="w-12 h-12 text-purple-600 mb-4" />
-                </motion.div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">{item.title}</h4>
-                <p className="text-gray-600 text-sm">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Job Openings Section */}
-      <motion.section
-        id="job-openings"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-        className="py-20 bg-gray-50"
-      >
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
-          >
-            Open Positions
-          </motion.h2>
-          
-          {/* Filters */}
-          <motion.div 
-            variants={itemVariants}
-            className="bg-white p-6 rounded-xl shadow-md mb-8"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <Filter className="w-4 h-4" /> Department
-                </label>
-                <select
-                  value={filters.department}
-                  onChange={(e) => setFilters(prev => ({ ...prev, department: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                >
-                  <option value="All">All Departments</option>
-                  {uniqueDepartments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <MapPin className="w-4 h-4" /> Location
-                </label>
-                <select
-                  value={filters.location}
-                  onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                >
-                  <option value="All">All Locations</option>
-                  {uniqueLocations.map(location => (
-                    <option key={location} value={location}>{location}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <Search className="w-4 h-4" /> Search Jobs
-                </label>
-                <input
-                  type="text"
-                  placeholder="Search by title or description..."
-                  value={filters.search}
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                />
-              </div>
-            </div>
-          </motion.div>
-
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
-            </div>
-          ) : filteredJobs.length === 0 ? (
-            <motion.div variants={itemVariants} className="text-center">
-              <p className="text-gray-600 text-lg">
-                {jobs.length === 0 
-                  ? "No job openings available at the moment. Check back later!" 
-                  : "No jobs match your current filters. Try adjusting your search criteria."
-                }
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div 
-              variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {filteredJobs.map((job) => (
-                <motion.div key={job.id} variants={itemVariants}>
-                  <JobCard job={job} onApply={handleApplyClick} onViewDetails={handleViewDetails} />
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </div>
-      </motion.section>
-
-      {/* Job Details Modal */}
-      {showJobDetails && selectedJob && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setShowJobDetails(false)}
-        >
           <motion.div
-            className="bg-white p-8 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative"
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8"
           >
-            <button
-              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
-              onClick={() => setShowJobDetails(false)}
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <div className="mb-6">
-              <h3 className="text-3xl font-bold text-gray-800 mb-2">{selectedJob.title}</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                  {selectedJob.department}
-                </span>
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                  {selectedJob.location}
-                </span>
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                  {selectedJob.type}
-                </span>
-              </div>
-              <p className="text-gray-500 text-sm mb-4">
-                Posted: {new Date(selectedJob.posted_date).toLocaleDateString()}
-              </p>
-            </div>
-            <div 
-              className="prose max-w-none mb-8 text-gray-700"
-              dangerouslySetInnerHTML={{ __html: selectedJob.description }}
-            />
-            <div className="flex gap-4">
-              <motion.button
-                className="flex-1 bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purple-700 transition-all duration-300 flex items-center justify-center gap-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleApplyClick(selectedJob.id)}
-              >
-                <Send className="w-5 h-5" />
-                Apply for This Position
-              </motion.button>
-              <motion.button
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-300"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowJobDetails(false)}
-              >
-                Close
-              </motion.button>
-            </div>
+            <Link href="#jobs">
+              <button className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-3 px-8 rounded-lg shadow-lg hover:from-pink-600 hover:to-pink-800 transition-all duration-300 text-lg font-semibold">
+                View Current Openings
+              </button>
+            </Link>
           </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Error Message */}
+      {errorMessage && (
+        <motion.div
+          variants={itemVariants}
+          className="text-center py-6 mx-auto max-w-3xl bg-white rounded-2xl shadow-md border border-red-100 my-8"
+        >
+          <p className="text-red-600 text-lg font-medium">{errorMessage}</p>
+          <p className="text-gray-600 text-sm mt-2">Please try again or contact support.</p>
         </motion.div>
       )}
 
-      {/* Application Modal */}
-      {showApplicationModal && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      {/* Job Openings Section */}
+      <section id="jobs" className="py-16 px-4 bg-white">
+        <motion.h2
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setShowApplicationModal(false)}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl md:text-4xl font-semibold text-center text-gray-800 font-roboto mb-12"
         >
+          Open Positions
+        </motion.h2>
+        {isLoading ? (
+          <div className="text-center">
+            <p className="text-gray-600 text-lg animate-pulse">Loading job openings...</p>
+          </div>
+        ) : jobs.length === 0 ? (
           <motion.div
-            className="bg-white p-8 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative"
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            onClick={(e) => e.stopPropagation()}
+            variants={itemVariants}
+            className="text-center py-12 bg-gray-50 rounded-2xl shadow-md max-w-2xl mx-auto"
           >
-            <button
-              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
-              onClick={() => setShowApplicationModal(false)}
+            <p className="text-gray-600 text-lg">No job openings available at the moment. Check back later!</p>
+          </motion.div>
+        ) : (
+          <>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="max-w-6xl mx-auto space-y-6"
             >
-              <X className="w-6 h-6" />
-            </button>
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Apply for a Position</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                    <Briefcase className="w-5 h-5" /> Job Position *
-                  </label>
-                  <select
-                    name="job_id"
-                    value={formData.job_id}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    required
+              {paginatedJobs.map((job) => (
+                <motion.div
+                  key={job.id}
+                  variants={itemVariants}
+                  className="bg-white p-8 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-xl md:text-2xl font-semibold text-gray-800 font-roboto">{job.title}</h3>
+                    <p className="text-gray-600 mt-3 text-sm md:text-base line-clamp-2">{job.description}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="bg-blue-100 text-blue-500 text-xs px-3 py-1 rounded-full font-medium">
+                        {job.location || 'Remote'}
+                      </span>
+                      <span className="bg-green-100 text-green-500 text-xs px-3 py-1 rounded-full font-medium">
+                        {job.type || 'Full-Time'}
+                      </span>
+                      <span className="bg-purple-100 text-purple-500 text-xs px-3 py-1 rounded-full font-medium">
+                        {job.department || 'General'}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 text-sm mt-4">
+                      Posted: {new Date(job.posted_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="mt-6 md:mt-0 md:ml-6 flex flex-col md:flex-row gap-4">
+                    <button
+                      onClick={() => handleApplyNow(job)}
+                      className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-2 px-6 rounded-lg shadow-md hover:from-pink-600 hover:to-pink-800 transition-all duration-300"
+                    >
+                      Apply Now
+                    </button>
+                    <button
+                      onClick={() => handleReadMore(job)}
+                      className="border border-blue-500 text-blue-500 py-2 px-6 rounded-lg hover:bg-blue-50 transition-all duration-300"
+                    >
+                      Read More
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center gap-4">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition-all duration-300"
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 rounded-lg ${
+                      currentPage === page
+                        ? 'bg-pink-500 text-white'
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                    } transition-all duration-300`}
                   >
-                    <option value="" disabled>Select a job</option>
-                    {jobs.map((job) => (
-                      <option key={job.id} value={job.id}>
-                        {job.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                    <User className="w-5 h-5" /> Full Name *
-                  </label>
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition-all duration-300"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* Job Details Popup */}
+      {showJobPopup && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative bg-white p-8 rounded-2xl shadow-xl max-w-3xl w-full h-[90vh] overflow-hidden">
+            <button
+              onClick={handleClosePopup}
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-bold"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-semibold text-gray-800 font-roboto mb-4 text-center">{selectedJob.title}</h2>
+            <div className="space-y-4">
+              <p><strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: selectedJob.description }} /></p>
+              <p><strong>Location:</strong> {selectedJob.location || 'Remote'}</p>
+              <p><strong>Type:</strong> {selectedJob.type || 'Full-Time'}</p>
+              <p><strong>Department:</strong> {selectedJob.department || 'General'}</p>
+              <p><strong>Posted Date:</strong> {new Date(selectedJob.posted_date).toLocaleDateString()}</p>
+            </div>
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => handleApplyNow(selectedJob)}
+                className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-2 px-6 rounded-lg shadow-md hover:from-pink-600 hover:to-pink-800 transition-all duration-300"
+              >
+                Apply Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Apply Now Popup */}
+      {showApplyPopup && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative bg-white p-8 rounded-2xl shadow-xl max-w-3xl w-full h-[90vh] overflow-hidden">
+            <button
+              onClick={handleClosePopup}
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-bold"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-semibold text-gray-800 font-roboto mb-4 text-center">Apply for {selectedJob.title}</h2>
+            {formError && (
+              <p className="text-red-600 text-sm mb-4 text-center">{formError}</p>
+            )}
+            <form onSubmit={handleSubmitApplication} encType="multipart/form-data">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-4">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
                   <input
                     type="text"
+                    id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                     required
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                    <Mail className="w-5 h-5" /> Email *
-                  </label>
+                <div className="mb-4">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
+                    id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                     required
                   />
                 </div>
-                <div>
-                  <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                    <Phone className="w-5 h-5" /> Phone
-                  </label>
+                <div className="mb-4">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
                   <input
-                    type="tel"
+                    type="text"
+                    id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <MapPin className="w-5 h-5" /> Permanent Address
-                </label>
-                <textarea
-                  name="permanent_address"
-                  value={formData.permanent_address}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                    <MapPin className="w-5 h-5" /> Current Location
-                  </label>
+                <div className="mb-4">
+                  <label htmlFor="current_location" className="block text-sm font-medium text-gray-700">Current Location</label>
                   <input
                     type="text"
+                    id="current_location"
                     name="current_location"
                     value={formData.current_location}
                     onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                   />
                 </div>
-                <div>
-                  <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                    <GraduationCap className="w-5 h-5" /> Highest Education
-                  </label>
-                  <select
-                    name="highest_education"
-                    value={formData.highest_education}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  >
-                    <option value="">Select Education</option>
-                    <option value="Graduate">Graduate</option>
-                    <option value="Postgraduate">Postgraduate</option>
-                    <option value="Diploma">Diploma</option>
-                    <option value="PhD">PhD</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
               </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <Code className="w-5 h-5" /> Skills (comma-separated)
-                </label>
+              <div className="mb-4">
+                <label htmlFor="permanent_address" className="block text-sm font-medium text-gray-700">Permanent Address</label>
                 <textarea
+                  id="permanent_address"
+                  name="permanent_address"
+                  value={formData.permanent_address}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                  rows={4}
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="highest_education" className="block text-sm font-medium text-gray-700">Highest Education</label>
+                <input
+                  type="text"
+                  id="highest_education"
+                  name="highest_education"
+                  value={formData.highest_education}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="skills" className="block text-sm font-medium text-gray-700">Skills (comma-separated)</label>
+                <input
+                  type="text"
+                  id="skills"
                   name="skills"
                   value={formData.skills}
                   onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  rows={3}
-                  placeholder="e.g., JavaScript, Python, React, Node.js, AWS, Docker"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                 />
               </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <FileText className="w-5 h-5" /> Cover Letter (Optional)
-                </label>
+              <div className="mb-4">
+                <label htmlFor="cover_letter" className="block text-sm font-medium text-gray-700">Cover Letter</label>
                 <textarea
+                  id="cover_letter"
                   name="cover_letter"
                   value={formData.cover_letter}
                   onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                   rows={4}
-                  placeholder="Tell us why you're interested in this position..."
                 />
               </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-gray-700 font-medium mb-2">
-                  <FileText className="w-5 h-5" /> Resume (PDF/DOC)
-                </label>
+              <div className="mb-4">
+                <label htmlFor="resume" className="block text-sm font-medium text-gray-700">Resume (PDF)</label>
                 <input
                   type="file"
+                  id="resume"
                   name="resume"
+                  accept=".pdf"
                   onChange={handleFileChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  accept=".pdf,.doc,.docx"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
                 />
               </div>
-
-              {formMessage && (
-                <div className={`text-center p-3 rounded-lg ${
-                  formMessage.includes('successfully') 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {formMessage}
-                </div>
-              )}
-
-              <motion.button
-                type="submit"
-                className="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 transition-all duration-300 flex items-center justify-center gap-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Send className="w-5 h-5" />
-                Submit Application
-              </motion.button>
+              <div className="flex justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleClosePopup}
+                  className="bg-gray-300 text-gray-800 py-2 px-6 rounded-lg hover:bg-gray-400 transition-all duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-2 px-6 rounded-lg shadow-md hover:from-pink-600 hover:to-pink-800 transition-all duration-300"
+                >
+                  Submit Application
+                </button>
+              </div>
             </form>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
+
+      {/* Testimonials Section */}
+      <section className="py-24 bg-gradient-to-br from-slate-50 to-blue-50 relative overflow-hidden">
+        <style jsx global>{`
+          .testimonial-slider .swiper-wrapper {
+            align-items: center;
+          }
+          
+          .testimonial-slider .swiper-slide {
+            filter: blur(4px);
+            opacity: 0.25;
+            transform: scale(0.85);
+            transition: all 0.5s ease;
+            height: auto !important;
+          }
+          
+          .testimonial-slider .swiper-slide-prev,
+          .testimonial-slider .swiper-slide-next {
+            filter: blur(2px);
+            opacity: 0.6;
+            transform: scale(0.92);
+          }
+          
+          .testimonial-slider .swiper-slide-active {
+            filter: none !important;
+            opacity: 1 !important;
+            transform: scale(1) !important;
+            z-index: 10;
+          }
+          
+          .swiper-button-prev,
+          .swiper-button-next {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+          }
+          
+          .swiper-button-prev:hover,
+          .swiper-button-next:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+          }
+          
+          .swiper-button-prev::after,
+          .swiper-button-next::after {
+            content: '';
+          }
+          
+          .swiper-pagination-bullet {
+            background: #cbd5e1;
+            width: 12px;
+            height: 12px;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+          }
+          
+          .swiper-pagination-bullet-active {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+            opacity: 1;
+            transform: scale(1.3);
+          }
+
+          .testimonial-text {
+            color: #1f2937 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+        `}</style>
+
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-blue-400/8 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-400/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                Life at
+              </span>{' '}
+              <span className="bg-gradient-to-r from-pink-500 to-pink-700 bg-clip-text text-transparent">
+                Tej IT
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Hear from our team about what makes working at Tej IT special
+            </p>
+          </motion.div>
+
+          {isLoading ? (
+            <div className="text-center">
+              <div className="animate-pulse space-y-8">
+                <div className="h-12 bg-gray-300 rounded w-96 mx-auto" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-80 bg-gray-200 rounded-2xl" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : testimonials.length === 0 ? (
+            <motion.div
+              variants={itemVariants}
+              className="text-center py-12 bg-white rounded-2xl shadow-md max-w-2xl mx-auto"
+            >
+              <p className="text-gray-600 text-lg">No testimonials available at the moment.</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="testimonial-slider relative"
+            >
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+                loop={true}
+                centeredSlides={true}
+                slidesPerView="auto"
+                spaceBetween={40}
+                effect="coverflow"
+                coverflowEffect={{
+                  rotate: 0,
+                  stretch: 80,
+                  depth: 200,
+                  modifier: 1,
+                  slideShadows: false,
+                }}
+                autoplay={{
+                  delay: 6000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }}
+                navigation={{
+                  nextEl: '.testimonial-next',
+                  prevEl: '.testimonial-prev',
+                }}
+                pagination={{
+                  el: '.testimonial-pagination',
+                  clickable: true,
+                }}
+                breakpoints={{
+                  320: { slidesPerView: 1, spaceBetween: 20 },
+                  640: { slidesPerView: 1.2, spaceBetween: 25 },
+                  768: { slidesPerView: 1.5, spaceBetween: 30 },
+                  1024: { slidesPerView: 2.2, spaceBetween: 35 },
+                  1280: { slidesPerView: 2.5, spaceBetween: 40 },
+                }}
+                className="!pb-20"
+              >
+                {testimonials.map((testimonial, index) => (
+                  <SwiperSlide key={testimonial.id || index} style={{ width: '420px', height: 'auto' }}>
+                    <div className="bg-white p-6 rounded-3xl shadow-xl h-full flex flex-col justify-between relative min-h-[300px] border border-gray-100/50 backdrop-blur-sm">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 to-purple-50/40 rounded-3xl" />
+                      <div className="relative z-10 flex flex-col h-full">
+                        <div className="text-center">
+                          <p className="font-bold text-gray-800 text-base testimonial-text">{testimonial.employee_name}</p>
+                          <p className="text-sm text-gray-600 font-medium testimonial-text mt-1">{testimonial.job_role}</p>
+                          {testimonial.rating !== undefined && (
+                            <div className="flex justify-center mt-2 mb-4">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <svg
+                                  key={i}
+                                  className={`w-4 h-4 ${i < testimonial.rating! ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.15c.969 0 1.371 1.24.588 1.81l-3.357 2.44a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.539 1.118l-3.357-2.44a1 1 0 00-1.175 0l-3.357 2.44c-.784.57-1.838-.197-1.539-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.315 9.397c-.783-.57-.38-1.81.588-1.81h4.15a1 1 0 00.95-.69l1.286-3.97z" />
+                                </svg>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-gray-700 text-sm leading-relaxed italic flex-grow font-medium testimonial-text">
+                          "{sanitizeFeedback(testimonial.feedback)}"
+                        </p>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="testimonial-prev swiper-button-prev flex items-center justify-center">
+                <ChevronLeft className="w-6 h-6 text-pink-600" />
+              </div>
+              <div className="testimonial-next swiper-button-next flex items-center justify-center">
+                <ChevronRight className="w-6 h-6 text-pink-600" />
+              </div>
+              <div className="testimonial-pagination swiper-pagination" />
+            </motion.div>
+          )}
+        </div>
+      </section>
     </div>
   );
-}
+};
+
+export default App;

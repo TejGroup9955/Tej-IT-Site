@@ -35,6 +35,7 @@ const footerItems: FooterItem[] = [
       { name: 'BDM', href: '/BDM' },
       { name: 'Payroll', href: '/payroll' },
       { name: 'Class Management', href: '/class-management' },
+      { name: 'BDM TradeBook Sales & Purchase', href: '/tradebook' },
     ],
   },
   {
@@ -105,10 +106,15 @@ export default function Footer() {
               key={section.title}
               variants={itemVariants}
               className="text-center md:text-left relative"
-              onMouseEnter={() => index !== 0 && handleMouseEnter(index)} // Exclude Contact Us from hover effect
+              onMouseEnter={() => index !== 0 && handleMouseEnter(index)}
               onMouseLeave={() => index !== 0 && handleMouseLeave()}
             >
-              <h3 className="text-lg font-semibold mb-3 text-purple-400">{section.title}</h3>
+              <h3
+                className="text-lg font-semibold mb-3 bg-gradient-to-r from-green-400 to-purple-500 bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(to right, #34D399, #A855F7)' }}
+              >
+                {section.title}
+              </h3>
               <ul className="text-sm space-y-2">
                 {section.items.map((item, itemIndex) => (
                   <motion.li
@@ -127,18 +133,32 @@ export default function Footer() {
               </ul>
               {section.social && (
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-3 text-purple-400">Follow Us</h3>
+                  <h3
+                    className="text-lg font-semibold mb-3 bg-gradient-to-r from-green-400 to-purple-500 bg-clip-text text-transparent"
+                    style={{ backgroundImage: 'linear-gradient(to right, #34D399, #A855F7)' }}
+                  >
+                    Follow Us
+                  </h3>
                   <ul className="flex justify-center md:justify-start space-x-4 text-sm">
                     {section.social.map((social, socialIndex) => (
                       <motion.li
                         key={socialIndex}
                         variants={itemVariants}
+                        className="group"
                       >
                         <Link
                           href={social.href}
-                          className="hover:text-purple-400 transition-colors flex items-center"
+                          className="hover:text-white transition-colors flex items-center"
                         >
-                          <social.icon className="w-5 h-5 mr-1" />
+                          <social.icon
+                            className={`w-5 h-5 mr-1 transition-all duration-300 ${
+                              social.name === 'Facebook'
+                                ? 'text-blue-600 group-hover:text-blue-400 group-hover:scale-110'
+                                : social.name === 'Instagram'
+                                ? 'text-pink-600 group-hover:text-pink-400 group-hover:rotate-12 group-hover:scale-110'
+                                : 'text-blue-700 group-hover:text-blue-500 group-hover:-rotate-12 group-hover:scale-110'
+                            }`}
+                          />
                           {social.name}
                         </Link>
                       </motion.li>

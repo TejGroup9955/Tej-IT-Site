@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Check, ChevronRight, PhoneCall, Code, Smartphone, Globe, Cloud, ArrowRight, Star, Quote, Briefcase, DollarSign, Users, BookOpen, ShoppingCart } from 'lucide-react';
+import { Check, ChevronRight, PhoneCall, Code, Smartphone, Globe, Cloud, ArrowRight, Star, Quote, Briefcase, DollarSign, Users, ShoppingCart } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -149,21 +149,6 @@ export default function Home() {
       ],
       href: '/bdm',
       gradient: 'from-orange-500 to-red-600',
-    },
-    {
-      icon: BookOpen,
-      title: 'Class Management System',
-      description: 'Manage students, batches, exams, and fees for schools and coaching institutes with a mobile app.',
-      features: [
-        { text: 'Student Registration', bullet: true },
-        { text: 'Batch Scheduling', bullet: true },
-        { text: 'Exam Management', bullet: true },
-        { text: 'Fee Tracking', bullet: true },
-        { text: 'Parent Portal', bullet: true },
-        { text: 'Mobile App Access', bullet: true },
-      ],
-      href: '/class-management',
-      gradient: 'from-purple-500 to-pink-600',
     },
     {
       icon: ShoppingCart,
@@ -325,7 +310,7 @@ export default function Home() {
         <motion.section
           initial="hidden"
           animate="visible"
-          className="py-6 bg-gray-50 flex items-center justify-center ml-[-84px]"
+          className="py-6 bg-gray-50 flex items-center justify-center ml-[-84px] h-[20vh]"
         >
           <div className="flex justify-center gap-8 flex-wrap max-w-6xl px-4">
             {stats.map((stat, index) => (
@@ -463,7 +448,7 @@ export default function Home() {
         </section>
 
         {/* Our Products Section */}
-        <section id="products" className="py-24 relative overflow-hidden bg-gray-50">
+        <section id="products" className="py-24 relative overflow-hidden bg-white">
           <div className="absolute inset-0">
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
@@ -485,67 +470,46 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Row 1: 2 Product Cards (Centered) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              {products.slice(0, 2).map((product, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-8">
+              {products.map((product, index) => (
                 <div
                   key={index}
                   className="group relative"
+                  onMouseEnter={() => setHoveredService(index)}
+                  onMouseLeave={() => setHoveredService(null)}
                 >
-                  <div className="relative min-h-[300px] bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-center text-center h-full transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
-                    <div className={`relative w-16 h-16 bg-gradient-to-r ${product.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      <product.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4">{product.title}</h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{product.description}</p>
-                    <ul className="list-none space-y-2 mb-6 flex-grow">
-                      {product.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="relative pl-6 text-gray-600 text-sm">
-                          <Check className="absolute left-0 top-0.5 text-emerald-500" size={16} />
-                          {feature.text}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link
-                      href={product.href}
-                      className="inline-flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors duration-300 mt-auto"
-                    >
-                      <span>Learn More</span>
-                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  <div className="relative min-h-[400px] bg-slate-800/40 backdrop-blur-sm border border-slate-700/40 rounded-2xl p-8 flex flex-col h-full transition-all duration-500 hover:bg-slate-800/60 hover:border-slate-600/50 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2">
+                    <div className={`absolute inset-0 bg-gradient-to-r ${product.gradient} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500`}></div>
 
-            {/* Row 2: 3 Product Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {products.slice(2).map((product, index) => (
-                <div
-                  key={index}
-                  className="group relative"
-                >
-                  <div className="relative min-h-[300px] bg-white border border-gray-200 rounded-2xl p-6 flex flex-col h-full transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
-                    <div className={`relative w-16 h-16 bg-gradient-to-r ${product.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      <product.icon className="w-8 h-8 text-white" />
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className={`relative w-16 h-16 bg-gradient-to-r ${product.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                        <product.icon className="w-8 h-8 text-white" />
+                      </div>
+
+                      <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-400 group-hover:to-teal-400 transition-all duration-300">
+                        {product.title}
+                      </h3>
+                      <p className="text-gray-200 mb-6 leading-relaxed flex-grow">
+                        {product.description}
+                      </p>
+
+                      <ul className="list-none space-y-2 mb-6 flex-grow">
+                        {product.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="relative pl-6 text-gray-200 text-sm">
+                            <Check className="absolute left-0 top-0.5 text-emerald-500" size={16} />
+                            {feature.text}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Link
+                        href={product.href}
+                        className="inline-flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors duration-300 mt-auto"
+                      >
+                        <span>Learn More</span>
+                        <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                      </Link>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4">{product.title}</h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{product.description}</p>
-                    <ul className="list-none space-y-2 mb-6 flex-grow">
-                      {product.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="relative pl-6 text-gray-600 text-sm">
-                          <Check className="absolute left-0 top-0.5 text-emerald-500" size={16} />
-                          {feature.text}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link
-                      href={product.href}
-                      className="inline-flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors duration-300 mt-auto"
-                    >
-                      <span>Learn More</span>
-                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
                   </div>
                 </div>
               ))}
@@ -702,7 +666,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 1.0 }}
-          className="relative py-8 bg-white text-center rounded-lg overflow-hidden flex items-center justify-center min-h-[50vh]"
+          className="relative py-8 bg-white text-center rounded-lg overflow-hidden"
         >
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.6972463507894!2d77.58367297505847!3d12.926309487398848!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15b277d8d8d7%3A0x6f3733db73d3469f!2sTej%20IT%20Solutions!5e0!3m2!1sen!2sin!4v1726661234567!5m2!1sen!2sin"
@@ -712,7 +676,6 @@ export default function Home() {
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Tej IT Solutions Location"
           ></iframe>
           <div className="relative z-10 bg-black bg-opacity-50 py-8">
             <motion.h2
@@ -744,20 +707,6 @@ export default function Home() {
             </motion.button>
           </div>
         </motion.section>
-
-        {/* Sticky CTA */}
-        {showStickyCta && (
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            onClick={() => window.location.href = '/contact'}
-            className="fixed bottom-5 right-5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg z-[1000] flex items-center gap-2"
-            aria-label="Contact Us"
-          >
-            <PhoneCall className="w-4 h-4" /> Contact Us
-          </motion.button>
-        )}
       </div>
     </div>
   );
