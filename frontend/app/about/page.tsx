@@ -33,24 +33,24 @@ export default function About() {
   ];
 
   const whyChooseUs = [
-    { title: 'People', description: 'Our smart, dedicated team drives business success with expertise in modern technologies.', icon: '/icons/react.png' },
-    { title: 'Customer Service', description: 'Superior service ensuring complete client satisfaction through tailored solutions.', icon: '/icons/nodejs.png' },
-    { title: 'Support', description: 'Trustworthy engineers providing 24/7 support to resolve IT challenges.', icon: '/icons/aws.png' },
-    { title: 'Quality', description: 'Cutting-edge solutions delivering exceptional value and performance.', icon: '/icons/azure.png' },
+    { title: 'People', description: 'Our smart, dedicated team drives business success with expertise in modern technologies.', icon: '/icons/team.png' },
+    { title: 'Customer Service', description: 'Superior service ensuring complete client satisfaction through tailored solutions.', icon: '/icons/headset.png' },
+    { title: 'Support', description: 'Trustworthy engineers providing 24/7 support to resolve IT challenges.', icon: '/icons/lifebuoy.png' },
+    { title: 'Quality', description: 'Cutting-edge solutions delivering exceptional value and performance.', icon: '/icons/star.png' },
   ];
 
   const values = [
-    { title: 'Commitment', description: 'Transparent solutions with clear pricing and reliable delivery.', icon: '/icons/cloud-services.png' },
-    { title: 'Innovation', description: 'Creative problem-solving with cutting-edge technologies.', icon: '/icons/mobile-app.png' },
-    { title: 'Community', description: 'Fostering a positive workplace and ethical initiatives.', icon: '/icons/software-development.png' },
-    { title: 'Excellence', description: 'Delivering exceptional quality in every project.', icon: '/icons/web-design.png' },
+    { title: 'Commitment', description: 'Transparent solutions with clear pricing and reliable delivery.', icon: '/icons/handshake.png' },
+    { title: 'Innovation', description: 'Creative problem-solving with cutting-edge technologies.', icon: '/icons/lightbulb.png' },
+    { title: 'Community', description: 'Fostering a positive workplace and ethical initiatives.', icon: '/icons/community.png' },
+    { title: 'Excellence', description: 'Delivering exceptional quality in every project.', icon: '/icons/trophy.png' },
   ];
 
   const techExpertise = [
     { title: 'Frontend Development', description: 'Building responsive, user-friendly interfaces with React and Next.js.', icon: '/icons/react.png' },
     { title: 'Backend Development', description: 'Robust server-side solutions using Node.js and scalable APIs.', icon: '/icons/nodejs.png' },
     { title: 'Cloud Solutions', description: 'Deploying secure, scalable applications on AWS and Azure.', icon: '/icons/aws.png' },
-    { title: 'Mobile & ERP', description: 'Developing iOS/Android apps and ERP systems like Tej Payroll and Tej Smart Class.', icon: '/icons/azure.png' },
+    { title: 'Mobile & ERP', description: 'Developing iOS/Android apps and ERP systems like Tej Payroll and Tej Smart Class.', icon: '/icons/smartphone.png' },
   ];
 
   const containerVariants = {
@@ -341,9 +341,6 @@ export default function About() {
         <motion.h2 variants={itemVariants} className="text-3xl font-bold mb-4 text-text">
           Ready to Grow with Us?
         </motion.h2>
-        {/* <motion.p variants={itemVariants} className="text-lg mb-6 text-text">
-          Contact us at: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001.
-        </motion.p> */}
         <motion.div variants={itemVariants}>
           <Link href="/contact" className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-full hover:bg-secondary transition">
             Get in Touch

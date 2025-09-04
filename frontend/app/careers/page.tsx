@@ -228,7 +228,7 @@ const App: React.FC = () => {
       {/* Hero Section */}
       <motion.section
         style={{ opacity: heroOpacity, scale: heroScale }}
-        className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white py-24 px-4 text-center overflow-hidden"
+        className="relative bg-gradient-to-r from-blue-900 to-emerald-600 text-white py-24 px-4 text-center overflow-hidden"
       >
         <div className="absolute inset-0 opacity-30">
           <Image
@@ -263,7 +263,7 @@ const App: React.FC = () => {
             className="mt-8"
           >
             <Link href="#jobs">
-              <button className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-3 px-8 rounded-lg shadow-lg hover:from-pink-600 hover:to-pink-800 transition-all duration-300 text-lg font-semibold">
+              <button className="bg-gradient-to-r from-gray-600 to-gray-800 text-white py-3 px-8 rounded-lg shadow-lg hover:from-gray-700 hover:to-gray-900 transition-all duration-300 text-lg font-semibold">
                 View Current Openings
               </button>
             </Link>
@@ -340,7 +340,7 @@ const App: React.FC = () => {
                   <div className="mt-6 md:mt-0 md:ml-6 flex flex-col md:flex-row gap-4">
                     <button
                       onClick={() => handleApplyNow(job)}
-                      className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-2 px-6 rounded-lg shadow-md hover:from-pink-600 hover:to-pink-800 transition-all duration-300"
+                      className="bg-gradient-to-r from-gray-600 to-gray-800 text-white py-2 px-6 rounded-lg shadow-md hover:from-gray-700 hover:to-gray-900 transition-all duration-300"
                     >
                       Apply Now
                     </button>
@@ -370,7 +370,7 @@ const App: React.FC = () => {
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 rounded-lg ${
                       currentPage === page
-                        ? 'bg-pink-500 text-white'
+                        ? 'bg-gray-600 text-white'
                         : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                     } transition-all duration-300`}
                   >
@@ -411,7 +411,7 @@ const App: React.FC = () => {
             <div className="mt-6 flex justify-center">
               <button
                 onClick={() => handleApplyNow(selectedJob)}
-                className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-2 px-6 rounded-lg shadow-md hover:from-pink-600 hover:to-pink-800 transition-all duration-300"
+                className="bg-gradient-to-r from-gray-600 to-gray-800 text-white py-2 px-6 rounded-lg shadow-md hover:from-gray-700 hover:to-gray-900 transition-all duration-300"
               >
                 Apply Now
               </button>
@@ -423,7 +423,7 @@ const App: React.FC = () => {
       {/* Apply Now Popup */}
       {showApplyPopup && selectedJob && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-white p-8 rounded-2xl shadow-xl max-w-3xl w-full h-[90vh] overflow-hidden">
+          <div className="relative bg-white p-8 rounded-2xl shadow-xl max-w-3xl w-full h-[90vh] overflow-y-auto">
             <button
               onClick={handleClosePopup}
               className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-bold"
@@ -444,7 +444,7 @@ const App: React.FC = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   />
                 </div>
@@ -456,7 +456,7 @@ const App: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   />
                 </div>
@@ -468,7 +468,7 @@ const App: React.FC = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div className="mb-4">
@@ -479,7 +479,7 @@ const App: React.FC = () => {
                     name="current_location"
                     value={formData.current_location}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -490,7 +490,7 @@ const App: React.FC = () => {
                   name="permanent_address"
                   value={formData.permanent_address}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                   rows={4}
                 />
               </div>
@@ -502,7 +502,7 @@ const App: React.FC = () => {
                   name="highest_education"
                   value={formData.highest_education}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div className="mb-4">
@@ -513,7 +513,7 @@ const App: React.FC = () => {
                   name="skills"
                   value={formData.skills}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div className="mb-4">
@@ -523,7 +523,7 @@ const App: React.FC = () => {
                   name="cover_letter"
                   value={formData.cover_letter}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                   rows={4}
                 />
               </div>
@@ -535,7 +535,7 @@ const App: React.FC = () => {
                   name="resume"
                   accept=".pdf"
                   onChange={handleFileChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div className="flex justify-center gap-4">
@@ -548,7 +548,7 @@ const App: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-2 px-6 rounded-lg shadow-md hover:from-pink-600 hover:to-pink-800 transition-all duration-300"
+                  className="bg-gradient-to-r from-gray-600 to-gray-800 text-white py-2 px-6 rounded-lg shadow-md hover:from-gray-700 hover:to-gray-900 transition-all duration-300"
                 >
                   Submit Application
                 </button>
@@ -619,7 +619,7 @@ const App: React.FC = () => {
           }
           
           .swiper-pagination-bullet-active {
-            background: linear-gradient(135deg, #ec4899, #f472b6);
+            background: linear-gradient(135deg, #4b5563, #6b7280);
             opacity: 1;
             transform: scale(1.3);
           }
@@ -648,7 +648,7 @@ const App: React.FC = () => {
               <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Life at
               </span>{' '}
-              <span className="bg-gradient-to-r from-pink-500 to-pink-700 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent">
                 Tej IT
               </span>
             </h2>
@@ -725,14 +725,14 @@ const App: React.FC = () => {
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 to-purple-50/40 rounded-3xl" />
                       <div className="relative z-10 flex flex-col h-full">
                         <div className="text-center">
-                          <p className="font-bold text-gray-800 text-base testimonial-text">{testimonial.employee_name}</p>
-                          <p className="text-sm text-gray-600 font-medium testimonial-text mt-1">{testimonial.job_role}</p>
+                          <p className="font-bold text-gray-800 text-lg testimonial-text">{testimonial.employee_name}</p>
+                          <p className="text-sm text-gray-600 font-medium testimonial-text mt-2">{testimonial.job_role}</p>
                           {testimonial.rating !== undefined && (
                             <div className="flex justify-center mt-2 mb-4">
                               {Array.from({ length: 5 }).map((_, i) => (
                                 <svg
                                   key={i}
-                                  className={`w-4 h-4 ${i < testimonial.rating! ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                                  className={`w-5 h-5 ${i < testimonial.rating! ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
                                   fill="currentColor"
                                   viewBox="0 0 20 20"
                                 >
@@ -742,7 +742,7 @@ const App: React.FC = () => {
                             </div>
                           )}
                         </div>
-                        <p className="text-gray-700 text-sm leading-relaxed italic flex-grow font-medium testimonial-text">
+                        <p className="text-gray-700 text-base leading-relaxed italic flex-grow font-medium testimonial-text mt-4 line-clamp-4">
                           "{sanitizeFeedback(testimonial.feedback)}"
                         </p>
                       </div>
@@ -751,12 +751,12 @@ const App: React.FC = () => {
                 ))}
               </Swiper>
               <div className="testimonial-prev swiper-button-prev flex items-center justify-center">
-                <ChevronLeft className="w-6 h-6 text-pink-600" />
+                <ChevronLeft className="w-6 h-6 text-gray-600" />
               </div>
               <div className="testimonial-next swiper-button-next flex items-center justify-center">
-                <ChevronRight className="w-6 h-6 text-pink-600" />
+                <ChevronRight className="w-6 h-6 text-gray-600" />
               </div>
-              <div className="testimonial-pagination swiper-pagination" />
+              {/* <div className="testimonial-pagination swiper-pagination" /> */}
             </motion.div>
           )}
         </div>

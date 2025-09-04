@@ -516,9 +516,6 @@ export default function BDMClient() {
         <motion.h2 variants={itemVariants} className="text-4xl font-bold mb-4 text-white">
           Ready to Grow Your Business?
         </motion.h2>
-        <motion.p variants={itemVariants} className="text-lg mb-6">
-          Contact us at: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001.
-        </motion.p>
         <motion.div variants={itemVariants}>
           <Link
             href="/contact"
