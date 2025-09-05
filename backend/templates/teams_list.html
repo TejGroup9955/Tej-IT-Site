@@ -1,16 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3><i class="fas fa-users me-2"></i>Teams</h3>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-users-cog me-3"></i>Team Management</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('admin_dashboard') }}" class="breadcrumb-item">Dashboard</a>
+                <span class="breadcrumb-item active">Teams</span>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success export-btn" onclick="exportData()">
+                <i class="fas fa-download me-2"></i>Export CSV
+            </button>
+            <a href="{{ url_for('admin_team_new') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>Add Team Member
+            </a>
+        </div>
     </div>
+</div>
+
+<div class="card">
     <div class="card-body">
-        <a href="{{ url_for('admin_team_new') }}" class="btn btn-primary mb-3"><i class="fas fa-plus me-2"></i>Add New Team Member</a>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table data-table" id="teamsTable">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Photo</th>
                         <th>Name</th>
                         <th>Role</th>
                         <th>Description</th>
@@ -19,20 +35,82 @@
                 </thead>
                 <tbody>
                     {% for team in teams %}
-                        <tr>
-                            <td>{{ team.id }}</td>
-                            <td>{{ team.name }}</td>
-                            <td>{{ team.role }}</td>
-                            <td>{{ team.description }}</td>
-                            <td>
-                                <a href="{{ url_for('admin_team_edit', id=team.id) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
-                                <a href="{{ url_for('admin_team_delete', id=team.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td>
+                            {% if team.photo %}
+                                <img src="{{ team.photo }}" alt="{{ team.name }}" 
+                                     class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-user text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ team.name }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ team.role }}</span>
+                        </td>
+                        <td>{{ team.description or 'No description' }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('admin_team_edit', id=team.id) }}" 
+                                   class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('admin_team_delete', id=team.id) }}" 
+                                   class="btn btn-sm btn-outline-danger" title="Delete"
+                                   onclick="return confirm('Are you sure you want to delete this team member?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No team members found.</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#teamsTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            columnDefs: [
+                { orderable: false, targets: [0, 4] } // Disable sorting for photo and actions
+            ]
+        });
+    });
+
+    function exportData() {
+        const table = $('#teamsTable').DataTable();
+        const data = table.rows({search: 'applied'}).data().toArray();
+        
+        let csv = 'Name,Role,Description\n';
+        data.forEach(row => {
+            const cells = $(row).find('td');
+            const name = $(cells[1]).find('.fw-medium').text().trim();
+            const role = $(cells[2]).text().trim();
+            const description = $(cells[3]).text().trim();
+            
+            csv += `"${name}","${role}","${description}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'teams_export.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+</script>
 {% endblock %}

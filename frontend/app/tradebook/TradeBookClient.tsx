@@ -1,5 +1,5 @@
 'use client';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, Variants } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
@@ -209,7 +209,7 @@ export default function TradeBookClient() {
     },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -219,12 +219,12 @@ export default function TradeBookClient() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  const cardHover = {
+  const cardHover: Variants = {
     hover: { scale: 1.05, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)', transition: { duration: 0.3 } },
   };
 
@@ -449,7 +449,7 @@ export default function TradeBookClient() {
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
-            const isInView = useInView(ref, { threshold: 0.5, once: false });
+            const isInView = useInView(ref, { amount: 0.5, once: false });
 
             return (
               <motion.div

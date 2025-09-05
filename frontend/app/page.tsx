@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants, Transition } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Check, ChevronRight, PhoneCall, Code, Smartphone, Globe, Cloud, ArrowRight, Star, Quote, Briefcase, DollarSign, Users, ShoppingCart } from 'lucide-react';
@@ -10,11 +10,22 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+// Define the Testimonial interface
+interface Testimonial {
+  content?: string;
+  rating?: number;
+  name?: string;
+  designation?: string;
+  company?: string;
+  profilePicture?: string;
+  companyLogo?: string;
+}
+
 export default function Home() {
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [hoveredService, setHoveredService] = useState<number | null>(null);
-  const [testimonials, setTestimonials] = useState([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +39,7 @@ export default function Home() {
     setIsLoading(true);
     fetch('http://10.10.50.93:5000/api/testimonials')
       .then(res => res.json())
-      .then(data => {
+      .then((data: Testimonial[]) => {
         if (Array.isArray(data)) {
           setTestimonials(data);
         } else {
@@ -194,23 +205,23 @@ export default function Home() {
     '/client-logo/resized/shreebalaji.png',
   ];
 
-  const scrollWheelVariants = {
+  const scrollWheelVariants: Variants = {
     animate: {
       y: [0, 5, 0],
       transition: {
         y: {
           repeat: Infinity,
-          repeatType: 'loop',
+          repeatType: 'loop' as const,
           duration: 1.5,
-          ease: 'easeInOut',
+          ease: 'easeInOut' as const,
         },
-      },
+      } as Transition,
     },
   };
 
-  const statVariants = {
+  const statVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
-    visible: (i) => ({
+    visible: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: { duration: 0.7, delay: i * 0.1 },

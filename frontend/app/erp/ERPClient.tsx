@@ -471,7 +471,7 @@ export default function ERPClient() {
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
-            const isInView = useInView(ref, { threshold: 0.5, once: false });
+            const isInView = useInView(ref, { amount: 0.5, once: false });
 
             return (
               <motion.div
@@ -521,7 +521,7 @@ export default function ERPClient() {
         </div>
       </motion.section>
 
-      {/* Contact CTA Section */}
+      /* Contact CTA Section */
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -541,7 +541,7 @@ export default function ERPClient() {
         </motion.div>
       </motion.section>
 
-      {/* Feature Modal */}
+      /* Feature Modal */
       {isModalOpen && selectedFeature && (
         <motion.div
           initial={{ opacity: 0 }}

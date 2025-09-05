@@ -1,9 +1,10 @@
 'use client';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
 import { Shield, Smartphone, UserPlus, Phone, MapPin, Lock, FileText, BarChart2, FileCheck, DollarSign, Workflow, MessageSquare, ChevronRight } from 'lucide-react';
+import { useCustomInView } from '../lib/useCustomInView';
 
 interface Feature {
   title: string;
@@ -456,7 +457,7 @@ export default function BDMClient() {
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
-            const isInView = useInView(ref, { threshold: 0.5, once: false });
+            const isInView = useCustomInView(ref, { threshold: 0.5, once: false });
 
             return (
               <motion.div
@@ -506,7 +507,7 @@ export default function BDMClient() {
         </div>
       </motion.section>
 
-      {/* Contact CTA Section */}
+      /* Contact CTA Section */
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -526,7 +527,7 @@ export default function BDMClient() {
         </motion.div>
       </motion.section>
 
-      {/* Feature Modal */}
+      /* Feature Modal */
       {isModalOpen && selectedFeature && (
         <motion.div
           initial={{ opacity: 0 }}

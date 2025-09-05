@@ -415,7 +415,7 @@ export default function PayrollClient() {
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
-            const isInView = useInView(ref, { threshold: 0.5, once: false });
+            const isInView = useInView(ref, { amount: 0.5, once: false });
 
             return (
               <motion.div

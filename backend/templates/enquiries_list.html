@@ -1,36 +1,166 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3><i class="fas fa-envelope me-2"></i>Enquiries</h3>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-envelope me-3"></i>Customer Enquiries</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('admin_dashboard') }}" class="breadcrumb-item">Dashboard</a>
+                <span class="breadcrumb-item active">Enquiries</span>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success export-btn" onclick="exportData()">
+                <i class="fas fa-download me-2"></i>Export Excel
+            </button>
+        </div>
     </div>
+</div>
+
+<div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table data-table" id="enquiriesTable">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Message</th>
                         <th>Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for enquiry in enquiries %}
-                        <tr>
-                            <td>{{ enquiry.id }}</td>
-                            <td>{{ enquiry.name }}</td>
-                            <td>{{ enquiry.email }}</td>
-                            <td>{{ enquiry.phone }}</td>
-                            <td>{{ enquiry.message }}</td>
-                            <td>{{ enquiry.date.strftime('%Y-%m-%d %H:%M') }}</td>
-                        </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-medium">{{ enquiry.name }}</div>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ enquiry.email }}" class="text-decoration-none">
+                                {{ enquiry.email }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if enquiry.phone %}
+                                <a href="tel:{{ enquiry.phone }}" class="text-decoration-none">
+                                    {{ enquiry.phone }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 300px;" title="{{ enquiry.message }}">
+                                {{ enquiry.message[:100] }}{% if enquiry.message|length > 100 %}...{% endif %}
+                            </div>
+                        </td>
+                        <td>{{ enquiry.date.strftime('%Y-%m-%d %H:%M') if enquiry.date else 'N/A' }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline-info" onclick="viewEnquiry({{ enquiry.id }})" title="View Full Message">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="mailto:{{ enquiry.email }}" class="btn btn-sm btn-outline-success" title="Reply via Email">
+                                    <i class="fas fa-reply"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No enquiries found.</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<!-- Enquiry Details Modal -->
+<div class="modal fade" id="enquiryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-envelope me-2"></i>Enquiry Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="enquiryDetails">
+                <!-- Enquiry details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#enquiriesTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            order: [[4, 'desc']], // Sort by date
+            columnDefs: [
+                { orderable: false, targets: [5] } // Disable sorting for actions
+            ]
+        });
+    });
+
+    function viewEnquiry(id) {
+        // Find the enquiry data from the table
+        const enquiries = {{ enquiries | tojson }};
+        const enquiry = enquiries.find(e => e.id === id);
+        
+        if (enquiry) {
+            document.getElementById('enquiryDetails').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Contact Information:</h6>
+                        <p><strong>Name:</strong> ${enquiry.name}</p>
+                        <p><strong>Email:</strong> <a href="mailto:${enquiry.email}">${enquiry.email}</a></p>
+                        <p><strong>Phone:</strong> ${enquiry.phone || 'Not provided'}</p>
+                        <p><strong>Date:</strong> ${new Date(enquiry.date).toLocaleString()}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Message:</h6>
+                        <div class="p-3 bg-light rounded">
+                            ${enquiry.message}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('enquiryModal'));
+        modal.show();
+    }
+
+    function exportData() {
+        const table = $('#enquiriesTable').DataTable();
+        const data = table.rows({search: 'applied'}).data().toArray();
+        
+        let csv = 'Name,Email,Phone,Message,Date\n';
+        data.forEach(row => {
+            const cells = $(row).find('td');
+            const name = $(cells[0]).find('.fw-medium').text().trim();
+            const email = $(cells[1]).text().trim();
+            const phone = $(cells[2]).text().trim();
+            const message = $(cells[3]).attr('title') || $(cells[3]).text().trim();
+            const date = $(cells[4]).text().trim();
+            
+            csv += `"${name}","${email}","${phone}","${message.replace(/"/g, '""')}","${date}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'enquiries_export.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+</script>
 {% endblock %}

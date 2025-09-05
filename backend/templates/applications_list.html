@@ -1,53 +1,226 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Job Applications</h2>
-    <!-- <a href="{{ url_for('admin_application_new') }}" class="btn btn-primary mb-3">Add New Application</a> -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Job Title</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Permanent Address</th>
-                <th>Current Location</th>
-                <th>Highest Education</th>
-                <th>Skills</th>
-                <th>Applied Date</th>
-                <th>Resume</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for application in applications %}
-            <tr>
-                <td>{{ application.job_title }}</td>
-                <td>{{ application.name }}</td>
-                <td>{{ application.email }}</td>
-                <td>{{ application.phone | default('N/A') }}</td>
-                <td>{{ application.permanent_address | default('N/A') }}</td>
-                <td>{{ application.current_location | default('N/A') }}</td>
-                <td>{{ application.highest_education | default('N/A') }}</td>
-                <td>{{ application.skills | default('N/A') }}</td>
-                <td>{{ application.applied_date }}</td>
-                <td>
-                    {% if application.resume %}
-                    <a href="{{ application.resume }}" target="_blank" class="btn btn-sm btn-info">View Resume</a>
-                    {% else %}
-                    N/A
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{{ url_for('admin_application_delete', id=application.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this application?');">Delete</a>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="11" class="text-center">No job applications found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-file-alt me-3"></i>Job Applications</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('admin_dashboard') }}" class="breadcrumb-item">Dashboard</a>
+                <span class="breadcrumb-item active">Applications</span>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success export-btn" onclick="exportData()">
+                <i class="fas fa-download me-2"></i>Export Excel
+            </button>
+        </div>
+    </div>
 </div>
+
+<!-- Filter Bar -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="statusFilter" class="form-label">Filter by Status:</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Reviewed">Reviewed</option>
+                    <option value="Hired">Hired</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="jobFilter" class="form-label">Filter by Job:</label>
+                <select class="form-select" id="jobFilter">
+                    <option value="">All Jobs</option>
+                    {% for application in applications %}
+                        <option value="{{ application.job_title }}">{{ application.job_title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                    <i class="fas fa-refresh me-2"></i>Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table data-table" id="applicationsTable">
+                <thead>
+                    <tr>
+                        <th>Applicant Name</th>
+                        <th>Job Title</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Education</th>
+                        <th>Status</th>
+                        <th>Applied Date</th>
+                        <th>Resume</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                    <tr>
+                        <td>
+                            <div class="fw-medium">{{ application.name }}</div>
+                            <small class="text-muted">{{ application.current_location or 'Location not specified' }}</small>
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ application.job_title }}</div>
+                            {% if application.department %}
+                                <small class="badge bg-info">{{ application.department }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ application.email }}</td>
+                        <td>{{ application.phone | default('N/A') }}</td>
+                        <td>{{ application.highest_education | default('N/A') }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin_application_update_status', id=application.id) }}" class="d-inline">
+                                <select name="status" class="form-select form-select-sm status-select" 
+                                        onchange="this.form.submit()" data-current="{{ application.status }}">
+                                    <option value="Pending" {% if application.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Reviewed" {% if application.status == 'Reviewed' %}selected{% endif %}>Reviewed</option>
+                                    <option value="Hired" {% if application.status == 'Hired' %}selected{% endif %}>Hired</option>
+                                    <option value="Rejected" {% if application.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>{{ application.applied_date.strftime('%Y-%m-%d') if application.applied_date else 'N/A' }}</td>
+                        <td>
+                            {% if application.resume %}
+                                <a href="{{ application.resume }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-file-pdf me-1"></i>View
+                                </a>
+                            {% else %}
+                                <span class="text-muted">No Resume</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline-info" onclick="viewApplication({{ application.id }})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ url_for('admin_application_delete', id=application.id) }}" 
+                                   class="btn btn-sm btn-outline-danger" title="Delete"
+                                   onclick="return confirm('Are you sure you want to delete this application?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">No applications found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Application Details Modal -->
+<div class="modal fade" id="applicationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user me-2"></i>Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="applicationDetails">
+                <!-- Application details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        const table = $('#applicationsTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            order: [[6, 'desc']], // Sort by applied date
+            columnDefs: [
+                { orderable: false, targets: [5, 8] } // Disable sorting for status and actions
+            ]
+        });
+
+        // Filter functionality
+        $('#statusFilter').on('change', function() {
+            table.column(5).search(this.value).draw();
+        });
+
+        $('#jobFilter').on('change', function() {
+            table.column(1).search(this.value).draw();
+        });
+    });
+
+    function clearFilters() {
+        $('#statusFilter').val('');
+        $('#jobFilter').val('');
+        $('#applicationsTable').DataTable().search('').columns().search('').draw();
+    }
+
+    function viewApplication(id) {
+        // This would typically load application details via AJAX
+        // For now, we'll show a placeholder
+        document.getElementById('applicationDetails').innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading application details...</p>
+            </div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+        modal.show();
+        
+        // Simulate loading
+        setTimeout(() => {
+            document.getElementById('applicationDetails').innerHTML = `
+                <p>Application details for ID: ${id} would be displayed here.</p>
+                <p><small class="text-muted">This feature requires additional API endpoint implementation.</small></p>
+            `;
+        }, 1500);
+    }
+
+    function exportData() {
+        const table = $('#applicationsTable').DataTable();
+        const data = table.rows({search: 'applied'}).data().toArray();
+        
+        let csv = 'Name,Job Title,Email,Phone,Education,Status,Applied Date\n';
+        data.forEach(row => {
+            const cells = $(row).find('td');
+            const name = $(cells[0]).find('.fw-medium').text().trim();
+            const jobTitle = $(cells[1]).find('.fw-medium').text().trim();
+            const email = $(cells[2]).text().trim();
+            const phone = $(cells[3]).text().trim();
+            const education = $(cells[4]).text().trim();
+            const status = $(cells[5]).find('select').val();
+            const date = $(cells[6]).text().trim();
+            
+            csv += `"${name}","${jobTitle}","${email}","${phone}","${education}","${status}","${date}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'applications_export.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+</script>
 {% endblock %}

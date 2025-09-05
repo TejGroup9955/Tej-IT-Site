@@ -1,68 +1,177 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h3>
+<div class="page-header">
+    <h1><i class="fas fa-tachometer-alt me-3"></i>Dashboard Overview</h1>
+    <nav class="breadcrumb">
+        <span class="breadcrumb-item active">Dashboard</span>
+    </nav>
+</div>
+
+<!-- Quick Stats Widgets -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ url_for('admin_jobs') }}" class="widget-card">
+            <div class="widget-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="widget-number">{{ job_count }}</div>
+            <div class="widget-label">Total Jobs</div>
+        </a>
     </div>
-    <div class="card-body">
-        <p>Welcome to the Tej IT Admin Panel. Use the sidebar to manage Blogs, Testimonials, Enquiries, Teams, and About Us content.</p>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4><i class="fas fa-chart-bar me-2"></i>Content Statistics</h4>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ url_for('admin_departments') }}" class="widget-card secondary">
+            <div class="widget-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="widget-number">{{ department_count }}</div>
+            <div class="widget-label">Active Departments</div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ url_for('admin_applications') }}" class="widget-card warning">
+            <div class="widget-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="widget-number">{{ application_count }}</div>
+            <div class="widget-label">New Applications Today</div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ url_for('admin_employee_testimonials') }}" class="widget-card info">
+            <div class="widget-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="widget-number">{{ testimonial_count }}</div>
+            <div class="widget-label">Testimonials Count</div>
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ url_for('admin_teams') }}" class="widget-card success">
+            <div class="widget-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="widget-number">{{ team_count }}</div>
+            <div class="widget-label">Teams Count</div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ url_for('admin_enquiries') }}" class="widget-card danger">
+            <div class="widget-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="widget-number">{{ enquiry_count }}</div>
+            <div class="widget-label">New Enquiries</div>
+        </a>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ visit_count }}</div>
+            <div class="stat-label">Total Site Visits</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ blog_count }}</div>
+            <div class="stat-label">Published Blogs</div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-chart-bar me-2"></i>Website Analytics</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="analyticsChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-globe me-2"></i>Top Countries</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for country in top_countries %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="fw-medium">{{ country.country or 'Unknown' }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ country.count }}</span>
                     </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Blogs:</strong> {{ blog_count }}</li>
-                            <li class="list-group-item"><strong>Testimonials:</strong> {{ testimonial_count }}</li>
-                            <li class="list-group-item"><strong>Enquiries:</strong> {{ enquiry_count }}</li>
-                            <li class="list-group-item"><strong>Team Members:</strong> {{ team_count }}</li>
-                        </ul>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4><i class="fas fa-globe me-2"></i>Website Visits</h4>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-eye me-2"></i>Popular Pages</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for page in top_pages %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="fw-medium">{{ page.page.title() }}</span>
+                        <span class="badge bg-secondary rounded-pill">{{ page.count }}</span>
                     </div>
-                    <div class="card-body">
-                        <h5>Total Visits: {{ visit_count }}</h5>
-                        <h6>Top Countries:</h6>
-                        <ul class="list-group list-group-flush">
-                            {% for country in top_countries %}
-                                <li class="list-group-item">{{ country.country or 'Unknown' }}: {{ country.count }} visits</li>
-                            {% endfor %}
-                        </ul>
-                        <canvas id="countryChart" height="100"></canvas>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('countryChart').getContext('2d');
+    // Analytics Chart
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
     new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: [{% for country in top_countries %}'{{ country.country or 'Unknown' }}'{% if not loop.last %},{% endif %}{% endfor %}],
             datasets: [{
                 label: 'Visits by Country',
                 data: [{% for country in top_countries %}{{ country.count }}{% if not loop.last %},{% endif %}{% endfor %}],
-                backgroundColor: '#2a5c8e',
-                borderColor: '#1a3c5e',
-                borderWidth: 1
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderColor: '#2563EB',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true }
+                y: { 
+                    beginAtZero: true,
+                    grid: {
+                        color: '#E5E7EB'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#E5E7EB'
+                    }
+                }
             },
             plugins: {
-                legend: { display: false }
+                legend: { 
+                    display: false 
+                }
             }
         }
     });

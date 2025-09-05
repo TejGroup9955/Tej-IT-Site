@@ -1,11 +1,24 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './blog.module.css';
 
+interface Blog {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image?: string;
+  date: string;
+  slug: string;
+  priority: number;
+  sequence: number;
+  category: string;
+}
+
 export default function BlogPage() {
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
 
@@ -16,12 +29,12 @@ export default function BlogPage() {
       .catch(err => console.error('Error fetching blogs:', err));
   }, [category]);
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     fetch(`http://10.10.50.93:5000/api/blogs?category=${category}`)
       .then(res => res.json())
       .then(data => {
-        const filteredBlogs = data.filter(blog =>
+        const filteredBlogs = data.filter((blog: Blog) =>
           blog.title.toLowerCase().includes(e.target.value.toLowerCase()) ||
           blog.content.toLowerCase().includes(e.target.value.toLowerCase())
         );
@@ -30,8 +43,8 @@ export default function BlogPage() {
       .catch(err => console.error('Error searching blogs:', err));
   };
 
-const topBlogs = blogs.filter(blog => blog.priority > 0).sort((a, b) => a.sequence - b.sequence).slice(0, 3);
-const additionalBlogs = blogs.filter(blog => !blog.priority).sort((a, b) => a.sequence - b.sequence);
+  const topBlogs = blogs.filter(blog => blog.priority > 0).sort((a, b) => a.sequence - b.sequence).slice(0, 3);
+  const additionalBlogs = blogs.filter(blog => !blog.priority).sort((a, b) => a.sequence - b.sequence);
 
   return (
     <div className={styles.container}>

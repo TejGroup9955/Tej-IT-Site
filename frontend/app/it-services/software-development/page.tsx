@@ -1,130 +1,99 @@
 'use client';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { motion, Variants } from 'framer-motion';
+import { useState } from 'react';
 import Image from 'next/image';
-import { Code, Server, Wrench, Shield, Check, ChevronRight, PhoneCall, BarChart, Users, Settings, Plug, Monitor, Search, Pencil, Rocket, Database } from 'lucide-react';
+import Link from 'next/link';
+import { Code, Globe, Monitor, CheckCircle } from 'lucide-react';
 
 export default function SoftwareDevelopmentPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formError, setFormError] = useState('');
-  const [showStickyCta, setShowStickyCta] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setShowStickyCta(window.scrollY > 300);
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   const services = [
     {
-      title: 'ERP & Business Management Solutions',
-      description: 'Centralized systems for finance, HR, inventory, and operations, tailored to your business needs.',
-      icon: BarChart,
-    },
-    {
-      title: 'CRM Systems & Customer Portals',
-      description: 'Manage customer journeys, track sales, and enhance engagement with custom CRM solutions.',
-      icon: Users,
-    },
-    {
-      title: 'Automation & Workflow Software',
-      description: 'Save time and reduce errors with intelligent business automation software solutions.',
-      icon: Settings,
-    },
-    {
-      title: 'API Development & Integrations',
-      description: 'Connect apps and third-party services seamlessly with secure API development and system integration.',
-      icon: Plug,
-    },
-    {
-      title: 'Desktop & Web-Based Applications',
-      description: 'Lightweight, secure, and scalable web and desktop applications for modern enterprises.',
-      icon: Monitor,
-    },
-    {
-      title: 'Database Management Solutions',
-      description: 'Optimized database systems for efficient data storage, retrieval, and management.',
-      icon: Database,
-    },
-  ];
-
-  const processSteps = [
-    {
-      title: 'Discovery & Requirement Analysis',
-      description: 'We dive deep into your business model, challenges, and goals to define project requirements.',
-      icon: Search,
-    },
-    {
-      title: 'UI/UX Prototyping',
-      description: 'Interactive wireframes and mockups to visualize user journeys and ensure intuitive design.',
-      icon: Pencil,
-    },
-    {
-      title: 'Agile Development & Testing',
-      description: 'Incremental builds with regular demos and rigorous QA for enterprise application development.',
+      title: 'Custom Software Development',
+      description: 'Tailored software solutions to meet your unique business needs.',
       icon: Code,
     },
     {
-      title: 'Deployment & Support',
-      description: 'Smooth rollout, staff training, and ongoing support for secure and scalable applications.',
-      icon: Rocket,
+      title: 'Web Application Development',
+      description: 'Scalable and secure web apps built with modern frameworks.',
+      icon: Globe,
+    },
+    {
+      title: 'Desktop Applications',
+      description: 'Robust desktop applications for Windows and macOS.',
+      icon: Monitor,
+    },
+    {
+      title: 'Maintenance & Support',
+      description: 'Ongoing support and updates to keep your software running smoothly.',
+      icon: CheckCircle,
     },
   ];
 
   const whyChooseUs = [
     {
-      title: 'Industry Expertise',
-      description: 'Proven track record in ERP, Pharma, Manufacturing, Retail, and Finance industries.',
+      title: 'Expert Developers',
+      description: 'Skilled team with expertise in modern technologies.',
     },
     {
-      title: 'Scalable & Secure Code',
-      description: 'Built with best practices, performance tuning, and enterprise-grade security for robust solutions.',
+      title: 'Agile Development',
+      description: 'Flexible and iterative approach for faster delivery.',
     },
     {
-      title: 'Agile + DevOps Approach',
-      description: 'Faster releases, CI/CD pipelines, and automation-ready delivery for efficient development.',
+      title: 'Scalable Solutions',
+      description: 'Software designed to grow with your business.',
     },
     {
-      title: 'Post-Launch Support',
-      description: '24/7 monitoring, SLA-driven response, and feature upgrades to ensure long-term success.',
+      title: 'Client-Centric Approach',
+      description: 'Focused on delivering value and exceeding expectations.',
     },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const heroVariants = {
+  const heroVariants: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 1, delay: 0.3 } },
   };
 
-  const buttonVariants = {
+  const buttonVariants: Variants = {
     rest: { scale: 1 },
-    hover: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 15 } },
+    hover: { 
+      scale: 1.05, 
+      backgroundColor: '#9333ea', 
+      boxShadow: '0 4px 12px rgba(147, 51, 234, 0.3)', 
+      color: '#ffffff',
+      transition: { type: 'spring' as const, stiffness: 400, damping: 15 } 
+    },
     tap: { scale: 0.98 },
+  };
+
+  const cardVariants: Variants = {
+    rest: { y: 0, boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' },
+    hover: { y: -5, boxShadow: '0 8px 16px rgba(13, 148, 136, 0.3)', transition: { duration: 0.3 } },
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const { name, email, message } = formData;
     if (name && email && message) {
-      alert('Thank you! Our custom software development experts will contact you shortly.');
+      alert('Thank you! Our software experts will contact you shortly.');
       setFormData({ name: '', email: '', message: '' });
       setIsModalOpen(false);
       setFormError('');
     } else {
-      setFormError('All fields are required.');
+      setFormError('Please fill out all fields.');
     }
   };
 
@@ -134,88 +103,83 @@ export default function SoftwareDevelopmentPage() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 via-white to-gray-100 min-h-screen font-sans text-gray-900">
+    <div className="bg-gradient-to-br from-teal-50 via-white to-purple-50 min-h-screen font-sans text-gray-900">
       {/* Hero Section */}
       <motion.section
         initial="hidden"
         animate="visible"
         variants={heroVariants}
-        className="relative py-24 md:py-32 overflow-hidden"
+        className="relative py-28 md:py-36 overflow-hidden"
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/60 to-purple-900/40"></div>
         <div className="absolute inset-0">
           <Image
-            src="/it-services/software-development.avif"
-            alt="Software Development Background"
+            src="/it-services/software-hero.jpg"
+            alt="Software Development Hero"
             layout="fill"
             objectFit="cover"
-            className="opacity-50 blur-md"
+            className="opacity-20"
           />
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.h1
             variants={itemVariants}
-            className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight text-gray-900 flex items-center justify-center gap-2"
+            className="text-5xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg flex items-center justify-center gap-2"
           >
-            <Code className="w-8 h-8" /> Custom Software Development – Tailored to Your Business Needs
+            <Code className="w-8 h-8" /> Custom Software Development Solutions
           </motion.h1>
           <motion.p
             variants={itemVariants}
-            className="text-base sm:text-lg md:text-xl mb-8 max-w-3xl mx-auto text-gray-800"
+            className="text-lg md:text-xl mb-8 max-w-4xl mx-auto text-white/90 drop-shadow-lg"
           >
-            At Tej IT, we craft secure, scalable, and intelligent software that solves real business challenges. From ERP systems to customer portals and automation tools, we turn ideas into reality as a leading software development company in India.
+            Transform your business with custom software solutions designed to streamline operations, enhance productivity, and drive growth.
           </motion.p>
           <motion.div variants={itemVariants} className="flex justify-center gap-4 flex-wrap">
             <Link href="/contact" passHref>
               <motion.button
-                className="inline-block bg-teal-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-teal-700 transition-colors"
+                className="inline-block bg-purple-600 text-white font-semibold py-3 px-10 rounded-full shadow-lg transition-all duration-300"
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
               >
-               Start Your Project
+                Schedule a Free Consultation
               </motion.button>
             </Link>
           </motion.div>
         </div>
       </motion.section>
 
-      {/* What We Build Section */}
+      {/* Services Section */}
       <motion.section
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-        className="py-16 bg-white"
+        className="py-20 bg-white"
       >
         <div className="container mx-auto px-4">
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12"
+            className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
           >
-            Our Software Development Expertise
+            Our Software Development Services
           </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center"
-          >
-            We build software that adapts to your industry, scales with your growth, and integrates seamlessly with your existing ecosystem, delivering enterprise application development expertise.
-          </motion.p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {services.map((service, _) => (
               <motion.div
                 key={service.title}
-                variants={itemVariants}
-                className="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col items-center text-center h-full transition-all duration-300"
-                whileHover={{ boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)', scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 10 }}
+                variants={cardVariants}
+                initial="rest"
+                whileHover="hover"
+                className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center text-center transition-all duration-300"
               >
                 <motion.div
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
                 >
                   <service.icon className="w-12 h-12 text-teal-600 mb-4" />
                 </motion.div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{service.title}</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.title}</h3>
                 <p className="text-gray-600 text-sm">{service.description}</p>
               </motion.div>
             ))}
@@ -223,83 +187,25 @@ export default function SoftwareDevelopmentPage() {
         </div>
       </motion.section>
 
-      {/* Our Process Section */}
+      {/* Why Choose Us Section */}
       <motion.section
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-        className="py-16 bg-gray-50"
-      >
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12"
-          >
-            How We Build Software That Works
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center"
-          >
-            Our development approach ensures transparency, agility, and continuous collaboration at every stage for effective ERP and CRM development services.
-          </motion.p>
-          <div className="relative">
-            {processSteps.map((step, index) => (
-              <motion.div
-                key={step.title}
-                variants={itemVariants}
-                className="flex items-center justify-center gap-6 mb-12 flex-col md:flex-row"
-              >
-                <motion.div
-                  className="flex-shrink-0 w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-                >
-                  <step.icon className="w-6 h-6 text-white" />
-                </motion.div>
-                <div className="text-center md:text-left flex-grow">
-                  <h3 className="text-lg font-semibold text-gray-800">{step.title}</h3>
-                  <p className="text-gray-600 text-sm">{step.description}</p>
-                </div>
-                {index < processSteps.length - 1 && (
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: '100%' }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="w-0.5 h-12 bg-gray-300 md:h-0 md:w-full border-t border-dashed border-gray-300"
-                  />
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Why Tej IT Section */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-        className="py-16 bg-white"
+        className="py-20 bg-white"
       >
         <div className="container mx-auto px-4 flex flex-col md:flex-row gap-8">
           <motion.div variants={itemVariants} className="md:w-1/2">
-            <motion.h2
-              variants={itemVariants}
-              className="text-3xl md:text-4xl font-bold text-gray-800 mb-8"
-            >
-              Why Businesses Choose Tej IT
-            </motion.h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-8">Why Choose Tej IT for Software Development</h2>
             <ul className="space-y-4">
-              {whyChooseUs.map((item, index) => (
+              {whyChooseUs.map((item, _) => (
                 <motion.li
                   key={item.title}
                   variants={itemVariants}
-                  className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition-colors"
+                  className="flex items-start gap-3"
                 >
-                  <Check className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                  <CheckCircle className="w-6 h-6 text-teal-600 flex-shrink-0" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
                     <p className="text-gray-600 text-sm">{item.description}</p>
@@ -310,10 +216,10 @@ export default function SoftwareDevelopmentPage() {
           </motion.div>
           <motion.div variants={itemVariants} className="md:w-1/2">
             <Image
-              src="/it-services/team-dashboard.png"
-              alt="Team and Dashboard Illustration with Tej IT Logo"
+              src="/it-services/software-dev-illustration.png"
+              alt="Software Development Illustration"
               width={500}
-              height={400}
+              height={500}
               className="mx-auto object-contain"
             />
           </motion.div>
@@ -326,48 +232,35 @@ export default function SoftwareDevelopmentPage() {
         whileInView="visible"
         viewport={{ once: true }}
         variants={containerVariants}
-        className="py-20 bg-gradient-to-br from-teal-600 to-indigo-600 text-center"
+        className="py-20 bg-gradient-to-br from-teal-600 to-purple-600 text-center"
       >
         <div className="container mx-auto px-4">
           <motion.h2
             variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-white mb-6 drop-shadow-md"
+            className="text-4xl md:text-5xl font-bold text-white mb-6 drop-shadow-md"
           >
-            Ready to Transform Your Business with Custom Software?
+            Ready to Build Your Software Solution?
           </motion.h2>
           <motion.p
             variants={itemVariants}
             className="text-lg text-white mb-8 max-w-2xl mx-auto drop-shadow-md"
           >
-            Partner with Tej IT, a leading custom software development company in India, to build secure and scalable web and desktop applications that drive growth.
+            Let’s create software that drives your business forward. Contact us for expert development services tailored to your needs.
           </motion.p>
           <motion.div variants={itemVariants} className="flex justify-center gap-4 flex-wrap">
             <Link href="/contact" passHref>
               <motion.button
-                className="inline-block bg-teal-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-teal-700 transition-colors"
+                className="inline-block bg-white text-purple-600 font-semibold py-3 px-10 rounded-full shadow-lg transition-all duration-300"
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
               >
-                Book Free Consultation
+                👉 Schedule a Free Consultation
               </motion.button>
             </Link>
           </motion.div>
         </div>
       </motion.section>
-
-      {/* Sticky CTA */}
-      {showStickyCta && (
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-5 right-5 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-lg shadow-lg z-50 flex items-center gap-2"
-        >
-          <PhoneCall className="w-4 h-4" /> Contact Us
-        </motion.button>
-      )}
 
       {/* Consultation Modal */}
       {isModalOpen && (

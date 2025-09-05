@@ -1,5 +1,5 @@
 'use client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -62,37 +62,37 @@ export default function WebAppDesignDevelopmentPage() {
     { title: 'Future-Proof & Scalable', description: 'Built to handle business growth', icon: Database },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, type: 'spring', bounce: 0.4 } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, type: 'spring' as const, bounce: 0.4 } },
   };
 
-  const heroVariants = {
+  const heroVariants: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 1, delay: 0.3 } },
   };
 
-  const buttonVariants = {
+  const buttonVariants: Variants = {
     rest: { scale: 1 },
-    hover: { scale: 1.1, backgroundColor: '#9333ea', transition: { type: 'spring', stiffness: 400, damping: 15 } },
+    hover: { scale: 1.1, backgroundColor: '#9333ea', transition: { type: 'spring' as const, stiffness: 400, damping: 15 } },
     tap: { scale: 0.98 },
   };
 
-  const card3DVariants = {
+  const card3DVariants: Variants = {
     rest: { rotateX: 0, rotateY: 0, scale: 1, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' },
     hover: {
       scale: 1.05,
       boxShadow: '0 8px 24px rgba(147, 51, 234, 0.3)',
-      transition: { type: 'spring', stiffness: 300, damping: 15 },
+      transition: { type: 'spring' as const, stiffness: 300, damping: 15 },
     },
   };
 
-  const flipVariants = {
+  const flipVariants: Variants = {
     front: { rotateY: 0, opacity: 1, transition: { duration: 0.4 } },
     back: { rotateY: 180, opacity: 1, transition: { duration: 0.4 } },
   };

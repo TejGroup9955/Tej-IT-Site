@@ -1,19 +1,122 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3><i class="fas fa-info-circle me-2"></i>About Us</h3>
-    </div>
-    <div class="card-body">
-        <form method="POST">
-            <div class="mb-3">
-                <label for="content" class="form-label">Content (Rich text allowed, use HTML if needed)</label>
-                <textarea class="form-control" id="content" name="content" rows="10" required>{{ about.content }}</textarea>
-            </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Update</button>
-        </form>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-info-circle me-3"></i>About Us Page</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('admin_dashboard') }}" class="breadcrumb-item">Dashboard</a>
+                <span class="breadcrumb-item active">About Us</span>
+            </nav>
+        </div>
     </div>
 </div>
-<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
-<script>CKEDITOR.replace('content');</script>
+
+<div class="row">
+    <!-- Left Column - Main Form -->
+    <div class="col-lg-8">
+        <form method="POST">
+            <div class="form-section">
+                <h5><i class="fas fa-edit me-2"></i>About Us Content</h5>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Page Content *</label>
+                    <textarea class="form-control" id="content" name="content" rows="15" required>{{ about.content if about else '' }}</textarea>
+                    <div class="form-text">Use the rich text editor to format your company's about us page</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Update About Us
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="previewContent()">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Column - Tips -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Content Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Tell your company's story</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Highlight your mission and values</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include team information</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mention your expertise areas</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Keep it engaging and professional</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>SEO Tips</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include relevant keywords naturally</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use headings to structure content</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Add internal links where appropriate</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Optimize for local search</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Content Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Preview content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize Summernote rich text editor
+        $('#content').summernote({
+            height: 500,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'italic', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+    });
+
+    function previewContent() {
+        const content = $('#content').summernote('code');
+        document.getElementById('previewContent').innerHTML = content;
+        
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+    }
+</script>
 {% endblock %}

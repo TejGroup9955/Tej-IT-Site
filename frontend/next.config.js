@@ -1,13 +1,5 @@
-
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    allowedDevOrigins: [
-      "http://localhost:3001",     // local
-      "http://10.10.50.93:3001",  // LAN access
-    ],
-  },
   images: {
     remotePatterns: [
       {
@@ -33,4 +25,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-

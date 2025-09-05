@@ -1,61 +1,170 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3>{{ action }} Blog</h3>
-    </div>
-    <div class="card-body">
-        <form method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" name="title" value="{{ blog.title if blog else '' }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="category" class="form-label">Category</label>
-                <select class="form-control" id="category" name="category">
-                    {% for cat in categories %}
-                        <option value="{{ cat }}" {% if blog and blog.category == cat %}selected{% endif %}>{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="excerpt" class="form-label">Excerpt</label>
-                <textarea class="form-control" id="excerpt" name="excerpt" rows="3">{{ blog.excerpt if blog else '' }}</textarea>
-            </div>
-            <div class="mb-3">
-                <label for="slug" class="form-label">Slug</label>
-                <input type="text" class="form-control" id="slug" name="slug" value="{{ blog.slug if blog else '' }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="content" class="form-label">Content</label>
-                <textarea class="form-control" id="content" name="content" rows="10">{{ blog.content if blog else '' }}</textarea>
-            </div>
-            <div class="mb-3">
-                <label for="priority" class="form-label">Priority</label>
-                <input type="number" class="form-control" id="priority" name="priority" value="{{ blog.priority if blog else 0 }}">
-            </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Image</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                {% if blog and blog.image %}
-                    <img src="{{ blog.image }}" alt="Current image" class="img-thumbnail mt-2" style="max-width: 200px;">
-                {% endif %}
-            </div>
-            <div class="mb-3">
-                <label for="sequence" class="form-label">Sequence</label>
-                <input type="number" class="form-control" id="sequence" name="sequence" value="{{ blog.sequence if blog else 0 }}">
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="is_enabled" name="is_enabled" {% if blog.is_enabled|default(True) %}checked{% endif %}>
-                <label class="form-check-label" for="is_enabled">Enable Blog (Visible on Frontend)</label>
-            </div>
-            <button type="submit" class="btn btn-primary">{{ action }} Blog</button>
-        </form>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-blog me-3"></i>{{ action }} Blog</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('admin_dashboard') }}" class="breadcrumb-item">Dashboard</a>
+                <a href="{{ url_for('admin_blogs') }}" class="breadcrumb-item">Blogs</a>
+                <span class="breadcrumb-item active">{{ action }}</span>
+            </nav>
+        </div>
     </div>
 </div>
+
+<div class="row">
+    <!-- Left Column - Main Form -->
+    <div class="col-lg-8">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-section">
+                <h5><i class="fas fa-info-circle me-2"></i>Blog Information</h5>
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Blog Title *</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="{{ blog.title if blog else '' }}" required
+                           placeholder="Enter an engaging blog title">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="category" class="form-label">Category *</label>
+                        <select class="form-select" id="category" name="category" required>
+                            {% for cat in categories %}
+                                <option value="{{ cat }}" {% if blog and blog.category == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="slug" class="form-label">URL Slug *</label>
+                        <input type="text" class="form-control" id="slug" name="slug" 
+                               value="{{ blog.slug if blog else '' }}" required
+                               placeholder="auto-generated-from-title">
+                        <div class="form-text">Used in the blog URL. Auto-generated from title.</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="excerpt" class="form-label">Excerpt</label>
+                    <textarea class="form-control" id="excerpt" name="excerpt" rows="3"
+                              placeholder="Brief description that appears in blog listings">{{ blog.excerpt if blog else '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="content" class="form-label">Blog Content *</label>
+                    <textarea class="form-control" id="content" name="content" rows="15" required>{{ blog.content if blog else '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">Featured Image</label>
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    {% if blog and blog.image %}
+                        <img src="{{ blog.image }}" alt="Current image" class="img-preview mt-2">
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>{{ action }} Blog
+                        </button>
+                        <a href="{{ url_for('admin_blogs') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Column - Settings -->
+    <div class="col-lg-4">
+        <div class="form-section">
+            <h5><i class="fas fa-cog me-2"></i>Blog Settings</h5>
+            
+            <div class="mb-3">
+                <label for="priority" class="form-label">Priority Level</label>
+                <select class="form-select" id="priority" name="priority">
+                    <option value="0" {% if not blog or blog.priority == 0 %}selected{% endif %}>Normal (0)</option>
+                    <option value="1" {% if blog and blog.priority == 1 %}selected{% endif %}>High (1)</option>
+                    <option value="2" {% if blog and blog.priority == 2 %}selected{% endif %}>Featured (2)</option>
+                </select>
+                <div class="form-text">Higher priority blogs appear first in listings</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="sequence" class="form-label">Sequence Order</label>
+                <input type="number" class="form-control" id="sequence" name="sequence" 
+                       value="{{ blog.sequence if blog else 0 }}" min="0">
+                <div class="form-text">Custom ordering within the same priority level</div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="is_enabled" name="is_enabled" 
+                           {% if blog.is_enabled|default(True) %}checked{% endif %}>
+                    <label class="form-check-label fw-medium" for="is_enabled">
+                        Publish Blog
+                    </label>
+                </div>
+                <div class="form-text">Published blogs are visible on the website</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>SEO Tips</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use descriptive, keyword-rich titles</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Write compelling excerpts</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include relevant images</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Use clean URL slugs</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
-        $('#content').summernote();
+        // Initialize Summernote rich text editor
+        $('#content').summernote({
+            height: 400,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'italic', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
+        // Auto-generate slug from title
+        $('#title').on('input', function() {
+            const title = $(this).val();
+            const slug = title.toLowerCase()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+            $('#slug').val(slug);
+        });
+
+        // Auto-generate excerpt from content
+        $('#content').on('summernote.change', function(we, contents) {
+            if (!$('#excerpt').val()) {
+                const text = $(contents).text();
+                $('#excerpt').val(text.substring(0, 150));
+            }
+        });
     });
 </script>
 {% endblock %}

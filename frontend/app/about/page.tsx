@@ -141,7 +141,7 @@ export default function About() {
         </div>
       </motion.section>
 
-      {/* Mission, Vision, and Values */}
+      /* Mission, Vision, and Values */
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -194,7 +194,7 @@ export default function About() {
         </div>
       </motion.section>
 
-      {/* Technical Expertise */}
+      /* Technical Expertise */
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -253,7 +253,7 @@ export default function About() {
         </div>
       </motion.section>
 
-      {/* Culture and Commitment */}
+      /* Culture and Commitment */
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -283,7 +283,7 @@ export default function About() {
         </div>
       </motion.section>
 
-      {/* History Timeline */}
+      /* History Timeline */
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -331,7 +331,7 @@ export default function About() {
         </div>
       </motion.section>
 
-      {/* Contact CTA */}
+      /* Contact CTA */
       <motion.section
         variants={containerVariants}
         initial="hidden"

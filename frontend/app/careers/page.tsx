@@ -1,11 +1,12 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, Variants } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -34,7 +35,7 @@ interface Testimonial {
 }
 
 // Animation variants
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -42,12 +43,12 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
 };
 
-const App: React.FC = () => {
+const CareersPage: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -275,6 +276,8 @@ const App: React.FC = () => {
       {errorMessage && (
         <motion.div
           variants={itemVariants}
+          initial="hidden"
+          animate="visible"
           className="text-center py-6 mx-auto max-w-3xl bg-white rounded-2xl shadow-md border border-red-100 my-8"
         >
           <p className="text-red-600 text-lg font-medium">{errorMessage}</p>
@@ -300,6 +303,8 @@ const App: React.FC = () => {
         ) : jobs.length === 0 ? (
           <motion.div
             variants={itemVariants}
+            initial="hidden"
+            animate="visible"
             className="text-center py-12 bg-gray-50 rounded-2xl shadow-md max-w-2xl mx-auto"
           >
             <p className="text-gray-600 text-lg">No job openings available at the moment. Check back later!</p>
@@ -317,6 +322,8 @@ const App: React.FC = () => {
                 <motion.div
                   key={job.id}
                   variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
                   className="bg-white p-8 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between"
                 >
                   <div className="flex-1">
@@ -402,7 +409,18 @@ const App: React.FC = () => {
             </button>
             <h2 className="text-2xl font-semibold text-gray-800 font-roboto mb-4 text-center">{selectedJob.title}</h2>
             <div className="space-y-4">
-              <p><strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: selectedJob.description }} /></p>
+              <p>
+                <strong>Description:</strong>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      typeof selectedJob.description === 'string'
+                        ? selectedJob.description
+                        : JSON.stringify(selectedJob.description || ''),
+                    ),
+                  }}
+                />
+              </p>
               <p><strong>Location:</strong> {selectedJob.location || 'Remote'}</p>
               <p><strong>Type:</strong> {selectedJob.type || 'Full-Time'}</p>
               <p><strong>Department:</strong> {selectedJob.department || 'General'}</p>
@@ -671,6 +689,8 @@ const App: React.FC = () => {
           ) : testimonials.length === 0 ? (
             <motion.div
               variants={itemVariants}
+              initial="hidden"
+              animate="visible"
               className="text-center py-12 bg-white rounded-2xl shadow-md max-w-2xl mx-auto"
             >
               <p className="text-gray-600 text-lg">No testimonials available at the moment.</p>
@@ -765,4 +785,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default CareersPage;

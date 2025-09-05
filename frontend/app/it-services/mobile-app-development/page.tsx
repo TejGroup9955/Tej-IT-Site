@@ -1,137 +1,95 @@
 'use client';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion, Variants } from 'framer-motion';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Smartphone, Palette, Code, Monitor, Mail, CheckCircle, ShoppingCart, Wallet, Factory, Globe, GraduationCap } from 'lucide-react';
+import { Code, Globe, Monitor, CheckCircle } from 'lucide-react';
 
-export default function MobileAppDevelopmentPage() {
+export default function SoftwareDevelopmentPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formError, setFormError] = useState('');
 
   const services = [
     {
-      title: 'Native Android Apps',
-      description: 'High-performance Android applications built with Kotlin, optimized for speed, security, and device compatibility.',
+      title: 'Custom Software Development',
+      description: 'Tailored software solutions to meet your unique business needs.',
       icon: Code,
     },
     {
-      title: 'Native iOS Apps',
-      description: 'Seamless iPhone and iPad apps developed using Swift for smooth navigation and App Store compliance.',
-      icon: Palette,
+      title: 'Web Application Development',
+      description: 'Scalable and secure web apps built with modern frameworks.',
+      icon: Globe,
     },
     {
-      title: 'Cross-Platform Apps',
-      description: 'Cost-effective apps for Android and iOS using React Native and Flutter, delivering native-like performance.',
+      title: 'Desktop Applications',
+      description: 'Robust desktop applications for Windows and macOS.',
       icon: Monitor,
     },
     {
-      title: 'Enterprise Mobility Solutions',
-      description: 'Secure, scalable apps tailored for businesses, integrating with ERP, CRM, and cloud systems.',
-      icon: Smartphone,
-    },
-    {
-      title: 'App Maintenance & Support',
-      description: 'Continuous updates, Google Play Store publishing, and OS compatibility for long-term success.',
+      title: 'Maintenance & Support',
+      description: 'Ongoing support and updates to keep your software running smoothly.',
       icon: CheckCircle,
-    },
-    {
-      title: 'API &/Third-Party Integrations',
-      description: 'Seamless integrations with payment gateways, Google Maps, chat, AI, and push notifications.',
-      icon: Globe,
-    },
-  ];
-
-  const industries = [
-    {
-      title: 'Education',
-      description: 'Learning apps, student attendance, and e-learning dashboards.',
-      icon: GraduationCap,
-    },
-    {
-      title: 'Retail & E-commerce',
-      description: 'Shopping apps, order management, and loyalty rewards.',
-      icon: ShoppingCart,
-    },
-    {
-      title: 'Finance & Business',
-      description: 'Digital wallets, secure banking apps, and expense tracking.',
-      icon: Wallet,
-    },
-    {
-      title: 'Manufacturing & Trading',
-      description: 'Dealer and inventory apps with BDM TradeBook integration.',
-      icon: Factory,
-    },
-    {
-      title: 'Enterprise Solutions',
-      description: 'Tailored Android apps for unique business workflows.',
-      icon: Globe,
     },
   ];
 
   const whyChooseUs = [
     {
-      title: 'Agile Methodology',
-      description: 'Faster sprints and continuous feedback for rapid development.',
+      title: 'Expert Developers',
+      description: 'Skilled team with expertise in modern technologies.',
     },
     {
-      title: 'UI/UX-Focused',
-      description: 'Material Design principles with smooth animations for user delight.',
+      title: 'Agile Development',
+      description: 'Flexible and iterative approach for faster delivery.',
     },
     {
-      title: 'End-to-End Security',
-      description: 'Encrypted data, biometric logins, and compliance-ready apps.',
+      title: 'Scalable Solutions',
+      description: 'Software designed to grow with your business.',
     },
     {
-      title: 'Post-Launch Support',
-      description: 'Regular updates, Play Store optimization, and feature scaling.',
+      title: 'Client-Centric Approach',
+      description: 'Focused on delivering value and exceeding expectations.',
     },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const heroVariants = {
+  const heroVariants: Variants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 1, delay: 0.3 } },
   };
 
-  const buttonVariants = {
+  const buttonVariants: Variants = {
     rest: { scale: 1 },
     hover: { 
       scale: 1.05, 
       backgroundColor: '#9333ea', 
       boxShadow: '0 4px 12px rgba(147, 51, 234, 0.3)', 
-      color: '#ffffff', // Ensure text remains white on hover
-      transition: { type: 'spring', stiffness: 400, damping: 15 } 
+      color: '#ffffff',
+      transition: { type: 'spring' as const, stiffness: 400, damping: 15 } 
     },
     tap: { scale: 0.98 },
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     rest: { y: 0, boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' },
     hover: { y: -5, boxShadow: '0 8px 16px rgba(13, 148, 136, 0.3)', transition: { duration: 0.3 } },
-  };
-
-  const flipVariants = {
-    front: { opacity: 1, transition: { duration: 0 } },
-    back: { opacity: 1, transition: { duration: 0 } },
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const { name, email, message } = formData;
     if (name && email && message) {
-      alert('Thank you! Our mobile app experts will contact you shortly.');
+      alert('Thank you! Our software experts will contact you shortly.');
       setFormData({ name: '', email: '', message: '' });
       setIsModalOpen(false);
       setFormError('');
@@ -157,8 +115,8 @@ export default function MobileAppDevelopmentPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-teal-900/60 to-purple-900/40"></div>
         <div className="absolute inset-0">
           <Image
-            src="/it-services/mobile-hero.jpg"
-            alt="Mobile App Hero"
+            src="/it-services/software-hero.jpg"
+            alt="Software Development Hero"
             layout="fill"
             objectFit="cover"
             className="opacity-20"
@@ -169,13 +127,13 @@ export default function MobileAppDevelopmentPage() {
             variants={itemVariants}
             className="text-5xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg flex items-center justify-center gap-2"
           >
-            <Smartphone className="w-8 h-8" /> Mobile App Development – Build Apps That Users Love
+            <Code className="w-8 h-8" /> Custom Software Development Solutions
           </motion.h1>
           <motion.p
             variants={itemVariants}
             className="text-lg md:text-xl mb-8 max-w-4xl mx-auto text-white/90 drop-shadow-lg"
           >
-            From idea to launch, Tej IT develops high-performing, user-friendly, and secure Android & iOS applications that scale with your business. As a leading Android app development company in India, we deliver custom solutions for your success.
+            Transform your business with custom software solutions designed to streamline operations, enhance productivity, and drive growth.
           </motion.p>
           <motion.div variants={itemVariants} className="flex justify-center gap-4 flex-wrap">
             <Link href="/contact" passHref>
@@ -185,14 +143,14 @@ export default function MobileAppDevelopmentPage() {
                 whileHover="hover"
                 whileTap="tap"
               >
-                Schedule a Free App Consultation
+                Schedule a Free Consultation
               </motion.button>
             </Link>
           </motion.div>
         </div>
       </motion.section>
 
-      {/* Expertise Section */}
+      {/* Services Section */}
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -205,10 +163,10 @@ export default function MobileAppDevelopmentPage() {
             variants={itemVariants}
             className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
           >
-            What We Do Best
+            Our Software Development Services
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {services.map((service, index) => (
+            {services.map((service, _) => (
               <motion.div
                 key={service.title}
                 variants={cardVariants}
@@ -230,52 +188,6 @@ export default function MobileAppDevelopmentPage() {
         </div>
       </motion.section>
 
-      {/* Industries Section */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-        className="py-20 bg-gray-50"
-      >
-        <div className="container mx-auto px-4">
-          <motion.h2
-            variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12"
-          >
-            Industries We Build Apps For
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {industries.map((industry, index) => (
-              <motion.div
-                key={industry.title}
-                variants={flipVariants}
-                initial="front"
-                whileHover="back"
-                className="relative bg-white p-8 rounded-xl border border-gray-200 min-h-[150px] flex items-center justify-center"
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                <motion.div
-                  className="absolute inset-0 flex flex-col items-center justify-center text-center"
-                  variants={{ front: { opacity: 1 }, back: { opacity: 0 } }}
-                  style={{ backfaceVisibility: 'hidden' }}
-                >
-                  <industry.icon className="w-12 h-12 text-teal-600 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-800">{industry.title}</h3>
-                </motion.div>
-                <motion.div
-                  className="absolute inset-0 flex flex-col items-center justify-center text-center bg-gradient-to-br from-teal-600 to-purple-600 text-white rounded-xl p-4"
-                  variants={{ front: { opacity: 0 }, back: { opacity: 1 } }}
-                  style={{ backfaceVisibility: 'hidden' }}
-                >
-                  <p className="text-base">{industry.description}</p>
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
       {/* Why Choose Us Section */}
       <motion.section
         initial="hidden"
@@ -286,9 +198,9 @@ export default function MobileAppDevelopmentPage() {
       >
         <div className="container mx-auto px-4 flex flex-col md:flex-row gap-8">
           <motion.div variants={itemVariants} className="md:w-1/2">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-8">Why Businesses Choose Tej IT for Android App Development</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-8">Why Choose Tej IT for Software Development</h2>
             <ul className="space-y-4">
-              {whyChooseUs.map((item, index) => (
+              {whyChooseUs.map((item, _) => (
                 <motion.li
                   key={item.title}
                   variants={itemVariants}
@@ -305,8 +217,8 @@ export default function MobileAppDevelopmentPage() {
           </motion.div>
           <motion.div variants={itemVariants} className="md:w-1/2">
             <Image
-              src="/android/mobile-dev-illustration.png"
-              alt="Mobile Development Illustration"
+              src="/it-services/software-dev-illustration.png"
+              alt="Software Development Illustration"
               width={500}
               height={500}
               className="mx-auto object-contain"
@@ -328,13 +240,13 @@ export default function MobileAppDevelopmentPage() {
             variants={itemVariants}
             className="text-4xl md:text-5xl font-bold text-white mb-6 drop-shadow-md"
           >
-            Got an App Idea? Let’s Build It Together.
+            Ready to Build Your Software Solution?
           </motion.h2>
           <motion.p
             variants={itemVariants}
             className="text-lg text-white mb-8 max-w-2xl mx-auto drop-shadow-md"
           >
-            From Android to iOS, we help you design, develop, and scale apps that users love with our expert mobile app development services in India.
+            Let’s create software that drives your business forward. Contact us for expert development services tailored to your needs.
           </motion.p>
           <motion.div variants={itemVariants} className="flex justify-center gap-4 flex-wrap">
             <Link href="/contact" passHref>
@@ -344,7 +256,7 @@ export default function MobileAppDevelopmentPage() {
                 whileHover="hover"
                 whileTap="tap"
               >
-                👉 Schedule a Free App Consultation
+                👉 Schedule a Free Consultation
               </motion.button>
             </Link>
           </motion.div>
@@ -368,7 +280,7 @@ export default function MobileAppDevelopmentPage() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-teal-600">Request Free Consultation</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-600 hover:text-gray-800">
-श्व                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>

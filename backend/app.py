@@ -124,6 +124,22 @@ def initialize_db():
         )
     """)
     cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        session_id VARCHAR(255) NOT NULL,
+        user_name VARCHAR(100),
+        user_email VARCHAR(100),
+        user_phone VARCHAR(20)
+    )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS chat (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            session_id VARCHAR(255) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(100) NOT NULL,
@@ -437,6 +453,37 @@ def get_blogs():
         cursor.close()
         connection.close()
     return jsonify(blogs)
+
+@app.route('/admin/user-details')
+def admin_user_details():
+    if 'user_id' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('admin_login'))
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    try:
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(
+            """
+            SELECT ud.id, ud.session_id, ud.user_name, ud.user_email, ud.user_phone, c.created_at
+            FROM user_details ud
+            LEFT JOIN chat c ON ud.session_id = c.session_id
+            """
+        )
+        users = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return render_template('user_details_list.html', users=users)
+    except Exception as e:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'connection' in locals() and connection.is_connected():
+            connection.close()
+        flash(f"Database error: {str(e)}", 'danger')
+        return redirect(url_for('admin_dashboard'))
+
 
 @app.route('/api/blogs/<slug>', methods=['GET'])
 def get_blog_by_slug(slug):

@@ -259,7 +259,7 @@ export default function ClassManagementClient() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-5xl md:text-6xl font-extrabold mb-6 text-white text-shadow-lg"
           >
-             Class Management 
+            Class Management
           </motion.h1>
           <motion.h2
             initial={{ opacity: 0, scale: 0.8 }}
@@ -414,7 +414,7 @@ export default function ClassManagementClient() {
           </motion.h2>
           {benefits.map((benefit, index) => {
             const ref = useRef(null);
-            const isInView = useInView(ref, { threshold: 0.5, once: false });
+            const isInView = useInView(ref, { amount: 0.5, once: false });
 
             return (
               <motion.div

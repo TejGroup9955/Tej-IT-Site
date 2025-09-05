@@ -5,15 +5,30 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './blog-detail.module.css';
 
+interface Blog {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image?: string;
+  date: string;
+  slug: string;
+  priority: number;
+  sequence: number;
+  category: string;
+}
+
 export default function BlogDetailPage() {
-  const { slug } = useParams();
-  const [blog, setBlog] = useState(null);
+  const { slug } = useParams<{ slug: string }>();
+  const [blog, setBlog] = useState<Blog | null>(null);
 
   useEffect(() => {
-    fetch(`http://10.10.50.93:5000/api/blogs/${slug}`)
-      .then(res => res.json())
-      .then(data => setBlog(data))
-      .catch(err => console.error('Error fetching blog:', err));
+    if (slug) {
+      fetch(`http://10.10.50.93:5000/api/blogs/${slug}`)
+        .then(res => res.json())
+        .then(data => setBlog(data))
+        .catch(err => console.error('Error fetching blog:', err));
+    }
   }, [slug]);
 
   if (!blog) return <div className={styles.loading}>Loading...</div>;
@@ -36,8 +51,22 @@ export default function BlogDetailPage() {
         )}
         <div className={styles.content} dangerouslySetInnerHTML={{ __html: blog.content }} />
         <div className={styles.socialShare}>
-          <a href={`https://www.linkedin.com/shareArticle?url=http://10.10.50.93:3001/blog/${blog.slug}`} target="_blank" className={styles.socialLink}>Share on LinkedIn</a>
-          <a href={`https://twitter.com/intent/tweet?url=http://10.10.50.93:3001/blog/${blog.slug}`} target="_blank" className={styles.socialLink}>Share on Twitter</a>
+          <a
+            href={`https://www.linkedin.com/shareArticle?url=http://10.10.50.93:3001/blog/${blog.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.socialLink}
+          >
+            Share on LinkedIn
+          </a>
+          <a
+            href={`https://twitter.com/intent/tweet?url=http://10.10.50.93:3001/blog/${blog.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.socialLink}
+          >
+            Share on Twitter
+          </a>
         </div>
       </main>
 
@@ -53,8 +82,6 @@ export default function BlogDetailPage() {
           <li><Link href="/blog?category=Cloud Services">Cloud Services</Link></li>
         </ul>
       </aside>
-
-      
     </div>
   );
 }

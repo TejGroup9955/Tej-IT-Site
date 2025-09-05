@@ -1,5 +1,5 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -186,7 +186,7 @@ export default function CloudServicesClient() {
 
   const partners = ['aws', 'docker', 'kubernetes', 'jenkins', 'terraform', 'ansible', 'grafana', 'gitlab', 'git'];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -194,19 +194,19 @@ export default function CloudServicesClient() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  const cardHover = {
+  const cardHover: Variants = {
     hover: { scale: 1.05, boxShadow: '0 12px 20px rgba(0, 0, 0, 0.15)', transition: { duration: 0.3 } },
   };
 
-  const iconHover = {
+  const iconHover: Variants = {
     hover: {
       rotate: [0, 10, -10, 10, -10, 0],
-      transition: { duration: 0.5, ease: 'easeInOut', repeat: 0 },
+      transition: { duration: 0.5, ease: 'easeInOut' as const, repeat: 0 },
     },
   };
 

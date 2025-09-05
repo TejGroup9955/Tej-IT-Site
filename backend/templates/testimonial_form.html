@@ -1,40 +1,112 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3>{{ action }} Testimonial</h3>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-quote-right me-3"></i>{{ action }} Client Testimonial</h1>
+            <nav class="breadcrumb">
+                <a href="{{ url_for('admin_dashboard') }}" class="breadcrumb-item">Dashboard</a>
+                <a href="{{ url_for('admin_testimonials') }}" class="breadcrumb-item">Testimonials</a>
+                <span class="breadcrumb-item active">{{ action }}</span>
+            </nav>
+        </div>
     </div>
-    <div class="card-body">
+</div>
+
+<div class="row">
+    <!-- Left Column - Main Form -->
+    <div class="col-lg-8">
         <form method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ testimonial.name if testimonial else '' }}" required>
+            <div class="form-section">
+                <h5><i class="fas fa-user me-2"></i>Client Information</h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Client Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ testimonial.name if testimonial else '' }}" required
+                               placeholder="Full name of the client">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="company" name="company" 
+                               value="{{ testimonial.company if testimonial else '' }}"
+                               placeholder="Client's company name">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="content" class="form-label">Testimonial Content *</label>
+                    <textarea class="form-control" id="content" name="content" rows="5" required
+                              placeholder="What did the client say about our services?">{{ testimonial.content if testimonial else '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">Client Photo</label>
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    {% if testimonial and testimonial.image %}
+                        <img src="{{ testimonial.image }}" alt="Current image" class="img-preview mt-2">
+                    {% endif %}
+                    <div class="form-text">Optional: Upload a photo of the client for added credibility</div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="company" class="form-label">Company</label>
-                <input type="text" class="form-control" id="company" name="company" value="{{ testimonial.company if testimonial else '' }}">
+
+            <div class="form-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>{{ action }} Testimonial
+                        </button>
+                        <a href="{{ url_for('admin_testimonials') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="content" class="form-label">Content</label>
-                <textarea class="form-control" id="content" name="content" rows="3">{{ testimonial.content if testimonial else '' }}</textarea>
-            </div>
-            <div class="mb-3">
-                <label for="rating" class="form-label">Rating (1-5)</label>
-                <input type="number" class="form-control" id="rating" name="rating" value="{{ testimonial.rating if testimonial else 0 }}" min="1" max="5">
-            </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Image</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                {% if testimonial and testimonial.image %}
-                    <img src="{{ testimonial.image }}" alt="Current image" class="img-thumbnail mt-2" style="max-width: 200px;">
-                {% endif %}
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="is_enabled" name="is_enabled" {% if testimonial.is_enabled|default(True) %}checked{% endif %}>
-                <label class="form-check-label" for="is_enabled">Enable Testimonial</label>
-            </div>
-            <button type="submit" class="btn btn-primary">{{ action }} Testimonial</button>
         </form>
+    </div>
+
+    <!-- Right Column - Settings -->
+    <div class="col-lg-4">
+        <div class="form-section">
+            <h5><i class="fas fa-star me-2"></i>Testimonial Settings</h5>
+            
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <select class="form-select" id="rating" name="rating">
+                    <option value="1" {% if testimonial and testimonial.rating == 1 %}selected{% endif %}>⭐ (1 Star)</option>
+                    <option value="2" {% if testimonial and testimonial.rating == 2 %}selected{% endif %}>⭐⭐ (2 Stars)</option>
+                    <option value="3" {% if testimonial and testimonial.rating == 3 %}selected{% endif %}>⭐⭐⭐ (3 Stars)</option>
+                    <option value="4" {% if testimonial and testimonial.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐ (4 Stars)</option>
+                    <option value="5" {% if not testimonial or testimonial.rating == 5 or testimonial.rating == 0 %}selected{% endif %}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="is_enabled" name="is_enabled" 
+                           {% if testimonial.is_enabled|default(True) %}checked{% endif %}>
+                    <label class="form-check-label fw-medium" for="is_enabled">
+                        Publish Testimonial
+                    </label>
+                </div>
+                <div class="form-text">Published testimonials are visible on the website</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Best Practices</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Get written permission from clients</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use real names and companies</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Keep testimonials authentic</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Include specific results when possible</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
