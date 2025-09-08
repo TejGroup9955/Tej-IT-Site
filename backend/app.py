@@ -2,13 +2,17 @@ from flask import Flask, request, jsonify, render_template, flash, redirect, url
 from flask_cors import CORS
 from functools import wraps
 import mysql.connector
+from knowledge_base import knowledge_base
 from mysql.connector import Error
 from datetime import datetime, timedelta
 import jwt
 import os
+import re
+import uuid
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import requests
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', '2b8dd5a508de9870b120238f6588a138')
@@ -40,6 +44,88 @@ def get_db_connection():
     except Error as e:
         print(f"Error connecting to MySQL: {e}")
         return None
+
+def retrieve_relevant_context(query):
+    words = re.split(r'\s+', query.lower().strip())
+    scores = {}
+    for page, text in knowledge_base.items():
+        count = 0
+        lower_text = text.lower()
+        for word in words:
+            if word in lower_text:
+                count += 1
+        if count > 0:
+            scores[page] = count
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
+    context = ''
+    for page, _ in sorted_scores:
+        context += f"From {page}:\n{knowledge_base[page]}\n\n"
+    return context if context else "No relevant information found in the knowledge base."
+
+def call_openrouter(prompt, user_name=None):
+    url = 'https://openrouter.ai/api/v1/chat/completions'
+    headers = {
+    'Authorization': f'Bearer {os.getenv("OPENROUTER_API_KEY")}',
+    'Content-Type': 'application/json'
+    }
+    greeting = f"Hello{f', {user_name}' if user_name else ''}! Welcome to Tej IT Solutions."
+    closing = "How else may I assist you?"
+    full_prompt = f"{greeting}\n{prompt}\n\n{closing}"
+    data = {
+        'model': 'deepseek/deepseek-chat-v3.1:free',
+        'messages': [
+            {'role': 'system', 'content': '''
+                You are TejITbot, a professional AI assistant for Tej IT Solutions, designed to emulate top-tier MNC chatbots. Follow these guidelines:
+                - Deliver concise (50-100 words), accurate, and professional responses.
+                - Use bullet points for key information, each starting on a new line.
+                - Avoid casual language, buzzwords, or repetition.
+                - Focus on relevant details from provided context.
+                - For location queries, provide:
+                  - Pune Office: Office No. 103, "Phoenix", Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001
+                - For contact queries, provide:
+                  - Email: info@tejitsolutions.com or support@tejitsolutions.com
+                  - Pune Office: As above
+                - If query is unclear or unrelated, respond:
+                  - I’m sorry, I don’t have information on that. Please clarify or ask about Tej IT Solutions’ services.
+                - Ensure polished, structured responses with clear formatting.
+                - Limit to 100 words; trim excess content cleanly.
+            '''},
+            {'role': 'user', 'content': full_prompt}
+        ]
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+        answer = response.json()['choices'][0]['message']['content']
+        lines = answer.split('\n')
+        filtered_lines = [line for line in lines if line.strip() and not line.startswith('Hello') and not line.startswith('How else')]
+        answer = '\n'.join(filtered_lines)
+        words = answer.split()
+        if len(words) > 100:
+            answer = ' '.join(words[:100]) + '...'
+        answer = re.sub(r'-\s*([^\n]+)', r'- \1\n', answer)
+        return answer.strip()
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 429:
+            return (
+                "- Please contact our support team for assistance.\n"
+                "- Email: info@tejitsolutions.com or support@tejitsolutions.com\n"
+                "- Pune Office: Office No. 103, 'Phoenix', Bund Garden Rd, Opp. Residency Club, Pune, Maharashtra 411001"
+            )
+        elif e.response.status_code == 401:
+            return (
+                "- Please contact support for assistance.\n"
+                "- Email: info@tejitsolutions.com"
+            )
+        return (
+            "- I’m sorry, an API error occurred. Please try again.\n"
+            "- Contact: info@tejitsolutions.com"
+        )
+    except Exception as e:
+        return (
+            "- I’m sorry, an error occurred. Please try again.\n"
+            "- Contact: info@tejitsolutions.com"
+        )
 
 def initialize_db():
     connection = get_db_connection()
@@ -133,10 +219,12 @@ def initialize_db():
     )
     """)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS chat (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            session_id VARCHAR(255) NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    CREATE TABLE IF NOT EXISTS chat (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        session_id VARCHAR(255) NOT NULL,
+        user_message TEXT NOT NULL,
+        bot_response TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
     cursor.execute("""
@@ -1685,6 +1773,85 @@ def admin_employee_testimonial_edit(id):
     cursor.close()
     connection.close()
     return render_template('employee_testimonial_form.html', testimonial=testimonial, action='Edit')
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    user_message = data.get('message', '')
+    session_id = data.get('session_id', str(uuid.uuid4()))
+    user_name = data.get('user_name')
+    user_email = data.get('user_email')
+    user_phone = data.get('user_phone')
+    
+    # Save user details if provided
+    if user_name or user_email or user_phone:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO user_details (session_id, user_name, user_email, user_phone)
+                    VALUES (%s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    user_name = COALESCE(%s, user_name),
+                    user_email = COALESCE(%s, user_email),
+                    user_phone = COALESCE(%s, user_phone)
+                    """,
+                    (session_id, user_name, user_email, user_phone, user_name, user_email, user_phone)
+                )
+                connection.commit()
+            except Error as e:
+                print(f"Error saving user details: {e}")
+            finally:
+                cursor.close()
+                connection.close()
+
+    # Retrieve context and generate response
+    context = retrieve_relevant_context(user_message)
+    prompt = f"User query: {user_message}\n\nContext:\n{context}"
+    bot_response = call_openrouter(prompt, user_name)
+    
+    # Save chat to database
+    connection = get_db_connection()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO chat (session_id, user_message, bot_response, created_at) VALUES (%s, %s, %s, %s)",
+                (session_id, user_message, bot_response, datetime.now())
+            )
+            connection.commit()
+        except Error as e:
+            print(f"Error saving chat: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+    
+    return jsonify({
+        'session_id': session_id,
+        'response': bot_response
+    })
+
+@app.route('/api/chat_history/<session_id>', methods=['GET'])
+def get_chat_history(session_id):
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'error': 'DB connection failed'}), 500
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT user_message, bot_response, created_at FROM chat WHERE session_id = %s ORDER BY created_at",
+            (session_id,)
+        )
+        history = cursor.fetchall()
+        return jsonify(history)
+    except Error as e:
+        print(f"Error fetching chat history: {e}")
+        return jsonify({'error': 'Failed to fetch chat history'}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/admin/employee/testimonial/delete/<int:id>', methods=['POST'])
 def admin_employee_testimonial_delete(id):

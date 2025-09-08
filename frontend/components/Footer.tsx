@@ -97,7 +97,7 @@ export default function Footer() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="bg-gray-800 text-white py-10 shadow-lg"
+      className="bg-gray-800 text-white py-10 shadow-lg relative"
     >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
