@@ -1777,42 +1777,73 @@ def admin_employee_testimonial_edit(id):
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.get_json()
-    user_message = data.get('message', '')
+    user_message = data.get('message', '').strip()
     session_id = data.get('session_id', str(uuid.uuid4()))
     user_name = data.get('user_name')
     user_email = data.get('user_email')
     user_phone = data.get('user_phone')
-    
-    # Save user details if provided
-    if user_name or user_email or user_phone:
-        connection = get_db_connection()
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute(
-                    """
-                    INSERT INTO user_details (session_id, user_name, user_email, user_phone)
-                    VALUES (%s, %s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                    user_name = COALESCE(%s, user_name),
-                    user_email = COALESCE(%s, user_email),
-                    user_phone = COALESCE(%s, user_phone)
-                    """,
-                    (session_id, user_name, user_email, user_phone, user_name, user_email, user_phone)
-                )
-                connection.commit()
-            except Error as e:
-                print(f"Error saving user details: {e}")
-            finally:
-                cursor.close()
-                connection.close()
 
-    # Retrieve context and generate response
-    context = retrieve_relevant_context(user_message)
-    prompt = f"User query: {user_message}\n\nContext:\n{context}"
-    bot_response = call_openrouter(prompt, user_name)
-    
-    # Save chat to database
+    # 1. ✅ Ensure user details are mandatory before chat starts
+    if not user_name or not user_email or not user_phone:
+        return jsonify({
+            'session_id': session_id,
+            'response': "⚠️ Please provide your Name, Email, and Phone Number before starting the chat.",
+            'requires_details': True   # 🔑 extra flag for frontend
+        })
+
+    # Save user details (only once all are provided)
+    connection = get_db_connection()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO user_details (session_id, user_name, user_email, user_phone)
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                user_name = COALESCE(%s, user_name),
+                user_email = COALESCE(%s, user_email),
+                user_phone = COALESCE(%s, user_phone)
+                """,
+                (session_id, user_name, user_email, user_phone, user_name, user_email, user_phone)
+            )
+            connection.commit()
+        except Error as e:
+            print(f"Error saving user details: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+
+    # 2. ✅ Handle button clicks differently (don’t auto-start chat flow)
+    if user_message.lower() in ["i have a question", "explore services", "start chat"]:
+        if user_message.lower() == "i have a question":
+            bot_response = "👋 What would you like to know? Please type your query."
+        elif user_message.lower() == "explore services":
+            bot_response = (
+                "Here are our key services:\n"
+                "- 💼 IT Consulting\n"
+                "- ☁️ Cloud Solutions\n"
+                "- 🤖 AI & Automation\n"
+                "- 🛡️ Cybersecurity\n\n"
+                "Please select one to continue."
+            )
+        else:  # Start chat button
+            bot_response = (
+                "✅ Thank you for sharing your details!\n"
+                "Here’s a quick overview of our offerings:\n"
+                "- 💼 IT Consulting\n"
+                "- ☁️ Cloud Solutions\n"
+                "- 🤖 AI & Automation\n"
+                "- 🛡️ Cybersecurity\n\n"
+                "Please select one to explore further."
+            )
+    else:
+        # 3. ✅ Normal chat with context (no wrong "user says how can we help you")
+        context = retrieve_relevant_context(user_message)
+        prompt = f"User query: {user_message}\n\nContext:\n{context}"
+        bot_response = call_openrouter(prompt, user_name)
+
+    # Save chat to DB
     connection = get_db_connection()
     if connection:
         cursor = connection.cursor()
@@ -1827,11 +1858,13 @@ def chat():
         finally:
             cursor.close()
             connection.close()
-    
+
     return jsonify({
         'session_id': session_id,
-        'response': bot_response
+        'response': bot_response,
+        'requires_details': False   # 🔑 means user can continue
     })
+
 
 @app.route('/api/chat_history/<session_id>', methods=['GET'])
 def get_chat_history(session_id):
@@ -1849,6 +1882,31 @@ def get_chat_history(session_id):
     except Error as e:
         print(f"Error fetching chat history: {e}")
         return jsonify({'error': 'Failed to fetch chat history'}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/admin/chats')
+def admin_chats():
+    connection = get_db_connection()
+    if not connection:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT DISTINCT c.session_id, u.user_name, u.user_email, u.user_phone,
+                           (SELECT user_message FROM chat c2 WHERE c2.session_id = c.session_id ORDER BY created_at DESC LIMIT 1) as last_message
+            FROM chat c
+            LEFT JOIN user_details u ON c.session_id = u.session_id
+            ORDER BY last_message DESC
+        """)
+        chats = cursor.fetchall()
+        return render_template('chats_list.html', chats=chats)
+    except Error as e:
+        print(f"Error fetching chats: {e}")
+        flash('Failed to fetch chat sessions', 'danger')
+        return redirect(url_for('admin_dashboard'))
     finally:
         cursor.close()
         connection.close()

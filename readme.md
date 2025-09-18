@@ -5,6 +5,7 @@
 To run backend
 
 cd /var/www/html/Tej-IT-Site/backend/
+python3 -m venv/venv
 source venv/bin/activate
 python app.py
 

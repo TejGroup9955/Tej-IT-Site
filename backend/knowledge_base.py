@@ -1507,54 +1507,5 @@ Think outside the box, challenge constructively and act before others do.
 Creating a positive place to work and supporting ethical initiatives.
 
 ##### Excellence
-Always deliver exceptional quality, accomplish and improve.''',
-
-    'pricing.php': '''## Choose a Plan
-### Gold
-- Project Planning Management  
-- Project Material Planning  
-- Purchase & Procurement Management  
-- Site Activity Management (Android app also available)  
-- Sub Contractor Management  
-- Expense Management  
-- Store Management  
-- Sales Management  
-- Account Management  
-- MIS Reports  
-- E-invoice Integration  
-- Tally integration  
-- Report Format and Approval flow Customization  
-- Functional Customization  
-
-### Platinum
-- Project Planning Management  
-- Project Material Planning  
-- Purchase & Procurement Management  
-- Site Activity Management (Android app also available)  
-- Sub Contractor Management  
-- Expense Management  
-- Store Management  
-- Sales Management  
-- Account Management  
-- MIS Reports  
-- E-invoice Integration  
-- Tally integration  
-- Report Format and Approval flow Customization  
-- Functional Customization  
-
-### Diamond
-- Project Planning Management  
-- Project Material Planning  
-- Purchase & Procurement Management  
-- Site Activity Management (Android app also available)  
-- Sub Contractor Management  
-- Expense Management  
-- Store Management  
-- Sales Management  
-- Account Management  
-- MIS Reports  
-- E-invoice Integration  
-- Tally integration  
-- Report Format and Approval flow Customization  
-- Functional Customization'''
+Always deliver exceptional quality, accomplish and improve.'''
 }

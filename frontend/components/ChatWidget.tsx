@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Image from "next/image";
-import { v4 as uuidv4 } from "uuid"; // Import uuid
+import { v4 as uuidv4 } from "uuid";
 
 const ChatWidget: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(true);
   const [userInfoSubmitted, setUserInfoSubmitted] = useState(false);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -16,47 +16,45 @@ const ChatWidget: React.FC = () => {
     { user_message: string; bot_response: string }[]
   >([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [sessionId, setSessionId] = useState(""); // Initialize empty for SSR safety
+  const [sessionId, setSessionId] = useState("");
+  const [shakeWidget, setShakeWidget] = useState(false);
+  const [errorFields, setErrorFields] = useState({ name: false, email: false, phone: false });
   const chatHistoryRef = useRef<HTMLDivElement>(null);
 
-  // Client-side only: Initialize sessionId and reset popupDismissed on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Reset popup dismissal on page load
-      sessionStorage.removeItem("popupDismissed");
-      // Load or create sessionId
       let storedSessionId = sessionStorage.getItem("chatSessionId");
       if (!storedSessionId) {
-        storedSessionId = uuidv4(); // Use uuid instead of crypto.randomUUID
+        storedSessionId = uuidv4();
         sessionStorage.setItem("chatSessionId", storedSessionId);
       }
       setSessionId(storedSessionId);
+      setIsPopupVisible(true);
     }
   }, []);
 
-  // Open chat widget automatically after 2 seconds on page load
   useEffect(() => {
     if (typeof window !== "undefined") {
       const openChatTimeout = setTimeout(() => {
         setIsChatOpen(true);
-        setIsPopupVisible(false); // Hide popup/GIF when chat opens
+        setIsPopupVisible(false);
       }, 2000);
       return () => clearTimeout(openChatTimeout);
     }
   }, []);
 
-  // Show popup and GIF when chat is minimized, if not dismissed
   useEffect(() => {
-    if (typeof window !== "undefined" && !isChatOpen && !sessionStorage.getItem("popupDismissed")) {
+    if (typeof window !== "undefined" && !isChatOpen) {
       setIsPopupVisible(true);
+    } else if (isChatOpen) {
+      setIsPopupVisible(false);
     }
   }, [isChatOpen]);
 
-  // Load chat history when chat opens and user info is submitted
   useEffect(() => {
     if (userInfoSubmitted && isChatOpen && sessionId && typeof window !== "undefined") {
       axios
-        .get(`http://10.10.50.93:5000/api/chat_history/${sessionId}`)
+        .get(`http://10.10.50.78:5000/api/chat_history/${sessionId}`)
         .then((response) => {
           setChatHistory(response.data);
           scrollToBottom();
@@ -77,17 +75,12 @@ const ChatWidget: React.FC = () => {
     if (typeof window !== "undefined") {
       setIsChatOpen(!isChatOpen);
       if (!isChatOpen) {
-        // Opening chat
         setIsPopupVisible(false);
-        sessionStorage.setItem("popupDismissed", "true");
         if (userInfoSubmitted) {
           scrollToBottom();
         }
       } else {
-        // Minimizing chat
-        if (!sessionStorage.getItem("popupDismissed")) {
-          setIsPopupVisible(true);
-        }
+        setIsPopupVisible(true);
       }
     }
   };
@@ -95,17 +88,36 @@ const ChatWidget: React.FC = () => {
   const dismissPopup = () => {
     if (typeof window !== "undefined") {
       setIsPopupVisible(false);
-      sessionStorage.setItem("popupDismissed", "true");
     }
   };
 
+  const triggerValidationFeedback = () => {
+    setShakeWidget(true);
+    setErrorFields({
+      name: !userName,
+      email: !userEmail,
+      phone: !userPhone,
+    });
+    setTimeout(() => setShakeWidget(false), 500); // Stop shaking after 0.5s
+  };
+
   const selectOption = (option: string) => {
+    if (!userName || !userEmail || !userPhone) {
+      triggerValidationFeedback();
+      return;
+    }
+
     setUserInfoSubmitted(true);
     setIsChatOpen(true);
     sendMessage(option);
   };
 
   const submitPreChatForm = () => {
+    if (!userName || !userEmail || !userPhone) {
+      triggerValidationFeedback();
+      return;
+    }
+
     setUserInfoSubmitted(true);
     setIsChatOpen(true);
     sendMessage("How can we help you?");
@@ -116,7 +128,7 @@ const ChatWidget: React.FC = () => {
     if (!userMessage) return;
 
     if (typeof window !== "undefined" && !sessionId) {
-      const newSessionId = uuidv4(); // Use uuid instead of crypto.randomUUID
+      const newSessionId = uuidv4();
       setSessionId(newSessionId);
       sessionStorage.setItem("chatSessionId", newSessionId);
     }
@@ -126,16 +138,21 @@ const ChatWidget: React.FC = () => {
     scrollToBottom();
 
     try {
-      const response = await axios.post(
-        "http://10.10.50.93:5000/api/chat",
-        {
-          message: userMessage,
-          session_id: sessionId, // Include session_id in payload
-          user_name: userName,
-          user_email: userEmail,
-          user_phone: userPhone,
-        }
-      );
+      const response = await axios.post("http://10.10.50.78:5000/api/chat", {
+        message: userMessage,
+        session_id: sessionId,
+        user_name: userName,
+        user_email: userEmail,
+        user_phone: userPhone,
+      });
+
+      if (response.data.requires_details) {
+        triggerValidationFeedback();
+        setChatHistory((prev) => prev.slice(0, -1));
+        setUserInfoSubmitted(false);
+        return;
+      }
+
       setChatHistory((prev) => [
         ...prev.slice(0, -1),
         { user_message: userMessage, bot_response: response.data.response },
@@ -182,6 +199,14 @@ const ChatWidget: React.FC = () => {
           transform: translateY(0);
           opacity: 1;
         }
+        #chat-widget.shake {
+          animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
         #chat-widget.animate-pop {
           animation: pop 0.3s ease-in-out;
         }
@@ -202,10 +227,11 @@ const ChatWidget: React.FC = () => {
           font-weight: 600;
         }
         #bot-avatar {
-          width: 30px;
-          height: 30px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          margin-right: 10px;
+          margin-right: 12px;
+          object-fit: cover;
         }
         #chat-close {
           background: none;
@@ -266,6 +292,10 @@ const ChatWidget: React.FC = () => {
           font-size: 13px;
           background: #f9f9f9;
         }
+        #pre-chat-form input.error {
+          border-color: #ff0000;
+          box-shadow: 0 0 8px rgba(255, 0, 0, 0.2);
+        }
         #pre-chat-form input:focus {
           outline: none;
           border-color: #007bff;
@@ -313,6 +343,7 @@ const ChatWidget: React.FC = () => {
           border-radius: 50%;
           margin-right: 10px;
           flex-shrink: 0;
+          object-fit: cover;
         }
         #typing-indicator {
           display: flex;
@@ -335,6 +366,7 @@ const ChatWidget: React.FC = () => {
           border-bottom-left-radius: 16px;
           border-bottom-right-radius: 16px;
         }
+        
         #chat-input {
           flex: 1;
           padding: 12px;
@@ -386,12 +418,14 @@ const ChatWidget: React.FC = () => {
           transform: scale(1.15) rotate(360deg);
         }
         #chat-toggle img {
-          width: 28px;
-          height: 28px;
+          width: 60px;
+          height: 60px;
+          object-fit: cover;
+          border-radius: 50%;
         }
         #popup-message {
           position: absolute;
-          bottom: 70px;
+          bottom: 80px;
           right: 0;
           width: 200px;
           background: #ffffff;
@@ -436,9 +470,9 @@ const ChatWidget: React.FC = () => {
         }
         #welcome-gif-container {
           position: absolute;
-          bottom: 140px; /* Adjusted to position above popup */
-          right: 240px; /* Adjusted to align with left corner of popup */
-          width: 120px; /* Increased size */
+          bottom: 90px;
+          right: 165px;
+          width: 120px;
           background: transparent;
           display: flex;
           justify-content: center;
@@ -451,8 +485,8 @@ const ChatWidget: React.FC = () => {
           pointer-events: none;
         }
         .welcome-gif {
-          width: 120px; /* Increased size */
-          height: 120px; /* Increased size */
+          width: 120px;
+          height: 120px;
         }
         #welcome-gif-container:not(.popup-hidden) {
           animation: bounce 0.5s ease-in-out;
@@ -478,13 +512,25 @@ const ChatWidget: React.FC = () => {
             bottom: 70px;
           }
           #welcome-gif-container {
-            bottom: 110px;
-            right: 200px;
+            bottom: 80px;
+            right: 170px;
             width: 90px;
           }
           .welcome-gif {
             width: 90px;
             height: 90px;
+          }
+          #chat-toggle img {
+            width: 50px;
+            height: 50px;
+          }
+          #bot-avatar {
+            width: 36px;
+            height: 36px;
+          }
+          .message-avatar {
+            width: 20px;
+            height: 20px;
           }
         }
       `}</style>
@@ -529,20 +575,20 @@ const ChatWidget: React.FC = () => {
           style={{ display: isChatOpen ? "none" : "flex" }}
         >
           <Image
-            src="/chatbot/logo.png"
+            src="/chatbot/chat.webp"
             alt="Chat"
-            width={30}
-            height={30}
+            width={85}
+            height={85}
           />
         </button>
-        <div id="chat-widget" className={`chat-widget ${isChatOpen ? "" : "chat-hidden"} ${isChatOpen ? "animate-pop" : ""}`}>
+        <div id="chat-widget" className={`chat-widget ${isChatOpen ? "" : "chat-hidden"} ${isChatOpen ? "animate-pop" : ""} ${shakeWidget ? "shake" : ""}`}>
           <div id="chat-header">
             <Image
-              src="/chatbot/logo.png"
+              src="/chatbot/bot.png"
               alt="TejITbot"
               id="bot-avatar"
-              width={30}
-              height={30}
+              width={70}
+              height={70}
             />
             <span>TejIT BOT</span>
             <button onClick={toggleChat} aria-label="Minimize chat" id="chat-close">
@@ -577,21 +623,33 @@ const ChatWidget: React.FC = () => {
               id="user-name"
               placeholder="Your Name"
               value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              onChange={(e) => {
+                setUserName(e.target.value);
+                setErrorFields((prev) => ({ ...prev, name: false }));
+              }}
+              className={errorFields.name ? "error" : ""}
             />
             <input
               type="email"
               id="user-email"
               placeholder="Your Email"
               value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
+              onChange={(e) => {
+                setUserEmail(e.target.value);
+                setErrorFields((prev) => ({ ...prev, email: false }));
+              }}
+              className={errorFields.email ? "error" : ""}
             />
             <input
               type="tel"
               id="user-phone"
               placeholder="Your Phone"
               value={userPhone}
-              onChange={(e) => setUserPhone(e.target.value)}
+              onChange={(e) => {
+                setUserPhone(e.target.value);
+                setErrorFields((prev) => ({ ...prev, phone: false }));
+              }}
+              className={errorFields.phone ? "error" : ""}
             />
             <button id="start-chat-btn" onClick={submitPreChatForm}>
               Start Chat
@@ -610,7 +668,7 @@ const ChatWidget: React.FC = () => {
                   {msg.bot_response && (
                     <div className="message bot-message">
                       <Image
-                        src="/chatbot/logo.png"
+                        src="/chatbot/chat-icon.webp"
                         alt="TejITbot"
                         className="message-avatar"
                         width={24}
