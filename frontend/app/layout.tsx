@@ -43,6 +43,7 @@ export default function RootLayout({
           <Footer />
           <ChatWidget />
         </ThemeProvider>
+        <Script src="/tracking.js" strategy="afterInteractive" />
       </body>
     </html>
   );

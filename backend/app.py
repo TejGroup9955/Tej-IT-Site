@@ -4,8 +4,9 @@ from functools import wraps
 import mysql.connector
 from knowledge_base import knowledge_base
 from mysql.connector import Error
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import jwt
+import requests
 import os
 import re
 import uuid
@@ -349,6 +350,7 @@ def admin_logout():
     flash('Logged out successfully', 'success')
     return redirect(url_for('admin_login'))
 
+
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if 'user_id' not in session:
@@ -359,6 +361,8 @@ def admin_dashboard():
         flash('Database connection failed', 'danger')
         return redirect(url_for('admin_dashboard'))
     cursor = connection.cursor(dictionary=True)
+    
+    # Existing counts
     cursor.execute("SELECT COUNT(*) as count FROM blogs")
     blog_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM testimonials")
@@ -373,18 +377,56 @@ def admin_dashboard():
     application_count = cursor.fetchone()['count']
     cursor.execute("SELECT COUNT(*) as count FROM departments")
     department_count = cursor.fetchone()['count']
+    cursor.execute("SELECT COUNT(*) as count FROM chat")
+    chat_count = cursor.fetchone()['count']
+    
+    # Total visits (all page views)
     cursor.execute("SELECT COUNT(*) as count FROM site_visits")
     visit_count = cursor.fetchone()['count']
-    cursor.execute("SELECT country, COUNT(*) as count FROM site_visits GROUP BY country ORDER BY count DESC LIMIT 5")
-    top_countries = cursor.fetchall()
-    cursor.execute("SELECT page, COUNT(*) as count FROM site_visits GROUP BY page ORDER BY count DESC LIMIT 5")
+    
+    # Unique visitors (distinct session_id)
+    cursor.execute("SELECT COUNT(DISTINCT session_id) as count FROM site_visits")
+    unique_visitors = cursor.fetchone()['count']
+    
+    # All pages with visit counts
+    cursor.execute("SELECT COALESCE(NULLIF(page, ''), 'Unknown') as page, COUNT(*) as count FROM site_visits GROUP BY page ORDER BY count DESC")
     top_pages = cursor.fetchall()
+    
+    # Monthly visits for graph
+    filter_months = request.args.get('months', '1', type=int)
+    if filter_months not in [1, 2, 3, 6, 12]:
+        filter_months = 1  # Default to 1 month
+    start_date = datetime.now() - timedelta(days=filter_months * 30)
+    query = """
+        SELECT DATE_FORMAT(visit_time, '%Y-%m') AS visit_month,
+               COUNT(*) AS total_visits,
+               COUNT(DISTINCT session_id) AS unique_visits
+        FROM site_visits
+        WHERE visit_time >= %s
+        GROUP BY DATE_FORMAT(visit_time, '%Y-%m')
+        ORDER BY visit_month ASC
+    """
+    cursor.execute(query, (start_date,))
+    monthly_visits = cursor.fetchall()
+    
     cursor.close()
     connection.close()
-    return render_template('dashboard.html', blog_count=blog_count, testimonial_count=testimonial_count,
-                          enquiry_count=enquiry_count, team_count=team_count, job_count=job_count,
-                          application_count=application_count, department_count=department_count,
-                          visit_count=visit_count, top_countries=top_countries, top_pages=top_pages)
+    return render_template(
+        'dashboard.html',
+        blog_count=blog_count,
+        testimonial_count=testimonial_count,
+        enquiry_count=enquiry_count,
+        team_count=team_count,
+        job_count=job_count,
+        application_count=application_count,
+        department_count=department_count,
+        chat_count=chat_count,
+        visit_count=visit_count,
+        unique_visitors=unique_visitors,
+        top_pages=top_pages,
+        monthly_visits=monthly_visits,
+        filter_months=filter_months
+    )
 
 @app.route('/admin/blogs')
 def admin_blogs():
@@ -1067,37 +1109,40 @@ def admin_about_us():
 
 @app.route('/track_visit')
 def track_visit():
-    ip_address = request.remote_addr
     page = request.args.get('page', 'home')
     session_id = session.get('visit_session_id')
     if not session_id:
         session_id = os.urandom(16).hex()
         session['visit_session_id'] = session_id
+
+    connection = get_db_connection()
+    if connection:
+        cursor = connection.cursor()
         try:
-            response = requests.get(f"https://ipapi.co/{ip_address}/json/")
-            print(f"ipapi.co response for {ip_address}: {response.status_code}, {response.text}")
-            if response.status_code == 200:
-                data = response.json()
-                country = data.get('country_name', 'Unknown')
-            else:
-                country = 'Unknown'
-        except Exception as e:
-            print(f"Error fetching geolocation for {ip_address}: {e}")
-            country = 'Unknown'
-        connection = get_db_connection()
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute("INSERT INTO site_visits (ip_address, country, visit_time, session_id, page) VALUES (%s, %s, %s, %s, %s)",
-                               (ip_address, country, datetime.now(), session_id, page))
+            cursor.execute("""
+                SELECT 1 
+                FROM site_visits 
+                WHERE session_id = %s 
+                  AND page = %s 
+                  AND DATE(visit_time) = %s
+            """, (session_id, page, date.today()))
+
+            exists = cursor.fetchone()
+
+            if not exists:
+                cursor.execute(
+                    "INSERT INTO site_visits (visit_time, session_id, page) VALUES (%s, %s, %s)",
+                    (datetime.now(), session_id, page)
+                )
                 connection.commit()
-            except Error as e:
-                print(f"Error inserting visit: {e}")
-            finally:
-                cursor.close()
-                connection.close()
-        else:
-            print("Failed to connect to database for tracking visit")
+        except Error as e:
+            print(f"Error inserting visit: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        print("Failed to connect to database for tracking visit")
+
     return '', 204
 
 @app.route('/api/departments', methods=['GET'])
@@ -1864,7 +1909,6 @@ def chat():
         'response': bot_response,
         'requires_details': False   # 🔑 means user can continue
     })
-
 
 @app.route('/api/chat_history/<session_id>', methods=['GET'])
 def get_chat_history(session_id):

@@ -54,7 +54,7 @@ const ChatWidget: React.FC = () => {
   useEffect(() => {
     if (userInfoSubmitted && isChatOpen && sessionId && typeof window !== "undefined") {
       axios
-        .get(`http://10.10.50.78:5000/api/chat_history/${sessionId}`)
+        .get(`http://10.10.50.93:5000/api/chat_history/${sessionId}`)
         .then((response) => {
           setChatHistory(response.data);
           scrollToBottom();
@@ -120,7 +120,7 @@ const ChatWidget: React.FC = () => {
 
     setUserInfoSubmitted(true);
     setIsChatOpen(true);
-    sendMessage("How can we help you?");
+    sendMessage("i have a question?");
   };
 
   const sendMessage = async (msg?: string) => {
@@ -138,7 +138,7 @@ const ChatWidget: React.FC = () => {
     scrollToBottom();
 
     try {
-      const response = await axios.post("http://10.10.50.78:5000/api/chat", {
+      const response = await axios.post("http://10.10.50.93:5000/api/chat", {
         message: userMessage,
         session_id: sessionId,
         user_name: userName,

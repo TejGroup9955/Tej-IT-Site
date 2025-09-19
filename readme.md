@@ -12,3 +12,6 @@ python app.py
 To run frontend 
 npm install
 npm run dev / npm run build
+
+
+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

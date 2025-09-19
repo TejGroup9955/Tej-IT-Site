@@ -1,4 +1,51 @@
 /* Modern Admin Dashboard Styles */
+/* Dark Mode Support */
+body.dark-mode {
+    --bg-light: #111827;
+    --text-dark: #F9FAFB;
+    --sidebar-light: #1F2937;
+    --border-light: #374151;
+}
+
+body.dark-mode .navbar {
+    background-color: #1F2937;
+    color: var(--text-dark);
+}
+
+body.dark-mode .sidebar {
+    background-color: #1F2937;
+    border-color: #374151;
+}
+
+body.dark-mode .nav-link {
+    color: #D1D5DB;
+}
+body.dark-mode .nav-link:hover {
+    background-color: rgba(59,130,246,0.2);
+    color: #fff;
+}
+body.dark-mode .nav-link.active {
+    background-color: var(--primary-blue);
+    color: #fff;
+}
+
+body.dark-mode .page-header,
+body.dark-mode .card,
+body.dark-mode .form-section,
+body.dark-mode .table {
+    background-color: #1F2937;
+    color: #F9FAFB;
+    border-color: #374151;
+}
+
+/* Smooth Animations */
+.btn, .card, .nav-link, .sidebar {
+    transition: all 0.25s ease-in-out;
+}
+.btn:active {
+    transform: scale(0.96);
+}
+
 :root {
     --primary-blue: #2563EB;
     --secondary-teal: #14B8A6;
