@@ -1,0 +1,102 @@
+# Docker Compose configuration for local development
+version: '3.8'
+
+services:
+  # Backend service (Python Flask/FastAPI)
+  backend:
+    # Build from local Dockerfile in backend directory
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      # Use development stage for local development
+      target: development
+    
+    # Container name for easy reference
+    container_name: tej-backend
+    
+    # Port mapping: host:container
+    ports:
+      - "5000:5000"
+    
+    # Environment variables for development
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app
+    
+    # Volume mounts for development (enables hot reload)
+    # Maps local backend directory to container /app directory
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__  # Exclude Python cache files
+    
+    # Restart policy - always restart if container stops
+    restart: unless-stopped
+    
+    # Health check to ensure backend is running
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend service (Next.js)
+  frontend:
+    # Build from local Dockerfile in frontend directory
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # Use development stage for local development
+      target: development
+    
+    # Container name for easy reference
+    container_name: tej-frontend
+    
+    # Port mapping: host:container
+    ports:
+      - "3000:3000"
+    
+    # Environment variables for development
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+    
+    # Volume mounts for development (enables hot reload)
+    # Maps local frontend directory to container /app directory
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Exclude node_modules from volume mount
+      - /app/.next         # Exclude .next build directory
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Make frontend depend on backend service
+    depends_on:
+      - backend
+    
+    # Health check for frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Networks configuration (optional but good practice)
+networks:
+  default:
+    # Create a custom network for service communication
+    name: tej-network
+    driver: bridge
+
+# Volumes configuration for persistent data (if needed)
+volumes:
+  # Volume for backend uploads or data persistence
+  backend_uploads:
+    driver: local
+  
+  # Volume for any shared data between services
+  shared_data:
+    driver: local
