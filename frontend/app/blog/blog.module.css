@@ -1,0 +1,273 @@
+/* ------------------ Global Container ------------------ */
+.container {
+  padding: 20px;
+  background: #f9f9f9;  /* Soft neutral background */
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  color: #2c3e50;
+}
+
+/* ------------------ Hero Section ------------------ */
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  margin-bottom: 50px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.heroImage {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  margin-right: 30px;
+}
+
+.heroImage img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.heroContent {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+}
+
+.heroContent h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #1e2a38;
+}
+
+.heroContent p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  color: #4b5563;
+}
+
+.heroCTA {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.heroCTA button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #2c3e50;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: #fff;
+  color: #2c3e50;
+}
+
+.heroCTA button:hover {
+  background: #e2e8f0;
+}
+
+/* ------------------ Category Pills ------------------ */
+.categoryPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 40px;
+  justify-content: center;
+}
+
+.categoryPills button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background: #e0e0e0;
+  color: #2c3e50;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.categoryPills button.active {
+  background: #2c3e50;
+  color: #fff;
+}
+
+/* ------------------ Search Input ------------------ */
+.searchContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 15px;
+  border-radius: 50px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  transform: scale(1.02);
+  border-color: #2c3e50;
+}
+
+/* ------------------ Section Titles ------------------ */
+.topBlogs h2,
+.additionalBlogs h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 25px;
+  position: relative;
+  text-align: center;
+}
+
+.topBlogs h2::after,
+.additionalBlogs h2::after {
+  content: '';
+  width: 60px;
+  height: 4px;
+  background: #2c3e50;
+  display: block;
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* ------------------ Blog Grid ------------------ */
+.blogGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.blogColumn {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 25px;
+}
+
+/* ------------------ Blog Cards ------------------ */
+.blogCard {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.blogCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Blog Images */
+.imageContainer {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.blogImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.blogCard:hover .blogImage {
+  transform: scale(1.05);
+}
+
+/* Blog Content */
+.blogCard h3 {
+  font-size: 1.5rem;
+  margin: 15px 20px 10px;
+  color: #1e2a38;
+}
+
+.blogCard h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.blogCard p {
+  color: #4b5563;
+  margin: 0 20px 15px;
+  line-height: 1.6;
+}
+
+.meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0 20px 15px;
+}
+
+.readMore {
+  display: inline-block;
+  margin: 0 20px 20px;
+  background: #2c3e50;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.readMore:hover {
+  background: #4b5563;
+}
+
+/* ------------------ Tag Chips ------------------ */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  background: #d1d5db;
+  color: #2c3e50;
+  margin: 0 0 8px 20px;
+}
+
+/* ------------------ Responsive ------------------ */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .heroImage {
+    margin: 0 0 20px 0;
+  }
+
+  .heroContent h1 {
+    font-size: 2.2rem;
+  }
+
+  .heroContent p {
+    font-size: 1.1rem;
+  }
+
+  .imageContainer {
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroContent h1 {
+    font-size: 1.8rem;
+  }
+}

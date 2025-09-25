@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1 style="font-size: 1.5rem;"><i class="fas fa-comments me-2"></i>Chat Sessions</h1>
+    <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></span>
+        <span class="breadcrumb-item active">Chats</span>
+    </nav>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 style="font-size: 1.1rem;"><i class="fas fa-comments me-1"></i>Chat Sessions List</h4>
+        <div>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+            <button class="btn btn-success btn-sm export-all-excel">
+                <i class="fas fa-file-excel me-1"></i> Export All
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="chatsTable" class="table table-striped table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Session ID</th>
+                    <th>User Name</th>
+                    <th>User Email</th>
+                    <th>User Phone</th>
+                    <th>Last Message</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chat in chats %}
+                <tr>
+                    <td style="font-size: 0.85rem;">{{ chat.session_id }}</td>
+                    <td style="font-size: 0.85rem;">{{ chat.user_name or 'N/A' }}</td>
+                    <td style="font-size: 0.85rem;">{{ chat.user_email or 'N/A' }}</td>
+                    <td style="font-size: 0.85rem;">{{ chat.user_phone or 'N/A' }}</td>
+                    <td style="font-size: 0.85rem;">{{ chat.last_message|truncate(30, True) or 'No messages' }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm view-chat" data-session-id="{{ chat.session_id }}" data-bs-toggle="modal" data-bs-target="#chatModal">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-success btn-sm export-chat-excel" data-session-id="{{ chat.session_id }}">
+                            <i class="fas fa-file-excel"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel" style="font-size: 1.1rem;">Filter Chat Sessions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <label for="dateFrom" class="form-label" style="font-size: 0.9rem;">From Date</label>
+                        <input type="date" class="form-control form-control-sm" id="dateFrom">
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateTo" class="form-label" style="font-size: 0.9rem;">To Date</label>
+                        <input type="date" class="form-control form-control-sm" id="dateTo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userName" class="form-label" style="font-size: 0.9rem;">User Name</label>
+                        <input type="text" class="form-control form-control-sm" id="userName" placeholder="Enter user name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label" style="font-size: 0.9rem;">User Email</label>
+                        <input type="email" class="form-control form-control-sm" id="userEmail" placeholder="Enter user email">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-sm" id="applyFilter">Apply Filter</button>
+                <button type="button" class="btn btn-success btn-sm" id="exportFilteredExcel">Export Filtered</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Details Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel" style="font-size: 1.1rem;">Chat Session Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="font-size: 0.9rem;">
+                <div id="chatMessages"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+$(document).ready(function() {
+    const table = $('#chatsTable').DataTable({
+        responsive: true,
+        pageLength: 10,
+        order: [[4, 'desc']],
+        columnDefs: [
+            { targets: 5, orderable: false } // Disable sorting on Actions column
+        ]
+    });
+
+    // View Chat Details
+    $('.view-chat').click(function() {
+        const sessionId = $(this).data('session-id');
+        $.ajax({
+            url: '/api/chat_history/' + sessionId,
+            method: 'GET',
+            success: function(data) {
+                let messages = '';
+                if (data.length === 0) {
+                    messages = '<p>No messages found for this session.</p>';
+                } else {
+                    data.forEach(msg => {
+                        messages += `
+                            <div class="mb-2">
+                                <strong>User (${msg.created_at}):</strong>
+                                <p>${msg.user_message}</p>
+                                <strong>Bot:</strong>
+                                <p>${msg.bot_response}</p>
+                                <hr>
+                            </div>
+                        `;
+                    });
+                }
+                $('#chatMessages').html(messages);
+            },
+            error: function() {
+                $('#chatMessages').html('<p class="text-danger">Failed to load chat history.</p>');
+            }
+        });
+    });
+
+    // Export Single Chat to Excel
+    $('.export-chat-excel').click(function() {
+        const sessionId = $(this).data('session-id');
+        $.ajax({
+            url: '/api/chat_history/' + sessionId,
+            method: 'GET',
+            success: function(data) {
+                const worksheetData = data.map(msg => ({
+                    'Session ID': sessionId,
+                    'User Message': msg.user_message,
+                    'Bot Response': msg.bot_response,
+                    'Timestamp': msg.created_at
+                }));
+                const ws = XLSX.utils.json_to_sheet(worksheetData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Chat');
+                XLSX.writeFile(wb, `chat_session_${sessionId}.xlsx`);
+            },
+            error: function() {
+                alert('Failed to export chat history.');
+            }
+        });
+    });
+
+    // Export All Chats to Excel
+    $('.export-all-excel').click(function() {
+        const worksheetData = [];
+        {% for chat in chats %}
+            $.ajax({
+                url: '/api/chat_history/{{ chat.session_id }}',
+                method: 'GET',
+                async: false,
+                success: function(data) {
+                    data.forEach(msg => {
+                        worksheetData.push({
+                            'Session ID': '{{ chat.session_id }}',
+                            'User Name': '{{ chat.user_name or 'N/A' }}',
+                            'User Email': '{{ chat.user_email or 'N/A' }}',
+                            'User Phone': '{{ chat.user_phone or 'N/A' }}',
+                            'User Message': msg.user_message,
+                            'Bot Response': msg.bot_response,
+                            'Timestamp': msg.created_at
+                        });
+                    });
+                }
+            });
+        {% endfor %}
+        const ws = XLSX.utils.json_to_sheet(worksheetData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'All Chats');
+        XLSX.writeFile(wb, 'all_chat_sessions.xlsx');
+    });
+
+    // Apply Filter and Reload Table
+    $('#applyFilter').click(function() {
+        const dateFrom = $('#dateFrom').val();
+        const dateTo = $('#dateTo').val();
+        const userName = $('#userName').val();
+        const userEmail = $('#userEmail').val();
+        $.ajax({
+            url: '{{ url_for('admin_chats') }}',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ dateFrom, dateTo, userName, userEmail }),
+            success: function(data) {
+                table.clear();
+                data.chats.forEach(chat => {
+                    table.row.add([
+                        chat.session_id,
+                        chat.user_name || 'N/A',
+                        chat.user_email || 'N/A',
+                        chat.user_phone || 'N/A',
+                        chat.last_message ? chat.last_message.substring(0, 30) + (chat.last_message.length > 30 ? '...' : '') : 'No messages',
+                        `<button class="btn btn-primary btn-sm view-chat" data-session-id="${chat.session_id}" data-bs-toggle="modal" data-bs-target="#chatModal"><i class="fas fa-eye"></i></button>
+                         <button class="btn btn-success btn-sm export-chat-excel" data-session-id="${chat.session_id}"><i class="fas fa-file-excel"></i></button>`
+                    ]);
+                });
+                table.draw();
+                $('#filterModal').modal('hide');
+            },
+            error: function() {
+                alert('Failed to apply filter.');
+            }
+        });
+    });
+
+    // Export Filtered Chats to Excel
+    $('#exportFilteredExcel').click(function() {
+        const dateFrom = $('#dateFrom').val();
+        const dateTo = $('#dateTo').val();
+        const userName = $('#userName').val();
+        const userEmail = $('#userEmail').val();
+        $.ajax({
+            url: '{{ url_for('admin_chats') }}',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ dateFrom, dateTo, userName, userEmail }),
+            success: function(data) {
+                const worksheetData = [];
+                data.chats.forEach(chat => {
+                    $.ajax({
+                        url: '/api/chat_history/' + chat.session_id,
+                        method: 'GET',
+                        async: false,
+                        success: function(messages) {
+                            messages.forEach(msg => {
+                                worksheetData.push({
+                                    'Session ID': chat.session_id,
+                                    'User Name': chat.user_name || 'N/A',
+                                    'User Email': chat.user_email || 'N/A',
+                                    'User Phone': chat.user_phone || 'N/A',
+                                    'User Message': msg.user_message,
+                                    'Bot Response': msg.bot_response,
+                                    'Timestamp': msg.created_at
+                                });
+                            });
+                        }
+                    });
+                });
+                const ws = XLSX.utils.json_to_sheet(worksheetData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Filtered Chats');
+                XLSX.writeFile(wb, 'filtered_chat_sessions.xlsx');
+            },
+            error: function() {
+                alert('Failed to export filtered chats.');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

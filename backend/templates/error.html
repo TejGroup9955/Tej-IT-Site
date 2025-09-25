@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-exclamation-triangle me-3"></i>Error</h1>
+    <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></span>
+        <span class="breadcrumb-item active">Error</span>
+    </nav>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h4><i class="fas fa-exclamation-circle me-2"></i>Something Went Wrong</h4>
+    </div>
+    <div class="card-body">
+        <p class="text-danger">{{ error }}</p>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
