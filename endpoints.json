@@ -1,0 +1,182 @@
+{
+  "project": "Tej IT Solutions",
+  "scanned_at": "2025-01-27",
+  "backend": {
+    "base_url": "http://10.10.50.93:5001",
+    "routes": [
+      {
+        "path": "/",
+        "methods": ["GET"],
+        "type": "flask_route",
+        "file": "app.py",
+        "description": "Homepage redirect"
+      },
+      {
+        "path": "/health",
+        "methods": ["GET"],
+        "type": "flask_route",
+        "file": "app.py",
+        "description": "Health check endpoint"
+      },
+      {
+        "path": "/api/testimonials",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Get client testimonials"
+      },
+      {
+        "path": "/api/employee_testimonials",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Get employee testimonials"
+      },
+      {
+        "path": "/api/job-openings",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Get job openings"
+      },
+      {
+        "path": "/api/blogs",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Get blog posts"
+      },
+      {
+        "path": "/api/blogs/<slug>",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Get specific blog post"
+      },
+      {
+        "path": "/api/enquiries",
+        "methods": ["POST"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Submit contact enquiry"
+      },
+      {
+        "path": "/api/submit-application",
+        "methods": ["POST"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Submit job application"
+      },
+      {
+        "path": "/api/submit_testimonial",
+        "methods": ["POST"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Submit client testimonial"
+      },
+      {
+        "path": "/api/chat",
+        "methods": ["POST"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Chat bot interaction"
+      },
+      {
+        "path": "/api/chat_history/<session_id>",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Get chat history"
+      },
+      {
+        "path": "/track_visit",
+        "methods": ["GET"],
+        "type": "api_endpoint",
+        "file": "app.py",
+        "description": "Track page visits"
+      },
+      {
+        "path": "/admin/login",
+        "methods": ["GET", "POST"],
+        "type": "flask_route",
+        "file": "app.py",
+        "description": "Admin login"
+      },
+      {
+        "path": "/admin/dashboard",
+        "methods": ["GET"],
+        "type": "flask_route",
+        "file": "app.py",
+        "description": "Admin dashboard"
+      }
+    ]
+  },
+  "frontend": {
+    "base_url": "http://10.10.50.93:3001",
+    "api_calls": [
+      {
+        "url": "http://10.10.50.93:5000/api/testimonials",
+        "file": "app/page.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/employee_testimonials",
+        "file": "app/careers/page.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/job-openings",
+        "file": "app/careers/page.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/blogs",
+        "file": "app/blog/page.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/blogs/${slug}",
+        "file": "app/blog/[slug]/page.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/enquiries",
+        "file": "app/contact/ContactClient.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/submit-application",
+        "file": "app/careers/page.tsx",
+        "type": "fetch_call"
+      },
+      {
+        "url": "http://10.10.50.93:5000/api/chat",
+        "file": "components/ChatWidget.tsx",
+        "type": "axios_call",
+        "method": "POST"
+      },
+      {
+        "url": "http://10.10.50.93:5000/track_visit",
+        "file": "components/TrackRoute.tsx",
+        "type": "fetch_call"
+      }
+    ]
+  },
+  "summary": {
+    "total_backend_routes": 15,
+    "total_frontend_calls": 9,
+    "api_endpoints": [
+      "/api/testimonials",
+      "/api/employee_testimonials", 
+      "/api/job-openings",
+      "/api/blogs",
+      "/api/blogs/<slug>",
+      "/api/enquiries",
+      "/api/submit-application",
+      "/api/submit_testimonial",
+      "/api/chat",
+      "/api/chat_history/<session_id>",
+      "/track_visit"
+    ]
+  }
+}

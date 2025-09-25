@@ -1,81 +1,81 @@
-# Production-like Docker Compose configuration
-# Use this for testing production builds locally
+# Production Docker Compose for Tej IT Site
 version: '3.8'
 
 services:
-  # Backend service (production build)
-  backend:
+  # Backend service (Flask)
+  tej-backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-      # Use production stage for optimized image
-      target: production
-    
+      dockerfile: Dockerfile.prod
     container_name: tej-backend-prod
-    
     ports:
-      - "5000:5000"
-    
-    # Production environment variables
+      - "5001:5001"
     environment:
       - FLASK_ENV=production
       - PYTHONPATH=/app
-    
-    # No volume mounts in production (code is baked into image)
+      - PORT=5001
+      - FRONTEND_URL=http://10.10.50.93:3001
+    volumes:
+      - backend_uploads:/app/static/uploads
     restart: unless-stopped
-    
-    # Resource limits for production
+    networks:
+      - tej-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1G
           cpus: '0.5'
         reservations:
-          memory: 256M
+          memory: 512M
           cpus: '0.25'
 
-  # Frontend service (production build)
-  frontend:
+  # Frontend service (Next.js)
+  tej-frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-      # Use production stage for optimized image
-      target: production
-    
+      dockerfile: Dockerfile.prod
     container_name: tej-frontend-prod
-    
     ports:
-      - "3000:3000"
-    
-    # Production environment variables
+      - "3001:3001"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://backend:5000
-    
-    # No volume mounts in production
-    restart: unless-stopped
-    
-    # Frontend depends on backend
+      - PORT=3001
+      - NEXT_PUBLIC_API_URL=http://10.10.50.93:5001
     depends_on:
-      - backend
-    
-    # Resource limits for production
+      tej-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - tej-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1G
           cpus: '0.5'
         reservations:
-          memory: 256M
+          memory: 512M
           cpus: '0.25'
 
-# Production network configuration
+# Networks
 networks:
-  default:
-    name: tej-network-prod
+  tej-network:
     driver: bridge
+    name: tej-production-network
 
-# Production volumes (if needed for data persistence)
+# Volumes for persistent data
 volumes:
-  backend_data:
+  backend_uploads:
     driver: local
+    name: tej-backend-uploads
