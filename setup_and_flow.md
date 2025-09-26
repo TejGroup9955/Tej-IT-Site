@@ -1,324 +1,261 @@
 # Setup & Flow Guide for Tej IT Site 🚀
 
-This document explains the **deployment flow** of our project in **simple terms**.  
+This document explains the **simplified deployment flow** in **simple terms**.  
 Each phase is broken into steps with comments so even freshers can follow.
 
 ---
 
-## 🔹 1. Project Structure
+## 🔹 1. Project Structure (What We Have)
 - **Frontend** → Next.js (TypeScript), runs on port **3001**.
 - **Backend** → Python Flask, runs on port **5001**.
 - **Repo** → https://github.com/TejGroup9955/Tej-IT-Site.git
+- **Target Server** → 10.10.50.93 (where we deploy)
 
 ---
 
-## 🔹 2. Dockerization
+## 🔹 2. Dockerization (Why & How)
+**Why Docker?** → Makes our app run the same everywhere (dev, test, prod).
 
-### Why Docker? 🐳
-Docker packages our application with all its dependencies into containers. This means:
-- ✅ Same environment everywhere (dev, staging, production)
-- ✅ No "it works on my machine" problems
-- ✅ Easy scaling and deployment
+We build **two containers**:
+- `tej-frontend` → holds Next.js app
+- `tej-backend` → holds Flask app
 
-### Our Docker Setup:
+**Files involved:**
+- `backend/Dockerfile.prod` → Recipe to build backend container
+- `frontend/Dockerfile.prod` → Recipe to build frontend container
+- `docker-compose.prod.yml` → Links both containers together
+
+**Result:**
+- Frontend URL → `http://10.10.50.93:3001`
+- Backend URL → `http://10.10.50.93:5001`
+
+👉 **Run manually with:**
+```bash
+docker-compose -f docker-compose.prod.yml up -d
 ```
-tej-frontend container  →  Next.js app on port 3001
-tej-backend container   →  Flask app on port 5001
-```
-
-**How it works:**
-1. `Dockerfile.prod` (backend) → Builds Python Flask container
-2. `Dockerfile.prod` (frontend) → Builds Next.js container  
-3. `docker-compose.prod.yml` → Links both containers together
-
-**URLs after deployment:**
-- Frontend: `http://10.10.50.93:3001`
-- Backend: `http://10.10.50.93:5001`
 
 ---
 
-## 🔹 3. Deployment Script (`deploy.sh`)
+## 🔹 3. Deployment Script (deploy.sh)
+**What it does:** Automates the deployment process.
 
-### What it does:
-This script automates the entire deployment process. Think of it as a "one-click deploy" button.
-
-### Step-by-step flow:
+**Commands available:**
 ```bash
-1. Check prerequisites (Docker, Git, curl installed?)
-2. Create project directory (/opt/tej-it-site)
-3. Clone/update code from GitHub
-4. Stop any running containers
-5. Build new Docker images
-6. Start containers with health checks
-7. Wait for services to be ready
-8. Run smoke tests (curl checks)
-9. Show deployment status
+./deploy.sh deploy    # Deploy the app
+./deploy.sh status    # Check if app is running
+./deploy.sh logs      # Show app logs
+./deploy.sh stop      # Stop the app
+./deploy.sh rollback  # Emergency rollback
 ```
 
-### Usage:
-```bash
-# Deploy the application
-./deploy.sh deploy
+**How `deploy` works:**
+1. **Stop** old containers (if any)
+2. **Start** new containers from latest images
+3. **Wait** for health checks to pass
+4. **Test** frontend and backend URLs
+5. **Report** success or failure
 
-# Check status
+**Safety features:**
+- ✅ **Idempotent** → Safe to run multiple times
+- ✅ **Health checks** → Waits for services to be ready
+- ✅ **Rollback** → Automatic rollback if deployment fails
+
+---
+
+## 🔹 4. Jenkins CI/CD Pipeline (Automated Deployment)
+
+**What is Jenkins?** → A tool that automatically deploys code when you push changes.
+
+**Our Pipeline has 5 stages:**
+
+### Stage 1: Checkout 📥
+```groovy
+// What happens: Downloads latest code from GitHub
+checkout scm
+```
+**Comment:** Like doing `git pull` but automated.
+
+### Stage 2: Build Docker Images 🐳
+```groovy
+// Backend
+docker build -f Dockerfile.prod -t tej-backend:123 .
+
+// Frontend  
+docker build -f Dockerfile.prod -t tej-frontend:123 .
+```
+**Comment:** Creates containers with our code inside. Number `123` is the build number.
+
+### Stage 3: Test Images 🧪
+```groovy
+// Start test containers
+docker run -d --name test-backend -p 5002:5001 tej-backend:123
+docker run -d --name test-frontend -p 3002:3001 tej-frontend:123
+
+// Test if they work
+curl http://localhost:5002/health  # Backend test
+curl http://localhost:3002         # Frontend test
+
+// Cleanup test containers
+docker stop test-backend test-frontend
+docker rm test-backend test-frontend
+```
+**Comment:** Like a "practice run" before real deployment.
+
+### Stage 4: Deploy to Server 🚀
+```groovy
+// Save images as files
+docker save tej-backend:123 | gzip > tej-backend-123.tar.gz
+docker save tej-frontend:123 | gzip > tej-frontend-123.tar.gz
+
+// Copy to server
+scp *.tar.gz deployer@10.10.50.93:/opt/tej-it-site/images/
+scp deploy.sh deployer@10.10.50.93:/opt/tej-it-site/
+
+// Load and deploy on server
+ssh deployer@10.10.50.93 "
+  cd /opt/tej-it-site
+  docker load < images/tej-backend-123.tar.gz
+  docker load < images/tej-frontend-123.tar.gz
+  ./deploy.sh deploy
+"
+```
+**Comment:** Copies our containers to the live server and runs them.
+
+### Stage 5: Verify Deployment ✅
+```groovy
+// Test live URLs
+curl http://10.10.50.93:3001  # Frontend
+curl http://10.10.50.93:5001/health  # Backend
+```
+**Comment:** Final check to make sure everything works on the live server.
+
+---
+
+## 🔹 5. How to Use This System
+
+### For Developers:
+1. **Make changes** to code
+2. **Push to GitHub** → `git push origin main`
+3. **Jenkins automatically** builds and deploys
+4. **Check** http://10.10.50.93:3001 to see your changes live
+
+### For DevOps/Admins:
+1. **Monitor Jenkins** → http://10.10.50.56:8080 (Jenkins server)
+2. **Check deployment** → `ssh deployer@10.10.50.93` then `./deploy.sh status`
+3. **View logs** → `./deploy.sh logs`
+4. **Emergency stop** → `./deploy.sh stop`
+
+---
+
+## 🔹 6. What Happens When You Push Code?
+
+```
+Developer pushes code
+         ↓
+Jenkins detects change (webhook)
+         ↓
+Jenkins runs pipeline:
+  1. Downloads code
+  2. Builds Docker images
+  3. Tests images locally
+  4. Copies to production server
+  5. Deploys on server
+  6. Verifies deployment
+         ↓
+✅ Live website updated!
+```
+
+**Timeline:** Usually takes **3-5 minutes** from push to live.
+
+---
+
+## 🔹 7. Emergency Procedures
+
+### If Website is Down:
+```bash
+# 1. Check status
+ssh deployer@10.10.50.93
+cd /opt/tej-it-site
 ./deploy.sh status
 
-# Stop services
-./deploy.sh stop
-
-# View logs
+# 2. Check logs
 ./deploy.sh logs
 
-# Rollback if something goes wrong
+# 3. Try restart
+./deploy.sh deploy
+
+# 4. If still broken, rollback
 ./deploy.sh rollback
 ```
 
-### Safety Features:
-- **Idempotent** → Safe to run multiple times
-- **Health checks** → Waits for services to be ready
-- **Rollback** → Can restore previous version if deployment fails
-- **Smoke tests** → Verifies everything works before declaring success
+### If Jenkins Pipeline Fails:
+1. **Check Jenkins logs** → Go to failed build, click "Console Output"
+2. **Common fixes:**
+   - Docker out of space → `docker system prune -f`
+   - SSH connection issues → Check SSH keys
+   - Port conflicts → Check if ports 3001/5001 are free
 
 ---
 
-## 🔹 4. Jenkins CI/CD Pipeline
+## 🔹 8. File Explanations
 
-### What is CI/CD? 🤖
-- **CI (Continuous Integration)** → Automatically test code when developers push changes
-- **CD (Continuous Deployment)** → Automatically deploy tested code to production
-
-### Our Jenkins Pipeline Flow:
-```
-1. 📥 Checkout → Get latest code from GitHub
-2. 🔍 Code Analysis → Scan for endpoints, run linting
-3. 🔨 Build → Create Docker images
-4. 🧪 Test → Test the images work correctly
-5. 🚀 Deploy → Push to production server (10.10.50.93)
-6. ✅ Verify → Check everything is working
-```
-
-### Jenkins Credentials Setup:
-```bash
-# SSH key for server access
-ssh-deployer-key → Private key to access 10.10.50.93
-
-# GitHub access token
-github-token → Token to clone private repos
-```
-
-### How to trigger:
-- **Automatic** → Runs when code is pushed to main branch
-- **Manual** → Click "Build Now" in Jenkins
-- **Scheduled** → Can run daily/weekly for health checks
+| File | Purpose | When to Edit |
+|------|---------|--------------|
+| `Jenkinsfile` | CI/CD pipeline definition | When changing deployment process |
+| `deploy.sh` | Deployment automation script | When changing deployment logic |
+| `docker-compose.prod.yml` | Production container setup | When changing ports/environment |
+| `backend/Dockerfile.prod` | Backend container recipe | When changing backend dependencies |
+| `frontend/Dockerfile.prod` | Frontend container recipe | When changing frontend build process |
 
 ---
 
-## 🔹 5. JMeter Performance Testing
+## 🔹 9. Security Notes
 
-### What is JMeter? 📊
-JMeter simulates multiple users accessing your website to test performance under load.
-
-### Our Test Types:
-
-**1. Smoke Test (1 user)**
-- Quick check that everything works
-- Tests homepage and basic API calls
-- Run after every deployment
-
-**2. Load Test (50-200 users)**
-- Simulates normal traffic
-- Tests how site performs under expected load
-- Run before major releases
-
-**3. Stress Test (500 users)**
-- Finds the breaking point
-- Tests maximum capacity
-- Run for capacity planning
-
-### How to run:
-```bash
-# GUI mode (for beginners)
-jmeter
-
-# Command line (for automation)
-jmeter -n -t jmeter_tests/tej-it-site-testplan.jmx -l results.jtl
-```
-
-### What to look for:
-- **Response Time** → Should be < 2 seconds
-- **Error Rate** → Should be < 1%
-- **Throughput** → Requests per second
+- ✅ **No passwords in code** → All secrets in Jenkins credentials
+- ✅ **SSH key authentication** → No password-based SSH
+- ✅ **Non-root containers** → Containers run as regular users
+- ✅ **Firewall configured** → Only necessary ports open
+- ✅ **Health checks** → Automatic failure detection
 
 ---
 
-## 🔹 6. Security Checklist ✅
-
-### What we protect:
-1. **No secrets in code** → Database passwords, API keys stored securely
-2. **Jenkins credentials** → SSH keys and tokens stored in Jenkins vault
-3. **Server firewall** → Only ports 22 (SSH), 3001, 5001 open
-4. **Container security** → Apps run as non-root users
-5. **SSL ready** → Can add reverse proxy + SSL certificates
-
-### Security best practices:
-- Regular security updates
-- Monitor access logs
-- Use strong passwords
-- Enable fail2ban for SSH protection
-
----
-
-## 🔹 7. Complete Workflow Example
-
-### Developer pushes code:
-```
-1. Developer commits code → GitHub
-2. Jenkins detects change → Starts pipeline
-3. Pipeline runs tests → Builds Docker images
-4. If tests pass → Deploys to 10.10.50.93
-5. Smoke tests verify → Deployment complete
-6. If anything fails → Automatic rollback
-```
-
-### Manual deployment:
-```bash
-# SSH to server
-ssh deployer@10.10.50.93
-
-# Run deployment
-cd /opt/tej-it-site
-./deploy.sh deploy
-
-# Check status
-./deploy.sh status
-```
-
----
-
-## 🔹 8. Troubleshooting Guide
-
-### Common Issues:
-
-**1. "Connection refused" errors**
-```bash
-# Check if containers are running
-docker ps
-
-# Check container logs
-docker-compose -f docker-compose.prod.yml logs
-
-# Restart services
-./deploy.sh deploy
-```
-
-**2. "Port already in use"**
-```bash
-# Find what's using the port
-sudo netstat -tulpn | grep :3001
-
-# Kill the process
-sudo kill -9 <process-id>
-
-# Or stop all containers
-./deploy.sh stop
-```
-
-**3. "Out of disk space"**
-```bash
-# Clean up Docker
-docker system prune -a
-
-# Check disk usage
-df -h
-
-# Clean up old images
-docker image prune -f
-```
-
-**4. "Permission denied"**
-```bash
-# Fix file permissions
-sudo chown -R $USER:$USER /opt/tej-it-site
-
-# Make scripts executable
-chmod +x deploy.sh
-```
-
-### Health Check Commands:
-```bash
-# Check frontend
-curl http://10.10.50.93:3001
-
-# Check backend
-curl http://10.10.50.93:5001/health
-
-# Check API
-curl http://10.10.50.93:5001/api/testimonials
-```
-
----
-
-## 🔹 9. Monitoring & Maintenance
+## 🔹 10. Monitoring & Maintenance
 
 ### Daily Checks:
-- ✅ Website is accessible
-- ✅ No error logs in containers
-- ✅ Disk space > 20% free
-- ✅ Memory usage < 80%
+- ✅ Website loads → http://10.10.50.93:3001
+- ✅ Backend responds → http://10.10.50.93:5001/health
+- ✅ Jenkins is green → No failed builds
 
-### Weekly Tasks:
-- 🔄 Run load tests
-- 📊 Review performance metrics
-- 🧹 Clean up old Docker images
-- 📋 Check security updates
-
-### Monthly Tasks:
-- 🔒 Security audit
-- 📈 Capacity planning review
-- 🔄 Backup verification
-- 📚 Update documentation
-
----
-
-## 🔹 10. Quick Reference Commands
-
+### Weekly Maintenance:
 ```bash
-# Deployment
-./deploy.sh deploy          # Full deployment
-./deploy.sh status          # Check status
-./deploy.sh stop           # Stop services
-./deploy.sh logs           # View logs
-./deploy.sh rollback       # Emergency rollback
+# Cleanup old Docker images
+docker system prune -f
 
-# Docker
-docker ps                  # List running containers
-docker logs <container>    # View container logs
-docker stats              # Resource usage
-docker system prune -f    # Cleanup
+# Check disk space
+df -h
 
-# Testing
-jmeter -n -t test.jmx -l results.jtl    # Run tests
-curl http://10.10.50.93:3001            # Quick frontend check
-curl http://10.10.50.93:5001/health     # Quick backend check
-
-# Monitoring
-htop                      # System resources
-df -h                     # Disk usage
-netstat -tulpn           # Port usage
+# Update system packages
+sudo apt update && sudo apt upgrade
 ```
 
 ---
 
-## 🎯 Success Criteria
+## 🔹 11. Getting Help
 
-Your deployment is successful when:
-- ✅ Frontend loads at http://10.10.50.93:3001
-- ✅ Backend health check passes at http://10.10.50.93:5001/health
-- ✅ API endpoints return data (not errors)
-- ✅ JMeter smoke tests pass
-- ✅ No error logs in containers
-- ✅ Response times < 3 seconds
+**For Developers:**
+- Check Jenkins build logs first
+- Test locally with Docker before pushing
+- Use `./deploy.sh status` to check production
+
+**For DevOps:**
+- Monitor server resources (CPU, memory, disk)
+- Keep Jenkins and Docker updated
+- Regular backups of deployment configurations
+
+**Emergency Contacts:**
+- DevOps Team: devops@tejitsolutions.com
+- System Admin: admin@tejitsolutions.com
 
 ---
 
-**Remember**: This automation saves time and reduces human errors. Always test in a staging environment first! 🛡️
+**Remember:** This system is designed to be **simple and reliable**. When in doubt, check the logs first! 📊

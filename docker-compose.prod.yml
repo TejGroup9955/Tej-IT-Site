@@ -2,24 +2,16 @@
 version: '3.8'
 
 services:
-  # Backend service (Flask)
-  tej-backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
+  backend:
+    image: tej-backend:latest
     container_name: tej-backend-prod
+    restart: unless-stopped
     ports:
       - "5001:5001"
     environment:
       - FLASK_ENV=production
       - PYTHONPATH=/app
-      - PORT=5001
       - FRONTEND_URL=http://10.10.50.93:3001
-    volumes:
-      - backend_uploads:/app/static/uploads
-    restart: unless-stopped
-    networks:
-      - tej-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
@@ -29,53 +21,49 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 512M
           cpus: '0.5'
         reservations:
-          memory: 512M
+          memory: 256M
           cpus: '0.25'
+    networks:
+      - tej-network
 
-  # Frontend service (Next.js)
-  tej-frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
+  frontend:
+    image: tej-frontend:latest
     container_name: tej-frontend-prod
+    restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
       - NODE_ENV=production
-      - PORT=3001
       - NEXT_PUBLIC_API_URL=http://10.10.50.93:5001
-    depends_on:
-      tej-backend:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - tej-network
+      - NEXT_TELEMETRY_DISABLED=1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    depends_on:
+      backend:
+        condition: service_healthy
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 512M
           cpus: '0.5'
         reservations:
-          memory: 512M
+          memory: 256M
           cpus: '0.25'
+    networks:
+      - tej-network
 
-# Networks
 networks:
   tej-network:
+    name: tej-network-prod
     driver: bridge
-    name: tej-production-network
 
-# Volumes for persistent data
 volumes:
-  backend_uploads:
+  backend_data:
     driver: local
-    name: tej-backend-uploads

@@ -1,425 +1,266 @@
-# Tej IT Solutions - Complete Deployment Automation 🚀
+# Tej IT Solutions - Complete Website & Automation
 
-A comprehensive automation suite for deploying the Tej IT Solutions website with full CI/CD pipeline, performance testing, and monitoring.
+A modern, full-stack web application with automated deployment pipeline.
 
-## 📋 Table of Contents
-- [Project Overview](#project-overview)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Development Setup](#development-setup)
-- [Production Deployment](#production-deployment)
-- [CI/CD Pipeline](#cicd-pipeline)
-- [Performance Testing](#performance-testing)
-- [Monitoring & Troubleshooting](#monitoring--troubleshooting)
-- [Security](#security)
+## 🏗️ Architecture
 
-## 🏗️ Project Overview
-
-**Tej IT Solutions** is a modern web application consisting of:
 - **Frontend**: Next.js (TypeScript) - Port 3001
 - **Backend**: Python Flask - Port 5001
-- **Database**: MySQL (configured separately)
+- **Database**: MySQL (via backend connection)
+- **Deployment**: Docker + Jenkins CI/CD
 
-**Live URLs:**
-- Frontend: http://10.10.50.93:3001
-- Backend API: http://10.10.50.93:5001
-
-## 🏛️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐
-│   Next.js       │    │   Python Flask  │
-│   Frontend      │◄──►│   Backend       │
-│   Port 3001     │    │   Port 5001     │
-└─────────────────┘    └─────────────────┘
-         │                       │
-         └───────────────────────┘
-                   │
-            ┌─────────────┐
-            │   MySQL     │
-            │  Database   │
-            └─────────────┘
-```
-
-### Technology Stack
-- **Frontend**: Next.js 15, TypeScript, Tailwind CSS, Framer Motion
-- **Backend**: Python Flask, MySQL, JWT Authentication
-- **DevOps**: Docker, Jenkins, JMeter, Nginx (optional)
-- **Deployment**: Docker Compose, Automated Scripts
-
-## ⚡ Quick Start
-
-### Prerequisites
-```bash
-# Install required tools
-sudo apt update
-sudo apt install docker.io docker-compose git curl
-
-# Start Docker service
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-```
-
-### One-Command Deployment
-```bash
-# Clone and deploy
-git clone https://github.com/TejGroup9955/Tej-IT-Site.git
-cd Tej-IT-Site
-chmod +x deploy.sh
-./deploy.sh deploy
-```
-
-That's it! Your application will be live at:
-- Frontend: http://10.10.50.93:3001
-- Backend: http://10.10.50.93:5001
-
-## 💻 Development Setup
+## 🚀 Quick Start
 
 ### Local Development
+
 ```bash
-# Clone repository
-git clone https://github.com/TejGroup9955/Tej-IT-Site.git
-cd Tej-IT-Site
-
-# Start development environment
-docker-compose up --build
-
-# Access applications
-# Frontend: http://localhost:3000
-# Backend: http://localhost:5000
-```
-
-### Manual Development Setup
-```bash
-# Backend setup
+# Backend
 cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python app.py
 
-# Frontend setup (new terminal)
+# Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-## 🚀 Production Deployment
+### Production Deployment
 
-### Automated Deployment
 ```bash
-# Full deployment with health checks
+# Build and deploy with Docker
+docker-compose -f docker-compose.prod.yml up -d
+
+# Or use deployment script
+chmod +x deploy.sh
+./deploy.sh deploy
+```
+
+## 🐳 Docker Usage
+
+### Build Images
+```bash
+# Backend
+cd backend
+docker build -f Dockerfile.prod -t tej-backend:latest .
+
+# Frontend
+cd frontend
+docker build -f Dockerfile.prod -t tej-frontend:latest .
+```
+
+### Run with Docker Compose
+```bash
+# Production
+docker-compose -f docker-compose.prod.yml up -d
+
+# Check status
+docker-compose -f docker-compose.prod.yml ps
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+```
+
+## 🔄 Jenkins CI/CD
+
+### Pipeline Overview
+1. **Checkout** - Clone repository
+2. **Build** - Create Docker images
+3. **Test** - Smoke tests on containers
+4. **Deploy** - Transfer and deploy to server
+5. **Verify** - Health checks
+
+### Setup Jenkins
+1. Install required plugins: SSH Agent, Docker Pipeline
+2. Add credentials:
+   - `ssh-deployer-key` - SSH private key for deployment server
+   - `github-token` - GitHub access token (if private repo)
+3. Create new Pipeline job pointing to this repository
+
+### Environment Variables
+```bash
+DEPLOY_SERVER=10.10.50.93
+DEPLOY_USER=deployer
+DEPLOY_PATH=/opt/tej-it-site
+FRONTEND_PORT=3001
+BACKEND_PORT=5001
+```
+
+## 🧪 Testing with JMeter
+
+### Setup
+```bash
+cd jmeter_tests
+# Follow setup-guide.md for detailed instructions
+```
+
+### Run Tests
+```bash
+# Smoke test
+jmeter -n -t tej-it-site-testplan.jmx -l smoke-results.jtl -e -o smoke-report
+
+# Load test
+jmeter -n -t tej-it-site-testplan.jmx -l load-results.jtl -e -o load-report
+```
+
+## 📋 Deployment Commands
+
+```bash
+# Deploy application
 ./deploy.sh deploy
 
-# Check deployment status
+# Check status
 ./deploy.sh status
 
 # View logs
 ./deploy.sh logs
 
-# Emergency rollback
+# Stop application
+./deploy.sh stop
+
+# Rollback (emergency)
 ./deploy.sh rollback
 ```
 
-### Manual Deployment Steps
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Container won't start:**
 ```bash
-# 1. Update code
-git pull origin main
+# Check logs
+docker-compose -f docker-compose.prod.yml logs backend
+docker-compose -f docker-compose.prod.yml logs frontend
 
-# 2. Build and start containers
-docker-compose -f docker-compose.prod.yml up --build -d
-
-# 3. Verify deployment
-curl http://10.10.50.93:3001
-curl http://10.10.50.93:5001/health
+# Check container status
+docker ps -a
 ```
 
-### Environment Configuration
-Create `.env` files for production:
-
-**Backend (.env):**
+**Port conflicts:**
 ```bash
-FLASK_ENV=production
-DB_HOST=your-db-host
-DB_PASSWORD=your-db-password
-SECRET_KEY=your-secret-key
-FRONTEND_URL=http://10.10.50.93:3001
-```
-
-**Frontend (.env.local):**
-```bash
-NODE_ENV=production
-NEXT_PUBLIC_API_URL=http://10.10.50.93:5001
-```
-
-## 🔄 CI/CD Pipeline
-
-### Jenkins Setup
-
-1. **Install Jenkins**
-```bash
-# Install Java
-sudo apt install openjdk-11-jdk
-
-# Install Jenkins
-wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
-sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
-sudo apt update
-sudo apt install jenkins
-
-# Start Jenkins
-sudo systemctl start jenkins
-sudo systemctl enable jenkins
-```
-
-2. **Configure Credentials**
-   - Go to Jenkins → Manage Jenkins → Manage Credentials
-   - Add `ssh-deployer-key` (SSH private key for server access)
-   - Add `github-token` (GitHub personal access token)
-
-3. **Create Pipeline Job**
-   - New Item → Pipeline
-   - Pipeline script from SCM
-   - Repository: https://github.com/TejGroup9955/Tej-IT-Site.git
-   - Script Path: Jenkinsfile
-
-### Pipeline Stages Explained
-
-```
-┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-│  Checkout   │──►│ Code Analysis│──►│Build Images │──►│Test Images  │
-│             │   │             │   │             │   │             │
-│ • Git clone │   │ • Lint code │   │ • Docker    │   │ • Health    │
-│ • Get commit│   │ • Scan APIs │   │   build     │   │   checks    │
-└─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘
-                                                              │
-┌─────────────┐   ┌─────────────┐                           │
-│   Verify    │◄──│   Deploy    │◄──────────────────────────┘
-│             │   │             │
-│ • Smoke     │   │ • Transfer  │
-│   tests     │   │   images    │
-│ • API calls │   │ • Run       │
-└─────────────┘   │   deploy.sh │
-                  └─────────────┘
-```
-
-## 🧪 Performance Testing
-
-### JMeter Test Suite
-
-We have three types of performance tests:
-
-1. **Smoke Test** (1 user, 1 loop)
-   - Quick sanity check
-   - Tests basic functionality
-   - Run after every deployment
-
-2. **Load Test** (50-200 users, 5 minutes)
-   - Simulates normal traffic
-   - Tests performance under expected load
-   - Run before major releases
-
-3. **Stress Test** (500 users, 10 minutes)
-   - Finds breaking point
-   - Tests maximum capacity
-   - Run for capacity planning
-
-### Running Tests
-```bash
-# Install JMeter
-wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
-tar -xzf apache-jmeter-5.6.3.tgz
-sudo mv apache-jmeter-5.6.3 /opt/jmeter
-
-# Run smoke test
-jmeter -n -t jmeter_tests/tej-it-site-testplan.jmx -l smoke-results.jtl
-
-# Run load test
-jmeter -n -t jmeter_tests/tej-it-site-testplan.jmx -l load-results.jtl -Jtest.type=load
-```
-
-### Performance Targets
-- **Response Time**: < 2 seconds
-- **Error Rate**: < 1%
-- **Concurrent Users**: 100+ without degradation
-- **Throughput**: 50+ requests/second
-
-## 📊 Monitoring & Troubleshooting
-
-### Health Checks
-```bash
-# Quick health check
-curl http://10.10.50.93:3001        # Frontend
-curl http://10.10.50.93:5001/health # Backend
-
-# Detailed status
-./deploy.sh status
-
-# Container logs
-docker-compose -f docker-compose.prod.yml logs -f
-```
-
-### Common Issues & Solutions
-
-**1. Port conflicts**
-```bash
-# Check what's using ports
+# Check what's using the ports
 sudo netstat -tulpn | grep :3001
 sudo netstat -tulpn | grep :5001
 
-# Kill conflicting processes
-sudo kill -9 <process-id>
+# Stop conflicting services
+sudo systemctl stop nginx  # if using nginx
 ```
 
-**2. Out of disk space**
+**Health checks failing:**
 ```bash
-# Clean Docker
-docker system prune -a
-docker volume prune
+# Test endpoints manually
+curl http://10.10.50.93:3001
+curl http://10.10.50.93:5001/health
 
-# Check disk usage
+# Check container health
+docker inspect tej-backend-prod | grep Health -A 10
+docker inspect tej-frontend-prod | grep Health -A 10
+```
+
+### Emergency Procedures
+
+**Quick Rollback:**
+```bash
+./deploy.sh rollback
+```
+
+**Complete Reset:**
+```bash
+docker-compose -f docker-compose.prod.yml down -v
+docker system prune -f
+./deploy.sh deploy
+```
+
+**Check Resource Usage:**
+```bash
+docker stats
 df -h
-```
-
-**3. Container won't start**
-```bash
-# Check logs
-docker logs tej-frontend-prod
-docker logs tej-backend-prod
-
-# Rebuild images
-docker-compose -f docker-compose.prod.yml build --no-cache
-```
-
-**4. Database connection issues**
-```bash
-# Check database connectivity
-docker exec -it tej-backend-prod python -c "import mysql.connector; print('DB OK')"
-
-# Verify environment variables
-docker exec -it tej-backend-prod env | grep DB_
-```
-
-### Monitoring Commands
-```bash
-# System resources
-htop                    # CPU/Memory usage
-df -h                   # Disk usage
-docker stats           # Container resource usage
-
-# Application logs
-./deploy.sh logs       # All logs
-docker logs tej-frontend-prod  # Frontend logs
-docker logs tej-backend-prod   # Backend logs
-
-# Network connectivity
-curl -I http://10.10.50.93:3001  # Frontend check
-curl -I http://10.10.50.93:5001  # Backend check
+free -h
 ```
 
 ## 🔒 Security
 
-### Security Measures Implemented
+- ✅ Non-root containers
+- ✅ Resource limits
+- ✅ Health checks
+- ✅ No secrets in code
+- ✅ Secure SSH deployment
 
-1. **Container Security**
-   - Non-root users in containers
-   - Minimal base images (Alpine Linux)
-   - No unnecessary packages
-
-2. **Network Security**
-   - Firewall rules for specific ports only
-   - Internal Docker network for service communication
-   - No direct database access from outside
-
-3. **Secrets Management**
-   - Environment variables for sensitive data
-   - Jenkins credentials store
-   - No hardcoded passwords in code
-
-4. **Access Control**
-   - SSH key-based authentication
-   - Limited sudo access
-   - Audit logs for deployments
-
-### Recommended Additional Security
-
+### Recommended Firewall Rules
 ```bash
-# Install fail2ban (SSH protection)
-sudo apt install fail2ban
-
-# Configure firewall
-sudo ufw allow 22    # SSH
-sudo ufw allow 3001  # Frontend
-sudo ufw allow 5001  # Backend
+# Allow SSH (22), Frontend (3001), Backend (5001)
+sudo ufw allow 22
+sudo ufw allow 3001
+sudo ufw allow 5001
 sudo ufw enable
-
-# SSL/TLS with reverse proxy (optional)
-sudo apt install nginx certbot
-# Configure Nginx as reverse proxy with SSL
 ```
 
-## 📁 File Structure
+## 📊 Monitoring
+
+### Container Health
+```bash
+# Real-time stats
+docker stats
+
+# Health status
+docker-compose -f docker-compose.prod.yml ps
+```
+
+### Application Logs
+```bash
+# Follow logs
+./deploy.sh logs
+
+# Specific service logs
+docker-compose -f docker-compose.prod.yml logs -f backend
+docker-compose -f docker-compose.prod.yml logs -f frontend
+```
+
+## 🌐 URLs
+
+- **Frontend**: http://10.10.50.93:3001
+- **Backend**: http://10.10.50.93:5001
+- **Health Check**: http://10.10.50.93:5001/health
+
+## 📁 Project Structure
 
 ```
 Tej-IT-Site/
-├── backend/                    # Python Flask backend
-│   ├── app.py                 # Main Flask application
-│   ├── requirements.txt       # Python dependencies
-│   ├── Dockerfile.prod        # Production Docker image
-│   └── templates/             # HTML templates
-├── frontend/                   # Next.js frontend
-│   ├── app/                   # Next.js app directory
-│   ├── components/            # React components
-│   ├── package.json           # Node.js dependencies
-│   └── Dockerfile.prod        # Production Docker image
-├── scripts/
-│   └── scan-endpoints.py      # API endpoint scanner
-├── jmeter_tests/
-│   ├── tej-it-site-testplan.jmx  # JMeter test plan
-│   └── setup-guide.md         # JMeter usage guide
-├── docker-compose.prod.yml    # Production compose file
-├── Jenkinsfile               # CI/CD pipeline
-├── deploy.sh                 # Deployment script
-├── setup_and_flow.md         # This guide
-└── README.md                 # Project documentation
+├── backend/                 # Flask backend
+│   ├── app.py              # Main application
+│   ├── requirements.txt    # Python dependencies
+│   └── Dockerfile.prod     # Production Dockerfile
+├── frontend/               # Next.js frontend
+│   ├── app/               # Next.js app directory
+│   ├── package.json       # Node dependencies
+│   └── Dockerfile.prod    # Production Dockerfile
+├── jmeter_tests/          # Performance testing
+├── scripts/               # Utility scripts
+├── docker-compose.prod.yml # Production compose
+├── deploy.sh              # Deployment script
+├── Jenkinsfile           # CI/CD pipeline
+└── README.md             # This file
 ```
 
-## 🚀 Getting Started Checklist
+## 🤝 Contributing
 
-- [ ] Clone repository
-- [ ] Install Docker and Docker Compose
-- [ ] Configure environment variables
-- [ ] Run `./deploy.sh deploy`
-- [ ] Verify at http://10.10.50.93:3001
-- [ ] Set up Jenkins (optional)
-- [ ] Run JMeter tests (optional)
-- [ ] Configure monitoring (optional)
+1. Fork the repository
+2. Create a feature branch
+3. Make changes and test locally
+4. Submit a pull request
+5. Jenkins will automatically test and deploy
 
-## 🆘 Support
+## 📞 Support
 
-### Getting Help
-1. **Check logs**: `./deploy.sh logs`
-2. **Run health checks**: `./deploy.sh status`
-3. **Review this documentation**
-4. **Check troubleshooting section**
-
-### Emergency Contacts
-- **DevOps Team**: devops@tejitsolutions.com
-- **Development Team**: dev@tejitsolutions.com
-- **Support**: support@tejitsolutions.com
-
-### Useful Links
-- [Docker Documentation](https://docs.docker.com/)
-- [Jenkins Documentation](https://www.jenkins.io/doc/)
-- [JMeter Documentation](https://jmeter.apache.org/usermanual/)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Flask Documentation](https://flask.palletsprojects.com/)
+For deployment issues or questions:
+- Email: support@tejitsolutions.com
+- Check logs: `./deploy.sh logs`
+- Status check: `./deploy.sh status`
 
 ---
 
-**Happy Deploying! 🎉**
-
-*Last updated: January 2025*
+**Last Updated**: December 2024  
+**Version**: 1.0.0  
+**Maintained by**: Tej IT Solutions DevOps Team

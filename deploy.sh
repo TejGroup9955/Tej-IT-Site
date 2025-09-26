@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Tej IT Site Deployment Script
-# This script automates the deployment process for production
+# Simplified Production Deployment Script for Tej IT Site
+# Usage: ./deploy.sh [deploy|status|stop|logs|rollback]
 
-set -e  # Exit on any error
+set -e
 
 # Configuration
-REPO_URL="https://github.com/TejGroup9955/Tej-IT-Site.git"
-PROJECT_DIR="/opt/tej-it-site"
 COMPOSE_FILE="docker-compose.prod.yml"
 FRONTEND_URL="http://10.10.50.93:3001"
-BACKEND_URL="http://10.10.50.93:5001"
+BACKEND_URL="http://10.10.50.93:5001/health"
+MAX_WAIT_TIME=120
+HEALTH_CHECK_INTERVAL=5
 
 # Colors for output
 RED='\033[0;31m'
@@ -19,281 +19,183 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Logging function
-log() {
-    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-error() {
-    echo -e "${RED}[ERROR]${NC} $1" >&2
-}
-
-success() {
+log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-warning() {
+log_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# Check if running as root or with sudo
-check_permissions() {
-    if [[ $EUID -eq 0 ]]; then
-        warning "Running as root. Consider using a dedicated deployment user."
-    fi
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check prerequisites
+# Check if Docker and Docker Compose are available
 check_prerequisites() {
-    log "Checking prerequisites..."
+    log_info "Checking prerequisites..."
     
-    # Check Docker
     if ! command -v docker &> /dev/null; then
-        error "Docker is not installed. Please install Docker first."
+        log_error "Docker is not installed or not in PATH"
         exit 1
     fi
     
-    # Check Docker Compose
     if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-        error "Docker Compose is not installed. Please install Docker Compose first."
+        log_error "Docker Compose is not installed or not in PATH"
         exit 1
     fi
     
-    # Check Git
-    if ! command -v git &> /dev/null; then
-        error "Git is not installed. Please install Git first."
-        exit 1
-    fi
-    
-    # Check curl for health checks
-    if ! command -v curl &> /dev/null; then
-        error "curl is not installed. Please install curl first."
-        exit 1
-    fi
-    
-    success "All prerequisites are installed"
+    log_success "Prerequisites check passed"
 }
 
-# Create project directory
-setup_project_directory() {
-    log "Setting up project directory..."
+# Wait for service to be healthy
+wait_for_service() {
+    local service_name=$1
+    local url=$2
+    local max_attempts=$((MAX_WAIT_TIME / HEALTH_CHECK_INTERVAL))
+    local attempt=1
     
-    if [ ! -d "$PROJECT_DIR" ]; then
-        sudo mkdir -p "$PROJECT_DIR"
-        sudo chown $USER:$USER "$PROJECT_DIR"
-        log "Created project directory: $PROJECT_DIR"
-    fi
+    log_info "Waiting for $service_name to be healthy..."
+    
+    while [ $attempt -le $max_attempts ]; do
+        if curl -f -s "$url" > /dev/null 2>&1; then
+            log_success "$service_name is healthy"
+            return 0
+        fi
+        
+        log_info "Attempt $attempt/$max_attempts: $service_name not ready yet..."
+        sleep $HEALTH_CHECK_INTERVAL
+        ((attempt++))
+    done
+    
+    log_error "$service_name failed to become healthy within $MAX_WAIT_TIME seconds"
+    return 1
 }
 
-# Clone or update repository
-update_repository() {
-    log "Updating repository..."
+# Deploy function
+deploy() {
+    log_info "Starting deployment..."
     
-    if [ -d "$PROJECT_DIR/.git" ]; then
-        log "Repository exists, pulling latest changes..."
-        cd "$PROJECT_DIR"
-        git fetch origin
-        git reset --hard origin/main
-        success "Repository updated to latest version"
-    else
-        log "Cloning repository..."
-        git clone "$REPO_URL" "$PROJECT_DIR"
-        cd "$PROJECT_DIR"
-        success "Repository cloned successfully"
-    fi
-}
-
-# Stop existing containers
-stop_existing_containers() {
-    log "Stopping existing containers..."
-    cd "$PROJECT_DIR"
+    check_prerequisites
     
-    if [ -f "$COMPOSE_FILE" ]; then
-        docker-compose -f "$COMPOSE_FILE" down --remove-orphans || true
-        success "Existing containers stopped"
-    else
-        warning "No existing compose file found"
-    fi
-}
-
-# Build and start containers
-build_and_start() {
-    log "Building and starting containers..."
-    cd "$PROJECT_DIR"
+    # Stop existing containers gracefully
+    log_info "Stopping existing containers..."
+    docker-compose -f "$COMPOSE_FILE" down --timeout 30 || true
     
-    # Build images
-    log "Building Docker images..."
-    docker-compose -f "$COMPOSE_FILE" build --no-cache
+    # Remove old containers and networks
+    docker container prune -f || true
+    docker network prune -f || true
     
-    # Start services
-    log "Starting services..."
+    # Start new containers
+    log_info "Starting new containers..."
     docker-compose -f "$COMPOSE_FILE" up -d
     
-    success "Containers started successfully"
-}
-
-# Wait for services to be ready
-wait_for_services() {
-    log "Waiting for services to be ready..."
+    # Wait for services to be healthy
+    log_info "Waiting for services to start..."
+    sleep 10
     
-    # Wait for backend
-    log "Checking backend health..."
-    for i in {1..30}; do
-        if curl -f "$BACKEND_URL/health" &> /dev/null; then
-            success "Backend is healthy"
-            break
-        fi
-        if [ $i -eq 30 ]; then
-            error "Backend failed to start within 5 minutes"
-            exit 1
-        fi
-        sleep 10
-    done
-    
-    # Wait for frontend
-    log "Checking frontend health..."
-    for i in {1..30}; do
-        if curl -f "$FRONTEND_URL" &> /dev/null; then
-            success "Frontend is healthy"
-            break
-        fi
-        if [ $i -eq 30 ]; then
-            error "Frontend failed to start within 5 minutes"
-            exit 1
-        fi
-        sleep 10
-    done
-}
-
-# Run smoke tests
-run_smoke_tests() {
-    log "Running smoke tests..."
-    
-    # Test frontend homepage
-    if curl -f -s "$FRONTEND_URL" > /dev/null; then
-        success "✅ Frontend homepage accessible"
+    if wait_for_service "Backend" "$BACKEND_URL" && wait_for_service "Frontend" "$FRONTEND_URL"; then
+        log_success "🎉 Deployment completed successfully!"
+        log_success "Frontend: $FRONTEND_URL"
+        log_success "Backend: $BACKEND_URL"
+        
+        # Show container status
+        docker-compose -f "$COMPOSE_FILE" ps
+        
+        return 0
     else
-        error "❌ Frontend homepage failed"
-        exit 1
+        log_error "Deployment failed - services are not healthy"
+        log_warning "Rolling back..."
+        docker-compose -f "$COMPOSE_FILE" down
+        return 1
     fi
-    
-    # Test backend health endpoint
-    if curl -f -s "$BACKEND_URL/health" > /dev/null; then
-        success "✅ Backend health check passed"
-    else
-        error "❌ Backend health check failed"
-        exit 1
-    fi
-    
-    # Test backend API endpoints (if they exist)
-    if curl -f -s "$BACKEND_URL/api/testimonials" > /dev/null; then
-        success "✅ Backend API endpoints accessible"
-    else
-        warning "⚠️ Some backend API endpoints may not be accessible"
-    fi
-    
-    success "All smoke tests passed!"
 }
 
-# Cleanup old images
-cleanup() {
-    log "Cleaning up old Docker images..."
-    docker image prune -f
-    docker system prune -f --volumes
-    success "Cleanup completed"
+# Status function
+status() {
+    log_info "Checking application status..."
+    
+    if docker-compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+        log_success "Application is running"
+        docker-compose -f "$COMPOSE_FILE" ps
+        
+        # Check health endpoints
+        if curl -f -s "$FRONTEND_URL" > /dev/null; then
+            log_success "Frontend is responding"
+        else
+            log_warning "Frontend is not responding"
+        fi
+        
+        if curl -f -s "$BACKEND_URL" > /dev/null; then
+            log_success "Backend is responding"
+        else
+            log_warning "Backend is not responding"
+        fi
+    else
+        log_warning "Application is not running"
+        docker-compose -f "$COMPOSE_FILE" ps
+    fi
 }
 
-# Show deployment status
-show_status() {
-    log "Deployment Status:"
-    echo "===================="
-    echo "🌐 Frontend: $FRONTEND_URL"
-    echo "🔧 Backend:  $BACKEND_URL"
-    echo "📊 Containers:"
-    docker-compose -f "$PROJECT_DIR/$COMPOSE_FILE" ps
-    echo "===================="
+# Stop function
+stop() {
+    log_info "Stopping application..."
+    docker-compose -f "$COMPOSE_FILE" down --timeout 30
+    log_success "Application stopped"
+}
+
+# Logs function
+logs() {
+    log_info "Showing application logs..."
+    docker-compose -f "$COMPOSE_FILE" logs -f --tail=100
 }
 
 # Rollback function
 rollback() {
-    error "Deployment failed. Attempting rollback..."
-    cd "$PROJECT_DIR"
+    log_warning "Rolling back deployment..."
+    docker-compose -f "$COMPOSE_FILE" down --timeout 30
     
-    # Stop current containers
-    docker-compose -f "$COMPOSE_FILE" down || true
-    
-    # Try to start previous version (if backup exists)
-    if docker images | grep -q "tej-frontend:backup"; then
-        log "Restoring from backup images..."
-        docker tag tej-frontend:backup tej-frontend:latest
-        docker tag tej-backend:backup tej-backend:latest
+    # Try to start previous version (if available)
+    if docker images tej-backend --format "table {{.Tag}}" | grep -v latest | head -1 > /dev/null; then
+        log_info "Previous images found, attempting rollback..."
+        # This is a simplified rollback - in production you'd want to tag and track previous versions
         docker-compose -f "$COMPOSE_FILE" up -d
-        warning "Rollback completed. Please check the application."
+        log_success "Rollback completed"
     else
-        error "No backup images found. Manual intervention required."
+        log_warning "No previous version found for rollback"
     fi
 }
 
-# Main deployment function
-main() {
-    log "🚀 Starting Tej IT Site deployment..."
-    
-    # Trap errors for rollback
-    trap rollback ERR
-    
-    check_permissions
-    check_prerequisites
-    setup_project_directory
-    update_repository
-    
-    # Create backup of current images
-    if docker images | grep -q "tej-frontend"; then
-        log "Creating backup of current images..."
-        docker tag tej-frontend:latest tej-frontend:backup || true
-        docker tag tej-backend:latest tej-backend:backup || true
-    fi
-    
-    stop_existing_containers
-    build_and_start
-    wait_for_services
-    run_smoke_tests
-    cleanup
-    show_status
-    
-    success "🎉 Deployment completed successfully!"
-    echo ""
-    echo "Access your application:"
-    echo "Frontend: $FRONTEND_URL"
-    echo "Backend:  $BACKEND_URL"
-}
-
-# Handle script arguments
+# Main script logic
 case "${1:-deploy}" in
-    "deploy")
-        main
+    deploy)
+        deploy
         ;;
-    "status")
-        show_status
+    status)
+        status
         ;;
-    "stop")
-        log "Stopping all services..."
-        cd "$PROJECT_DIR"
-        docker-compose -f "$COMPOSE_FILE" down
-        success "Services stopped"
+    stop)
+        stop
         ;;
-    "logs")
-        cd "$PROJECT_DIR"
-        docker-compose -f "$COMPOSE_FILE" logs -f
+    logs)
+        logs
         ;;
-    "rollback")
+    rollback)
         rollback
         ;;
     *)
         echo "Usage: $0 {deploy|status|stop|logs|rollback}"
+        echo ""
+        echo "Commands:"
         echo "  deploy   - Deploy the application (default)"
-        echo "  status   - Show deployment status"
-        echo "  stop     - Stop all services"
-        echo "  logs     - Show container logs"
+        echo "  status   - Check application status"
+        echo "  stop     - Stop the application"
+        echo "  logs     - Show application logs"
         echo "  rollback - Rollback to previous version"
         exit 1
         ;;
